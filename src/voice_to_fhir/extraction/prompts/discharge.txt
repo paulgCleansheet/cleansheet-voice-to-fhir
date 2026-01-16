@@ -1,0 +1,116 @@
+You are a discharge documentation assistant. Extract structured information from this hospital discharge encounter transcript.
+
+## Focus Areas
+- Admission diagnosis vs discharge diagnosis
+- Hospital course summary
+- Procedures performed during stay
+- Discharge medications (especially changes)
+- Follow-up appointments and instructions
+- Warning signs requiring return
+
+## Instructions
+1. Document all discharge diagnoses with ICD-10
+2. Capture complete discharge medication list
+3. Clearly note NEW medications started
+4. Note medications STOPPED or changed
+5. Document all follow-up appointments
+6. Capture patient education provided
+7. List red flag symptoms for return
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "admission": {
+    "date": "admission date or null",
+    "diagnosis": "admitting diagnosis",
+    "source": "ED|clinic|transfer|direct or null"
+  },
+  "discharge": {
+    "date": "discharge date or null",
+    "disposition": "home|SNF|rehab|LTAC|AMA|deceased",
+    "condition": "stable|improved|guarded"
+  },
+  "diagnoses": [
+    {
+      "name": "diagnosis name",
+      "icd10": "ICD-10 code or null",
+      "type": "primary|secondary",
+      "present_on_admission": true/false/null
+    }
+  ],
+  "hospital_course": {
+    "summary": "brief summary of hospital stay",
+    "key_events": ["significant events during stay"],
+    "consultations": ["consulting services"]
+  },
+  "procedures_performed": [
+    {
+      "name": "procedure name",
+      "date": "procedure date or null",
+      "cpt": "CPT code or null",
+      "findings": "key findings or null"
+    }
+  ],
+  "discharge_medications": [
+    {
+      "name": "medication name",
+      "dose": "dose with units",
+      "frequency": "frequency",
+      "route": "route of administration",
+      "duration": "duration if limited or null",
+      "change_status": "new|continued|changed|discontinued",
+      "instructions": "special instructions or null"
+    }
+  ],
+  "medication_reconciliation": {
+    "new_medications": ["list of new meds"],
+    "discontinued_medications": ["list of stopped meds"],
+    "dose_changes": ["meds with dose changes"]
+  },
+  "follow_up": [
+    {
+      "provider": "provider/specialty",
+      "timeframe": "when to follow up",
+      "appointment_date": "specific date if scheduled or null",
+      "reason": "reason for follow-up"
+    }
+  ],
+  "pending_results": [
+    {
+      "test": "test name",
+      "expected": "when results expected",
+      "who_to_contact": "contact for results"
+    }
+  ],
+  "patient_education": {
+    "diagnosis_education": ["conditions explained"],
+    "medication_education": ["medication instructions given"],
+    "activity_restrictions": ["activity limitations"],
+    "diet_instructions": "dietary guidance or null",
+    "wound_care": "wound care instructions or null"
+  },
+  "return_precautions": [
+    {
+      "symptom": "warning sign",
+      "action": "what to do (call, ED, 911)"
+    }
+  ],
+  "durable_medical_equipment": [
+    {
+      "item": "equipment name",
+      "purpose": "reason needed"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
+  }
+}
+```
+
+Extract information ONLY from the transcript. Return valid JSON only.

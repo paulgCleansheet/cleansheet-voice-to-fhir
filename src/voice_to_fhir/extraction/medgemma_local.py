@@ -124,6 +124,29 @@ Return JSON with: patient, chief_complaint, conditions, observations, allergies,
 TRANSCRIPT:
 """
 
+    def available_workflows(self) -> list[str]:
+        """List available workflow types."""
+        from voice_to_fhir.extraction.prompts import AVAILABLE_WORKFLOWS
+        return AVAILABLE_WORKFLOWS.copy()
+
+    def health_check(self) -> bool:
+        """Check if the model is loadable."""
+        try:
+            model_path = Path(self.config.model_path)
+            return model_path.exists()
+        except Exception:
+            return False
+
+    def _build_prompt(self, transcript: str, workflow: str) -> str:
+        """Build the full prompt for extraction."""
+        prompt_template = self._load_prompt(workflow)
+
+        # Use {transcript} placeholder if present, otherwise append
+        if "{transcript}" in prompt_template:
+            return prompt_template.replace("{transcript}", transcript)
+        else:
+            return f"{prompt_template}\n{transcript}\n\nJSON:"
+
     def extract(self, transcript: str, workflow: str = "general") -> ClinicalEntities:
         """Extract structured clinical entities from transcript."""
         import torch
@@ -131,8 +154,7 @@ TRANSCRIPT:
         self._ensure_initialized()
 
         # Build prompt
-        prompt_template = self._load_prompt(workflow)
-        full_prompt = f"{prompt_template}\n{transcript}\n\nJSON:"
+        full_prompt = self._build_prompt(transcript, workflow)
 
         # Tokenize
         inputs = self._tokenizer(

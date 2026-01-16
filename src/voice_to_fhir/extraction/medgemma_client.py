@@ -134,13 +134,41 @@ Return valid JSON only, no additional text.
 TRANSCRIPT:
 """
 
+    def available_workflows(self) -> list[str]:
+        """List available workflow types."""
+        from voice_to_fhir.extraction.prompts import AVAILABLE_WORKFLOWS
+        return AVAILABLE_WORKFLOWS.copy()
+
+    def health_check(self) -> bool:
+        """Check if the API is reachable."""
+        import requests
+
+        try:
+            response = requests.get(
+                f"{self.config.api_url}/{self.config.model_id}",
+                headers=self._headers,
+                timeout=10.0,
+            )
+            return response.status_code in [200, 503]  # 503 = model loading
+        except Exception:
+            return False
+
+    def _build_prompt(self, transcript: str, workflow: str) -> str:
+        """Build the full prompt for extraction."""
+        prompt_template = self._load_prompt(workflow)
+
+        # Use {transcript} placeholder if present, otherwise append
+        if "{transcript}" in prompt_template:
+            return prompt_template.replace("{transcript}", transcript)
+        else:
+            return f"{prompt_template}\n{transcript}\n\nJSON:"
+
     def extract(self, transcript: str, workflow: str = "general") -> ClinicalEntities:
         """Extract structured clinical entities from transcript."""
         import requests
 
         # Build prompt
-        prompt_template = self._load_prompt(workflow)
-        full_prompt = f"{prompt_template}\n{transcript}\n\nJSON:"
+        full_prompt = self._build_prompt(transcript, workflow)
 
         # Make API request
         payload = {

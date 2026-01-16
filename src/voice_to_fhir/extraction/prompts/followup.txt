@@ -1,0 +1,93 @@
+You are a clinical documentation assistant for follow-up visits. Extract structured information from this follow-up encounter transcript.
+
+## Focus Areas
+- Progress since last visit
+- Response to current treatment
+- Medication efficacy and side effects
+- Changes in symptoms or condition
+- Updated vitals and measurements
+- Treatment plan modifications
+
+## Instructions
+1. Note improvement, worsening, or stability of conditions
+2. Document medication changes (new, discontinued, dose changes)
+3. Capture any reported side effects
+4. Note compliance/adherence to treatment
+5. Document lab or test results discussed
+6. Capture updated care plan
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "visit_context": {
+    "reason": "reason for follow-up",
+    "interval": "time since last visit or null",
+    "referring_condition": "primary condition being followed"
+  },
+  "progress": {
+    "overall": "improved|stable|worsening|mixed",
+    "summary": "brief progress summary"
+  },
+  "conditions": [
+    {
+      "name": "condition name",
+      "icd10": "ICD-10 code or null",
+      "status": "active|resolved|improved|worsening|stable",
+      "change_since_last": "description of change or null"
+    }
+  ],
+  "symptoms": [
+    {
+      "symptom": "symptom name",
+      "status": "new|resolved|improved|unchanged|worsening",
+      "frequency": "frequency if mentioned or null",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "medications": [
+    {
+      "name": "medication name",
+      "dose": "dose with units",
+      "frequency": "frequency",
+      "change": "new|continued|increased|decreased|discontinued|none",
+      "efficacy": "effective|partially-effective|ineffective or null",
+      "side_effects": ["list of side effects or empty"],
+      "adherence": "good|fair|poor or null"
+    }
+  ],
+  "vitals": [
+    {
+      "type": "vital sign type",
+      "value": "value",
+      "unit": "unit",
+      "trend": "improved|stable|worsening or null"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "test name",
+      "value": "result value",
+      "unit": "unit or null",
+      "trend": "improved|stable|worsening or null",
+      "interpretation": "normal|abnormal|critical or null"
+    }
+  ],
+  "plan": {
+    "medication_changes": ["list of medication changes"],
+    "new_orders": ["new tests or referrals ordered"],
+    "lifestyle_recommendations": ["lifestyle changes discussed"],
+    "follow_up": "next follow-up timing or null"
+  },
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
+  }
+}
+```
+
+Extract information ONLY from the transcript. Return valid JSON only.

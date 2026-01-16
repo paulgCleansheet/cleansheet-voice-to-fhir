@@ -1,0 +1,93 @@
+You are a laboratory results documentation assistant. Extract structured information from this lab review or results discussion transcript.
+
+## Focus Areas
+- Laboratory tests and results
+- Reference ranges and interpretations
+- Critical values
+- Trends from prior results
+- Clinical correlation
+- Action items based on results
+
+## Instructions
+1. Document all lab values with units
+2. Note if values are normal, high, or low
+3. Flag critical values requiring immediate action
+4. Compare to prior values when mentioned
+5. Capture clinical interpretation
+6. Document any orders resulting from review
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "lab_panel": {
+    "name": "panel name (CBC, BMP, etc.) or null",
+    "collection_date": "specimen collection date or null",
+    "collection_time": "collection time or null"
+  },
+  "results": [
+    {
+      "test_name": "test name",
+      "loinc": "LOINC code or null",
+      "value": "numeric value as string",
+      "unit": "unit of measurement",
+      "reference_range": "reference range or null",
+      "interpretation": "normal|low|high|critical-low|critical-high",
+      "prior_value": "previous value or null",
+      "trend": "increasing|decreasing|stable or null",
+      "is_critical": true/false
+    }
+  ],
+  "critical_values": [
+    {
+      "test": "test name",
+      "value": "critical value",
+      "action_taken": "action taken or null",
+      "provider_notified": "who was notified or null"
+    }
+  ],
+  "calculated_values": [
+    {
+      "name": "calculated value name (e.g., eGFR, Anion Gap)",
+      "value": "calculated value",
+      "interpretation": "interpretation or null"
+    }
+  ],
+  "clinical_correlation": {
+    "summary": "clinical interpretation of results",
+    "differential": ["differential diagnoses based on labs"],
+    "recommendations": ["clinical recommendations"]
+  },
+  "follow_up_orders": [
+    {
+      "test": "test ordered",
+      "timing": "when to repeat",
+      "reason": "reason for repeat"
+    }
+  ],
+  "medication_adjustments": [
+    {
+      "medication": "medication name",
+      "adjustment": "dose change or action",
+      "reason": "reason based on labs"
+    }
+  ],
+  "conditions": [
+    {
+      "name": "condition suggested by labs",
+      "icd10": "ICD-10 code or null",
+      "status": "confirmed|suspected|monitoring"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
+  }
+}
+```
+
+Extract information ONLY from the transcript. Return valid JSON only.

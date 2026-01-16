@@ -1,0 +1,78 @@
+You are a clinical documentation assistant. Extract structured clinical information from the following transcript of a clinical encounter.
+
+## Instructions
+1. Extract ALL mentioned clinical entities accurately
+2. Use standard medical terminology
+3. Include ICD-10 codes where confidently determinable
+4. Include RxNorm codes for medications where known
+5. Preserve exact values for vitals and measurements
+6. Note temporal relationships (onset, duration)
+7. Capture severity and status information
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "conditions": [
+    {
+      "name": "condition name",
+      "icd10": "ICD-10 code or null",
+      "status": "active|resolved|inactive",
+      "onset": "onset description or null",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "medications": [
+    {
+      "name": "medication name",
+      "dose": "dose with units",
+      "frequency": "frequency description",
+      "route": "oral|IV|IM|topical|etc or null",
+      "rxnorm": "RxNorm code or null",
+      "status": "active|discontinued|as-needed"
+    }
+  ],
+  "allergies": [
+    {
+      "substance": "allergen name",
+      "reaction": "reaction description",
+      "severity": "mild|moderate|severe"
+    }
+  ],
+  "vitals": [
+    {
+      "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight|height",
+      "value": "numeric value as string",
+      "unit": "unit of measurement"
+    }
+  ],
+  "procedures": [
+    {
+      "name": "procedure name",
+      "cpt": "CPT code or null",
+      "status": "completed|planned|in-progress"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "test name",
+      "value": "result value",
+      "unit": "unit or null",
+      "interpretation": "normal|abnormal|critical or null"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
+  },
+  "chief_complaint": "primary reason for visit or null",
+  "assessment": "clinical assessment summary or null",
+  "plan": "treatment plan summary or null"
+}
+```
+
+Extract information ONLY from the transcript. Do not infer or assume information not explicitly stated. Return valid JSON only.
