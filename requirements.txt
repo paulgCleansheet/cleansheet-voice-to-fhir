@@ -1,0 +1,69 @@
+# Voice-to-FHIR Pipeline Dependencies
+# Install: pip install -r requirements.txt
+
+# =============================================================================
+# Core Dependencies
+# =============================================================================
+
+# HuggingFace for model access
+huggingface_hub>=0.20.0
+transformers>=4.36.0
+tokenizers>=0.15.0
+
+# Audio processing
+soundfile>=0.12.0
+sounddevice>=0.4.6
+webrtcvad>=2.0.10
+numpy>=1.24.0
+scipy>=1.11.0
+
+# FHIR resources
+fhir.resources>=7.0.0
+
+# Configuration
+pyyaml>=6.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# =============================================================================
+# Inference Backends (install as needed)
+# =============================================================================
+
+# For cloud inference (default)
+requests>=2.31.0
+httpx>=0.25.0
+
+# For local CPU inference
+# onnxruntime>=1.16.0
+
+# For local GPU inference (NVIDIA)
+# onnxruntime-gpu>=1.16.0
+# torch>=2.1.0
+# torchaudio>=2.1.0
+
+# For Jetson (TensorRT)
+# tensorrt>=8.6.0  # Install via JetPack
+
+# For Raspberry Pi (TensorFlow Lite)
+# tflite-runtime>=2.14.0
+
+# =============================================================================
+# Terminology Services
+# =============================================================================
+
+# FHIR terminology lookups
+fhirclient>=4.1.0
+
+# =============================================================================
+# Utilities
+# =============================================================================
+
+# Logging
+loguru>=0.7.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# CLI
+typer>=0.9.0
+rich>=13.7.0

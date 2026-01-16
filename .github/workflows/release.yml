@@ -1,0 +1,139 @@
+# Release Workflow
+# Triggered on version tags (v*.*.*)
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  # ==========================================================================
+  # Validate Release
+  # ==========================================================================
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: IP Boundary Check (strict)
+        run: python scripts/boundary_check.py --warnings-as-errors
+
+      - name: Verify version tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Releasing version: $VERSION"
+          # Could verify version matches pyproject.toml here
+
+  # ==========================================================================
+  # Build Package
+  # ==========================================================================
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Check package
+        run: twine check dist/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # ==========================================================================
+  # Create GitHub Release
+  # ==========================================================================
+  release:
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          generate_release_notes: true
+          body: |
+            ## Voice-to-FHIR Pipeline Release
+
+            This release includes the complete voice-to-FHIR transformation pipeline
+            using MedASR and MedGemma from Google's HAI-DEF.
+
+            ### Installation
+
+            ```bash
+            pip install cleansheet-voice-to-fhir
+            ```
+
+            Or download the wheel/tarball from the assets below.
+
+            ### Requirements
+
+            - Python 3.10+
+            - HuggingFace account with HAI-DEF access
+
+            See [README](https://github.com/CleansheetLLC/cleansheet-voice-to-fhir)
+            for full documentation.
+
+            ---
+
+            Licensed under CC BY 4.0
+
+  # ==========================================================================
+  # Publish to PyPI (optional - uncomment when ready)
+  # ==========================================================================
+  # publish:
+  #   name: Publish to PyPI
+  #   runs-on: ubuntu-latest
+  #   needs: [release]
+  #   environment: pypi
+  #
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: dist
+  #         path: dist/
+  #
+  #     - name: Publish to PyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         password: ${{ secrets.PYPI_API_TOKEN }}
