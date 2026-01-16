@@ -139,13 +139,15 @@ ALLOWLIST: dict[str, list[str]] = {
     # Source files (copyright headers)
     "*.py": ["cleansheet"],
     # This script and boundary check workflow (meta: they document the patterns)
+    # Note: Pattern bases are extracted by splitting on [ and \, so "trade\s*secret"
+    # becomes "trade". We must allow the base pattern, not the full regex.
     "boundary_check.py": [
-        "cleansheet", "proprietary", "patent", "trade secret",
+        "cleansheet", "proprietary", "patent", "trade", "secret", "confidential",
         "progressive", "disclosure", "alert", "bubbl", "nfc", "proximity",
         "clinical", "priority", "algorithm",
     ],
     "boundary-check.yml": [
-        "cleansheet", "proprietary", "patent", "trade secret",
+        "cleansheet", "proprietary", "patent", "trade", "secret", "confidential",
         "progressive", "disclosure", "alert", "bubbl", "nfc", "proximity",
         "clinical", "priority", "algorithm",
     ],
