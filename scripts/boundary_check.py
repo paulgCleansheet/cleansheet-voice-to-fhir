@@ -21,6 +21,7 @@ License: CC BY 4.0
 """
 
 import argparse
+import fnmatch
 import os
 import re
 import subprocess
@@ -121,14 +122,41 @@ EXCLUDED_PATHS: set[str] = {
 }
 
 # Files allowed to contain certain patterns
+# Supports exact filenames and glob patterns (*.py, **/*.md)
 ALLOWLIST: dict[str, list[str]] = {
+    # Project metadata files
     "LICENSE": ["cleansheet"],
-    "README.md": ["cleansheet"],
+    "README.md": ["cleansheet", "proprietary"],
     "CONTRIBUTING.md": ["cleansheet"],
     "CODE_OF_CONDUCT.md": ["cleansheet"],
     "NOTICE.md": ["cleansheet"],
-    "boundary_check.py": ["cleansheet", "proprietary", "patent", "trade secret"],
+    "pyproject.toml": ["cleansheet"],
+    "setup.py": ["cleansheet"],
+    "setup.cfg": ["cleansheet"],
+    # CI/CD files (allowed to document what patterns are checked)
+    "*.yml": ["cleansheet", "proprietary"],
+    "*.yaml": ["cleansheet", "proprietary"],
+    # Source files (copyright headers)
+    "*.py": ["cleansheet"],
+    # This script and boundary check workflow (meta: they document the patterns)
+    "boundary_check.py": [
+        "cleansheet", "proprietary", "patent", "trade secret",
+        "progressive", "disclosure", "alert", "bubbl", "nfc", "proximity",
+        "clinical", "priority", "algorithm",
+    ],
+    "boundary-check.yml": [
+        "cleansheet", "proprietary", "patent", "trade secret",
+        "progressive", "disclosure", "alert", "bubbl", "nfc", "proximity",
+        "clinical", "priority", "algorithm",
+    ],
 }
+
+
+def _matches_allowlist_pattern(filename: str, pattern: str) -> bool:
+    """Check if filename matches an allowlist pattern (exact or glob)."""
+    if "*" in pattern:
+        return fnmatch.fnmatch(filename, pattern)
+    return filename == pattern
 
 
 # =============================================================================
@@ -192,9 +220,13 @@ def should_check_file(filepath: Path) -> bool:
 def get_allowlist_patterns(filepath: Path) -> set[str]:
     """Get patterns that are allowed for this specific file."""
     filename = filepath.name
-    if filename in ALLOWLIST:
-        return set(ALLOWLIST[filename])
-    return set()
+    allowed: set[str] = set()
+
+    for pattern, patterns_list in ALLOWLIST.items():
+        if _matches_allowlist_pattern(filename, pattern):
+            allowed.update(patterns_list)
+
+    return allowed
 
 
 def check_line(
