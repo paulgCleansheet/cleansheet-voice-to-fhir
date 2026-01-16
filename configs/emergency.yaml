@@ -1,0 +1,35 @@
+# Emergency Department Configuration
+# Optimized for ED workflow with critical finding prioritization
+# Best for: Emergency departments, urgent care, trauma centers
+#
+# Features:
+#   - Emergency-specific extraction prompts
+#   - Triage and acuity scoring
+#   - Critical finding flagging
+
+name: voice-to-fhir-emergency
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 2  # Less aggressive - don't miss critical info
+
+transcription:
+  backend: cloud
+  model_id: google/medasr
+
+extraction:
+  backend: cloud
+  model_id: google/medgemma-4b
+  max_tokens: 2048
+  temperature: 0.05  # Lower temp for more deterministic output
+  workflow: emergency  # Uses emergency.txt prompt
+
+fhir:
+  version: R4
+  base_url: http://ed-fhir.hospital.local/fhir
+  validate: true
+  output_format: json

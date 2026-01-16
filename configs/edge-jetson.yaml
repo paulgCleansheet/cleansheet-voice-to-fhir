@@ -1,0 +1,40 @@
+# Edge Configuration - NVIDIA Jetson
+# Optimized for Jetson Nano/Xavier NX/Orin
+# Best for: Mobile medical carts, ambulances, remote clinics
+#
+# Requirements:
+#   - NVIDIA Jetson device with JetPack 5.0+
+#   - Models downloaded and optimized for Jetson
+#   - Run: python scripts/download_models.py --edge
+
+name: voice-to-fhir-edge-jetson
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 3
+
+transcription:
+  backend: local
+  model_path: models/medasr-jetson
+  device: cuda
+  precision: fp16
+  use_tensorrt: true  # TensorRT acceleration for Jetson
+
+extraction:
+  backend: local
+  model_path: models/medgemma-4b-jetson
+  device: cuda
+  precision: int8
+  max_tokens: 1024  # Reduced for edge memory constraints
+  temperature: 0.1
+  workflow: general
+
+fhir:
+  version: R4
+  base_url: http://localhost:8080/fhir
+  validate: false  # Disable for performance on edge
+  output_format: json

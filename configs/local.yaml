@@ -1,0 +1,40 @@
+# Local Configuration
+# Runs all models locally on GPU
+# Best for: Privacy-sensitive deployments, offline operation, high-volume
+#
+# Requirements:
+#   - NVIDIA GPU with 8GB+ VRAM
+#   - Models downloaded to models/ directory
+#   - Run: python scripts/download_models.py
+
+name: voice-to-fhir-local
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 3
+
+transcription:
+  backend: local
+  model_path: models/medasr
+  device: cuda
+  precision: fp16
+  use_tensorrt: false
+
+extraction:
+  backend: local
+  model_path: models/medgemma-4b
+  device: cuda
+  precision: int8  # Quantized for edge deployment
+  max_tokens: 2048
+  temperature: 0.1
+  workflow: general
+
+fhir:
+  version: R4
+  base_url: http://localhost:8080/fhir
+  validate: true
+  output_format: json

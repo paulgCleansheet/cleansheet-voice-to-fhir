@@ -1,0 +1,35 @@
+# Radiology Configuration
+# Optimized for radiology report dictation
+# Best for: Radiologists dictating imaging interpretations
+#
+# Features:
+#   - Radiology-specific extraction prompts
+#   - Findings, impressions, and recommendations
+#   - Critical result flagging
+
+name: voice-to-fhir-radiology
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 3
+
+transcription:
+  backend: cloud
+  model_id: google/medasr
+
+extraction:
+  backend: cloud
+  model_id: google/medgemma-4b
+  max_tokens: 3072  # Longer for detailed imaging reports
+  temperature: 0.1
+  workflow: radiology  # Uses radiology.txt prompt
+
+fhir:
+  version: R4
+  base_url: http://pacs-fhir.hospital.local/fhir
+  validate: true
+  output_format: json

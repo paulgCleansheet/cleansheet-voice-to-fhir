@@ -1,0 +1,35 @@
+# Cloud Configuration
+# Uses HuggingFace Inference API for both transcription and extraction
+# Best for: Development, testing, low-volume production
+#
+# Requirements:
+#   - HF_TOKEN environment variable set
+#   - Internet connection
+
+name: voice-to-fhir-cloud
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 3  # 0-3, higher = more aggressive filtering
+
+transcription:
+  backend: cloud
+  model_id: google/medasr
+  # API settings inherited from HF_TOKEN env var
+
+extraction:
+  backend: cloud
+  model_id: google/medgemma-4b
+  max_tokens: 2048
+  temperature: 0.1
+  workflow: general  # Default workflow, can override per-call
+
+fhir:
+  version: R4
+  base_url: http://example.org/fhir
+  validate: true
+  output_format: json

@@ -1,0 +1,40 @@
+# Edge Configuration - CPU Only
+# For deployment on devices without GPU (Intel NUC, Raspberry Pi 5)
+# Best for: Low-cost deployments, non-GPU hardware
+#
+# Requirements:
+#   - 8GB+ RAM recommended
+#   - Models downloaded with CPU optimization
+#   - Note: Significantly slower than GPU inference
+
+name: voice-to-fhir-edge-cpu
+version: "1.0.0"
+
+capture:
+  sample_rate: 16000
+  channels: 1
+  chunk_duration_ms: 100
+  vad_enabled: true
+  vad_mode: 2  # Less aggressive to reduce CPU load
+
+transcription:
+  backend: local
+  model_path: models/medasr-cpu
+  device: cpu
+  precision: fp32
+  use_tensorrt: false
+
+extraction:
+  backend: local
+  model_path: models/medgemma-4b-cpu
+  device: cpu
+  precision: fp32  # No quantization benefit on CPU
+  max_tokens: 1024
+  temperature: 0.1
+  workflow: general
+
+fhir:
+  version: R4
+  base_url: http://localhost:8080/fhir
+  validate: false
+  output_format: json
