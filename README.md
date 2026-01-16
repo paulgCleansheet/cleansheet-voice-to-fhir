@@ -61,27 +61,49 @@ python scripts/download_models.py
 ```python
 from voice_to_fhir import Pipeline
 
-# Initialize pipeline
-pipeline = Pipeline.from_config("configs/cloud.yaml")
+# Initialize with cloud backend (simplest)
+pipeline = Pipeline.cloud()
 
-# Process audio file
-bundle = pipeline.process_file("recording.wav")
+# Process a transcript directly
+transcript = """
+Patient is a 45-year-old male with chest pain for 2 hours.
+Blood pressure 150/90, heart rate 88. Taking lisinopril 10mg daily.
+Allergic to penicillin.
+"""
+bundle = pipeline.process_transcript(transcript)
+print(pipeline.to_json(bundle, indent=2))
 
-# Output FHIR JSON
-print(bundle.to_json())
+# Or process an audio file
+bundle = pipeline.process_file("recording.wav", workflow="general")
+pipeline.save(bundle, "output.json")
 ```
 
 ### Command Line
 
 ```bash
 # Process single file
-python -m voice_to_fhir process recording.wav --output result.json
+voice-to-fhir process recording.wav --output result.json
 
-# Real-time capture
-python -m voice_to_fhir capture --workflow intake --output encounter.json
+# Process with specific workflow
+voice-to-fhir process recording.wav --workflow emergency --output ed_note.json
+
+# Real-time capture from microphone
+voice-to-fhir capture --duration 30 --workflow intake
 
 # Batch processing
-python -m voice_to_fhir batch ./recordings/ --output ./fhir_output/
+voice-to-fhir batch ./recordings/ ./fhir_output/ --pattern "*.wav"
+
+# List audio devices
+voice-to-fhir devices
+```
+
+### Run Examples
+
+```bash
+# See examples/ directory for more detailed usage
+python examples/basic_usage.py
+python examples/workflow_comparison.py
+python examples/batch_processing.py input/ output/ --parallel 4
 ```
 
 ## Reference Architectures
@@ -97,27 +119,37 @@ Deployment guides for different hardware platforms:
 
 ## Clinical Workflows
 
-Pre-configured prompts and FHIR mappings for common documentation scenarios:
+Pre-configured extraction prompts optimized for different clinical contexts. Each workflow emphasizes relevant clinical data and uses appropriate output schemas.
 
-### Ambulatory
-- [Patient Intake](clinical-workflows/ambulatory/intake.md)
-- [Provider Examination](clinical-workflows/ambulatory/provider-exam.md)
-- [Visit Checkout](clinical-workflows/ambulatory/checkout.md)
+| Workflow | Use Case | Key Extractions |
+|----------|----------|-----------------|
+| `general` | Standard clinical encounters | Conditions, medications, allergies, vitals |
+| `emergency` | ED visits, urgent care | Triage, acuity, critical findings, trauma |
+| `intake` | Patient registration | Full history (medical, surgical, family, social) |
+| `followup` | Return visits | Progress, medication efficacy, trends |
+| `procedure` | Surgical documentation | Technique, specimens, complications |
+| `discharge` | Hospital discharge | Medication reconciliation, follow-up |
+| `radiology` | Imaging dictation | Modality, findings, impressions |
+| `lab_review` | Lab results | Values, interpretations, critical flags |
 
-### Inpatient
-- [Hospital Admission](clinical-workflows/inpatient/admission.md)
-- [Daily Rounds](clinical-workflows/inpatient/rounding.md)
-- [Nursing Handoff](clinical-workflows/inpatient/nursing-handoff.md)
-- [Discharge Summary](clinical-workflows/inpatient/discharge.md)
+### Usage
 
-### Emergency / Critical Care
-- [ED Triage](clinical-workflows/emergency/triage.md)
-- [Trauma Documentation](clinical-workflows/emergency/trauma.md)
-- [ICU Procedures](clinical-workflows/icu/procedures.md)
+```bash
+# Specify workflow via CLI
+voice-to-fhir process recording.wav --workflow emergency
 
-### Pre-Hospital
-- [Ambulance On-Scene](clinical-workflows/ambulance/on-scene.md)
-- [Transport Documentation](clinical-workflows/ambulance/transport.md)
+# Or via Python
+bundle = pipeline.process_transcript(transcript, workflow="emergency")
+```
+
+### Workflow Comparison
+
+Different workflows extract different information from the same input:
+
+```bash
+# See how workflows differ
+python examples/workflow_comparison.py
+```
 
 ## FHIR Output
 
@@ -163,47 +195,107 @@ Example output:
 
 ```
 cleansheet-voice-to-fhir/
-├── src/
-│   └── voice_to_fhir/
-│       ├── capture/          # Audio capture and VAD
-│       ├── transcription/    # MedASR integration
-│       ├── extraction/       # MedGemma structured extraction
-│       ├── fhir/             # FHIR R4 transformation
-│       └── pipeline/         # End-to-end orchestration
-├── reference-architectures/  # Hardware deployment guides
-├── clinical-workflows/       # Use case documentation
+├── src/voice_to_fhir/
+│   ├── capture/              # Audio capture and VAD
+│   ├── transcription/        # MedASR integration
+│   ├── extraction/           # MedGemma structured extraction
+│   │   └── prompts/          # Workflow-specific prompts
+│   ├── fhir/                 # FHIR R4 transformation
+│   ├── pipeline/             # End-to-end orchestration
+│   └── cli.py                # Command-line interface
 ├── configs/                  # Configuration templates
+│   ├── cloud.yaml            # HuggingFace API backend
+│   ├── local.yaml            # Local GPU inference
+│   ├── edge-jetson.yaml      # NVIDIA Jetson deployment
+│   └── emergency.yaml        # ED-optimized settings
 ├── examples/                 # Usage examples
+│   ├── basic_usage.py        # Simplest example
+│   ├── live_capture.py       # Microphone capture
+│   ├── batch_processing.py   # Multi-file processing
+│   └── ...                   # More examples
 ├── tests/                    # Test suite
 └── scripts/                  # Utility scripts
+    ├── download_models.py    # Model downloader
+    └── boundary_check.py     # IP protection scanner
 ```
 
 ## Configuration
 
-Configuration is managed via YAML files:
+Pre-built configurations for different deployment scenarios:
+
+| Config | Backend | Use Case |
+|--------|---------|----------|
+| `configs/cloud.yaml` | HuggingFace API | Development, testing |
+| `configs/local.yaml` | Local GPU | Privacy-sensitive, offline |
+| `configs/edge-jetson.yaml` | Jetson + TensorRT | Mobile carts, ambulances |
+| `configs/edge-cpu.yaml` | CPU only | Low-cost hardware |
+| `configs/emergency.yaml` | Cloud | ED workflow optimized |
+| `configs/radiology.yaml` | Cloud | Radiology dictation |
+
+### Usage
+
+```bash
+# Use predefined config
+voice-to-fhir process recording.wav --config configs/local.yaml
+
+# Or in Python
+pipeline = Pipeline.from_config("configs/emergency.yaml")
+```
+
+### Configuration Structure
 
 ```yaml
-# configs/example.yaml
-pipeline:
-  name: "voice-to-fhir"
+name: voice-to-fhir
+version: "1.0.0"
 
 capture:
-  sample_rate: 16000
-  vad_enabled: true
+  sample_rate: 16000        # Audio sample rate (Hz)
+  channels: 1               # Mono audio
+  vad_enabled: true         # Voice activity detection
+  vad_mode: 3               # 0-3, higher = more aggressive
 
 transcription:
-  backend: "cloud"  # or "local"
-  model: "google/medasr"
+  backend: cloud            # cloud or local
+  model_id: google/medasr   # HuggingFace model ID
 
 extraction:
-  backend: "cloud"
-  model: "google/medgemma-4b"
-  workflow: "general"
+  backend: cloud            # cloud or local
+  model_id: google/medgemma-4b
+  max_tokens: 2048
+  temperature: 0.1
+  workflow: general         # Default workflow
 
 fhir:
-  version: "R4"
+  version: R4
   validate: true
+  output_format: json
 ```
+
+See [configs/README.md](configs/README.md) for full configuration reference.
+
+## Examples
+
+The `examples/` directory contains scripts demonstrating various use cases:
+
+| Example | Description |
+|---------|-------------|
+| `basic_usage.py` | Simplest transcript-to-FHIR |
+| `process_audio_file.py` | Process audio with CLI options |
+| `live_capture.py` | Real-time microphone capture |
+| `batch_processing.py` | Parallel multi-file processing |
+| `workflow_comparison.py` | Compare workflow outputs |
+| `custom_config.py` | Programmatic configuration |
+| `fhir_server_integration.py` | Post bundles to FHIR server |
+| `extract_entities_only.py` | Extraction without FHIR transform |
+
+```bash
+# Run any example
+python examples/basic_usage.py
+python examples/live_capture.py --duration 30
+python examples/batch_processing.py input/ output/ --parallel 4
+```
+
+See [examples/README.md](examples/README.md) for detailed documentation.
 
 ## Development
 
