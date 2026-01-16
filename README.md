@@ -119,7 +119,9 @@ Deployment guides for different hardware platforms:
 
 ## Clinical Workflows
 
-Pre-configured extraction prompts optimized for different clinical contexts. Each workflow emphasizes relevant clinical data and uses appropriate output schemas.
+Pre-configured extraction prompt templates optimized for different clinical documentation contexts. Each workflow emphasizes relevant clinical data and uses appropriate output schemas.
+
+### General Workflows
 
 | Workflow | Use Case | Key Extractions |
 |----------|----------|-----------------|
@@ -131,6 +133,16 @@ Pre-configured extraction prompts optimized for different clinical contexts. Eac
 | `discharge` | Hospital discharge | Medication reconciliation, follow-up |
 | `radiology` | Imaging dictation | Modality, findings, impressions |
 | `lab_review` | Lab results | Values, interpretations, critical flags |
+
+### Specialist Workflows
+
+| Workflow | Use Case | Key Extractions |
+|----------|----------|-----------------|
+| `respiratory` | RT assessments, ventilator management | Vent settings, ABGs, lung sounds, weaning parameters, O2 therapy |
+| `icu` | Critical care documentation | Vasopressors, sedation (RASS), lines/drains, organ function, fluid balance |
+| `cardiology` | Cardiac encounters | ECG findings, echo results, troponin, cath findings, risk stratification |
+| `pediatrics` | Pediatric encounters | Growth percentiles, developmental milestones, immunizations, weight-based dosing |
+| `neurology` | Neurological encounters | Mental status, cranial nerves, motor/sensory exam, NIHSS, seizure documentation |
 
 ### Usage
 

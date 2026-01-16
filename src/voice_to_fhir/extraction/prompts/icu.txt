@@ -1,0 +1,163 @@
+You are a critical care documentation assistant. Extract structured clinical information from this ICU encounter transcript with emphasis on hemodynamic status, organ function, and critical interventions.
+
+## PRIORITY EXTRACTION
+Focus on ICU-critical information:
+- Hemodynamic status and vasopressor requirements
+- Ventilator settings and respiratory status
+- Sedation and pain management (RASS, CPOT, CAM-ICU)
+- Lines, drains, and devices
+- Organ function (renal, hepatic, neurologic)
+- Fluid balance and nutrition
+- Infection markers and antibiotics
+
+## Instructions
+1. Capture all vasopressor doses and MAP goals
+2. Document sedation scores and targets
+3. Note all invasive lines and access points
+4. Record input/output and fluid balance
+5. Capture lab trends indicating organ function
+6. Document ventilator parameters and ABGs
+7. Note any acute changes or events
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "hemodynamics": {
+    "map": "mean arterial pressure or null",
+    "sbp": "systolic BP or null",
+    "dbp": "diastolic BP or null",
+    "heart_rate": "bpm or null",
+    "cvp": "central venous pressure or null",
+    "cardiac_output": "L/min or null",
+    "svr": "systemic vascular resistance or null",
+    "lactate": "mmol/L or null",
+    "shock_index": "HR/SBP or null"
+  },
+  "vasopressors": [
+    {
+      "name": "norepinephrine|epinephrine|vasopressin|dopamine|dobutamine|phenylephrine",
+      "dose": "dose value",
+      "unit": "mcg/kg/min|mcg/min|units/min",
+      "trend": "increasing|stable|weaning|off"
+    }
+  ],
+  "sedation": {
+    "rass": "Richmond Agitation-Sedation Scale -5 to +4 or null",
+    "rass_target": "target RASS or null",
+    "cam_icu": "positive|negative or null",
+    "cpot": "Critical Care Pain Observation Tool 0-8 or null",
+    "medications": [
+      {
+        "name": "propofol|fentanyl|midazolam|dexmedetomidine|ketamine",
+        "dose": "dose value",
+        "unit": "mcg/kg/hr|mg/hr|mcg/hr"
+      }
+    ]
+  },
+  "ventilation": {
+    "mode": "AC/VC|AC/PC|SIMV|PSV|CPAP|APRV|HFOV or null",
+    "fio2": "percentage or null",
+    "peep": "cmH2O or null",
+    "tidal_volume": "mL or null",
+    "respiratory_rate": "breaths/min or null",
+    "plateau_pressure": "cmH2O or null",
+    "driving_pressure": "cmH2O or null",
+    "compliance": "mL/cmH2O or null"
+  },
+  "abg": {
+    "ph": "value or null",
+    "pco2": "mmHg or null",
+    "po2": "mmHg or null",
+    "hco3": "mEq/L or null",
+    "pf_ratio": "P/F ratio or null"
+  },
+  "lines_access": [
+    {
+      "type": "central_line|arterial_line|picc|dialysis_catheter|chest_tube|foley|ng_tube|ett|trach",
+      "location": "site location",
+      "day": "line day or null",
+      "status": "functional|positional|needs_replacement"
+    }
+  ],
+  "fluid_balance": {
+    "intake_24h": "mL or null",
+    "output_24h": "mL or null",
+    "net_balance": "mL or null",
+    "urine_output": "mL/hr or null",
+    "uop_per_kg": "mL/kg/hr or null"
+  },
+  "renal": {
+    "creatinine": "mg/dL or null",
+    "bun": "mg/dL or null",
+    "gfr": "mL/min or null",
+    "rrt_type": "CRRT|iHD|SLED or null",
+    "rrt_settings": "settings if on dialysis or null"
+  },
+  "infectious": {
+    "temperature": "Celsius or null",
+    "wbc": "K/uL or null",
+    "procalcitonin": "ng/mL or null",
+    "cultures": [
+      {
+        "source": "blood|urine|sputum|wound|csf",
+        "result": "pending|no_growth|organism identified",
+        "organism": "organism name or null"
+      }
+    ],
+    "antibiotics": [
+      {
+        "name": "antibiotic name",
+        "dose": "dose",
+        "frequency": "frequency",
+        "day": "antibiotic day or null"
+      }
+    ]
+  },
+  "nutrition": {
+    "route": "npo|enteral|tpn|oral",
+    "formula": "formula name or null",
+    "rate": "mL/hr or null",
+    "residuals": "mL or null",
+    "goal_rate": "mL/hr or null"
+  },
+  "neurologic": {
+    "gcs": "Glasgow Coma Scale 3-15 or null",
+    "pupils": "pupil exam findings or null",
+    "motor": "motor exam findings or null",
+    "icp": "intracranial pressure if monitored or null"
+  },
+  "conditions": [
+    {
+      "name": "condition/diagnosis",
+      "icd10": "ICD-10 code or null",
+      "status": "active|resolving|worsening",
+      "severity": "mild|moderate|severe|critical"
+    }
+  ],
+  "events": [
+    {
+      "type": "code|rapid_response|procedure|acute_change",
+      "description": "event description",
+      "time": "time if mentioned or null",
+      "intervention": "intervention performed or null"
+    }
+  ],
+  "assessment": {
+    "primary_problem": "primary ICU problem",
+    "sofa_score": "Sequential Organ Failure Assessment or null",
+    "apache": "APACHE II score or null",
+    "prognosis": "clinical trajectory assessment or null"
+  },
+  "plan": {
+    "goals_of_care": "full_code|dnr|dni|comfort or null",
+    "priorities": ["priority 1", "priority 2"]
+  }
+}
+```
+
+Extract information ONLY from the transcript. Flag critical values. Return valid JSON only.

@@ -21,6 +21,11 @@ AVAILABLE_WORKFLOWS = [
     "discharge",
     "radiology",
     "lab_review",
+    "respiratory",
+    "icu",
+    "cardiology",
+    "pediatrics",
+    "neurology",
 ]
 
 
