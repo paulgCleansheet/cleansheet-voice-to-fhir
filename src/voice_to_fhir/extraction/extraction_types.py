@@ -7,6 +7,7 @@ Data models for extracted clinical entities.
 from dataclasses import dataclass, field
 from typing import Any
 from enum import Enum
+import json
 
 
 class ConditionSeverity(str, Enum):
@@ -41,12 +42,41 @@ class CodedConcept:
 class Condition:
     """An extracted condition/diagnosis."""
 
-    description: str
-    code: CodedConcept | None = None
-    severity: ConditionSeverity = ConditionSeverity.UNKNOWN
+    name: str
+    status: str = "active"
+    icd10: str | None = None
+    snomed: str | None = None
     onset: str | None = None  # "2 days ago", "chronic", etc.
+    severity: str | None = None
     is_chief_complaint: bool = False
     confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "status": self.status,
+            "icd10": self.icd10,
+            "snomed": self.snomed,
+            "onset": self.onset,
+            "severity": self.severity,
+            "is_chief_complaint": self.is_chief_complaint,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Condition":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            status=data.get("status", "active"),
+            icd10=data.get("icd10"),
+            snomed=data.get("snomed"),
+            onset=data.get("onset"),
+            severity=data.get("severity"),
+            is_chief_complaint=data.get("is_chief_complaint", False),
+            confidence=data.get("confidence", 1.0),
+        )
 
 
 @dataclass
@@ -54,24 +84,130 @@ class Medication:
     """An extracted medication."""
 
     name: str
-    code: CodedConcept | None = None
     dose: str | None = None
-    route: str | None = None
     frequency: str | None = None
-    status: MedicationStatus = MedicationStatus.UNKNOWN
+    route: str | None = None
+    rxnorm: str | None = None
+    status: str = "active"
     is_new_order: bool = False
     confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "dose": self.dose,
+            "frequency": self.frequency,
+            "route": self.route,
+            "rxnorm": self.rxnorm,
+            "status": self.status,
+            "is_new_order": self.is_new_order,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Medication":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            dose=data.get("dose"),
+            frequency=data.get("frequency"),
+            route=data.get("route"),
+            rxnorm=data.get("rxnorm"),
+            status=data.get("status", "active"),
+            is_new_order=data.get("is_new_order", False),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class Vital:
+    """An extracted vital sign."""
+
+    type: str
+    value: str
+    unit: str | None = None
+    timestamp: str | None = None
+    interpretation: str | None = None
+    loinc: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "type": self.type,
+            "value": self.value,
+            "unit": self.unit,
+            "timestamp": self.timestamp,
+            "interpretation": self.interpretation,
+            "loinc": self.loinc,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Vital":
+        """Create from dictionary."""
+        return cls(
+            type=data["type"],
+            value=data["value"],
+            unit=data.get("unit"),
+            timestamp=data.get("timestamp"),
+            interpretation=data.get("interpretation"),
+            loinc=data.get("loinc"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class LabResult:
+    """An extracted lab result."""
+
+    name: str
+    value: str
+    unit: str | None = None
+    reference_range: str | None = None
+    interpretation: str | None = None  # "normal", "high", "low", "critical"
+    loinc: str | None = None
+    timestamp: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "value": self.value,
+            "unit": self.unit,
+            "reference_range": self.reference_range,
+            "interpretation": self.interpretation,
+            "loinc": self.loinc,
+            "timestamp": self.timestamp,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "LabResult":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            value=data["value"],
+            unit=data.get("unit"),
+            reference_range=data.get("reference_range"),
+            interpretation=data.get("interpretation"),
+            loinc=data.get("loinc"),
+            timestamp=data.get("timestamp"),
+            confidence=data.get("confidence", 1.0),
+        )
 
 
 @dataclass
 class Observation:
-    """An extracted observation (vital sign, lab result, etc.)."""
+    """An extracted observation (generic clinical finding)."""
 
     name: str
     value: str
     unit: str | None = None
     code: CodedConcept | None = None
-    interpretation: str | None = None  # "normal", "high", "low", etc.
+    interpretation: str | None = None
     confidence: float = 1.0
 
 
@@ -79,11 +215,35 @@ class Observation:
 class Procedure:
     """An extracted procedure."""
 
-    description: str
-    code: CodedConcept | None = None
+    name: str
     status: str = "completed"  # planned, in-progress, completed
+    cpt: str | None = None
+    snomed: str | None = None
     performed_date: str | None = None
     confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "status": self.status,
+            "cpt": self.cpt,
+            "snomed": self.snomed,
+            "performed_date": self.performed_date,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Procedure":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            status=data.get("status", "completed"),
+            cpt=data.get("cpt"),
+            snomed=data.get("snomed"),
+            performed_date=data.get("performed_date"),
+            confidence=data.get("confidence", 1.0),
+        )
 
 
 @dataclass
@@ -91,10 +251,28 @@ class Allergy:
     """An extracted allergy."""
 
     substance: str
-    code: CodedConcept | None = None
     reaction: str | None = None
     severity: str | None = None  # mild, moderate, severe
     confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "substance": self.substance,
+            "reaction": self.reaction,
+            "severity": self.severity,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Allergy":
+        """Create from dictionary."""
+        return cls(
+            substance=data["substance"],
+            reaction=data.get("reaction"),
+            severity=data.get("severity"),
+            confidence=data.get("confidence", 1.0),
+        )
 
 
 @dataclass
@@ -105,6 +283,25 @@ class PatientDemographics:
     date_of_birth: str | None = None
     gender: str | None = None
     mrn: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "date_of_birth": self.date_of_birth,
+            "gender": self.gender,
+            "mrn": self.mrn,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PatientDemographics":
+        """Create from dictionary."""
+        return cls(
+            name=data.get("name"),
+            date_of_birth=data.get("date_of_birth"),
+            gender=data.get("gender"),
+            mrn=data.get("mrn"),
+        )
 
 
 @dataclass
@@ -136,12 +333,12 @@ class ClinicalEntities:
 
     # Clinical findings
     conditions: list[Condition] = field(default_factory=list)
-    observations: list[Observation] = field(default_factory=list)
+    vitals: list[Vital] = field(default_factory=list)
+    lab_results: list[LabResult] = field(default_factory=list)
     allergies: list[Allergy] = field(default_factory=list)
 
     # Medications
-    current_medications: list[Medication] = field(default_factory=list)
-    new_medications: list[Medication] = field(default_factory=list)
+    medications: list[Medication] = field(default_factory=list)
 
     # Procedures
     procedures: list[Procedure] = field(default_factory=list)
@@ -163,54 +360,96 @@ class ClinicalEntities:
                 return condition
         return self.conditions[0] if self.conditions else None
 
-    @property
-    def all_medications(self) -> list[Medication]:
-        """Get all medications (current + new)."""
-        return self.current_medications + self.new_medications
+    def add_condition(self, condition: Condition) -> None:
+        """Add a condition to the list."""
+        self.conditions.append(condition)
+
+    def add_medication(self, medication: Medication) -> None:
+        """Add a medication to the list."""
+        self.medications.append(medication)
+
+    def add_vital(self, vital: Vital) -> None:
+        """Add a vital sign to the list."""
+        self.vitals.append(vital)
+
+    def add_allergy(self, allergy: Allergy) -> None:
+        """Add an allergy to the list."""
+        self.allergies.append(allergy)
+
+    def add_procedure(self, procedure: Procedure) -> None:
+        """Add a procedure to the list."""
+        self.procedures.append(procedure)
+
+    def add_lab_result(self, lab_result: LabResult) -> None:
+        """Add a lab result to the list."""
+        self.lab_results.append(lab_result)
+
+    def merge(self, other: "ClinicalEntities") -> "ClinicalEntities":
+        """Merge another ClinicalEntities into a new combined instance."""
+        merged = ClinicalEntities(
+            patient=self.patient or other.patient,
+            conditions=self.conditions + other.conditions,
+            vitals=self.vitals + other.vitals,
+            lab_results=self.lab_results + other.lab_results,
+            allergies=self.allergies + other.allergies,
+            medications=self.medications + other.medications,
+            procedures=self.procedures + other.procedures,
+            workflow=self.workflow,
+            raw_transcript=self.raw_transcript + " " + other.raw_transcript,
+        )
+        return merged
+
+    def summary(self) -> str:
+        """Generate a text summary of the clinical entities."""
+        parts = []
+        if self.conditions:
+            parts.append(f"{len(self.conditions)} conditions")
+        if self.medications:
+            parts.append(f"{len(self.medications)} medications")
+        if self.allergies:
+            parts.append(f"{len(self.allergies)} allergies")
+        if self.vitals:
+            parts.append(f"{len(self.vitals)} vitals")
+        if self.lab_results:
+            parts.append(f"{len(self.lab_results)} lab results")
+        if self.procedures:
+            parts.append(f"{len(self.procedures)} procedures")
+
+        if not parts:
+            return "No clinical entities extracted"
+        return "Extracted: " + ", ".join(parts)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            "patient": self.patient.__dict__ if self.patient else None,
-            "conditions": [
-                {
-                    "description": c.description,
-                    "severity": c.severity.value,
-                    "onset": c.onset,
-                    "is_chief_complaint": c.is_chief_complaint,
-                }
-                for c in self.conditions
-            ],
-            "observations": [
-                {
-                    "name": o.name,
-                    "value": o.value,
-                    "unit": o.unit,
-                }
-                for o in self.observations
-            ],
-            "allergies": [
-                {
-                    "substance": a.substance,
-                    "reaction": a.reaction,
-                }
-                for a in self.allergies
-            ],
-            "current_medications": [
-                {
-                    "name": m.name,
-                    "dose": m.dose,
-                    "frequency": m.frequency,
-                }
-                for m in self.current_medications
-            ],
-            "new_medications": [
-                {
-                    "name": m.name,
-                    "dose": m.dose,
-                    "frequency": m.frequency,
-                }
-                for m in self.new_medications
-            ],
+            "patient": self.patient.to_dict() if self.patient else None,
+            "conditions": [c.to_dict() for c in self.conditions],
+            "vitals": [v.to_dict() for v in self.vitals],
+            "lab_results": [lr.to_dict() for lr in self.lab_results],
+            "allergies": [a.to_dict() for a in self.allergies],
+            "medications": [m.to_dict() for m in self.medications],
+            "procedures": [p.to_dict() for p in self.procedures],
             "workflow": self.workflow,
         }
+
+    def to_json(self, indent: int | None = 2) -> str:
+        """Convert to JSON string."""
+        return json.dumps(self.to_dict(), indent=indent)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ClinicalEntities":
+        """Create from dictionary."""
+        patient = None
+        if data.get("patient"):
+            patient = PatientDemographics.from_dict(data["patient"])
+
+        return cls(
+            patient=patient,
+            conditions=[Condition.from_dict(c) for c in data.get("conditions", [])],
+            vitals=[Vital.from_dict(v) for v in data.get("vitals", [])],
+            lab_results=[LabResult.from_dict(lr) for lr in data.get("lab_results", [])],
+            allergies=[Allergy.from_dict(a) for a in data.get("allergies", [])],
+            medications=[Medication.from_dict(m) for m in data.get("medications", [])],
+            procedures=[Procedure.from_dict(p) for p in data.get("procedures", [])],
+            workflow=data.get("workflow", "general"),
+        )

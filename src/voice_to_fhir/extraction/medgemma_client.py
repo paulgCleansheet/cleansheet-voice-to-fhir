@@ -9,15 +9,16 @@ import json
 import os
 from pathlib import Path
 
+import requests
+
 from voice_to_fhir.extraction.extraction_types import (
     ClinicalEntities,
     Condition,
     Medication,
-    Observation,
+    Vital,
+    LabResult,
     Allergy,
     PatientDemographics,
-    ConditionSeverity,
-    MedicationStatus,
 )
 
 
@@ -94,36 +95,40 @@ Return a JSON object with the following structure:
   "chief_complaint": "string or null",
   "conditions": [
     {
-      "description": "string",
+      "name": "string",
       "severity": "mild|moderate|severe|unknown",
-      "onset": "string or null"
+      "onset": "string or null",
+      "icd10": "string or null"
     }
   ],
-  "observations": [
+  "vitals": [
     {
-      "name": "string (e.g., 'Blood Pressure', 'Temperature')",
+      "type": "string (e.g., 'blood_pressure', 'temperature')",
       "value": "string",
       "unit": "string or null"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "string",
+      "value": "string",
+      "unit": "string or null",
+      "interpretation": "normal|high|low|critical or null"
     }
   ],
   "allergies": [
     {
       "substance": "string",
-      "reaction": "string or null"
+      "reaction": "string or null",
+      "severity": "string or null"
     }
   ],
-  "current_medications": [
+  "medications": [
     {
       "name": "string",
       "dose": "string or null",
-      "frequency": "string or null"
-    }
-  ],
-  "new_medications": [
-    {
-      "name": "string",
-      "dose": "string or null",
-      "frequency": "string or null"
+      "frequency": "string or null",
+      "is_new_order": false
     }
   ]
 }
@@ -141,8 +146,6 @@ TRANSCRIPT:
 
     def health_check(self) -> bool:
         """Check if the API is reachable."""
-        import requests
-
         try:
             response = requests.get(
                 f"{self.config.api_url}/{self.config.model_id}",
@@ -165,8 +168,6 @@ TRANSCRIPT:
 
     def extract(self, transcript: str, workflow: str = "general") -> ClinicalEntities:
         """Extract structured clinical entities from transcript."""
-        import requests
-
         # Build prompt
         full_prompt = self._build_prompt(transcript, workflow)
 
@@ -207,7 +208,7 @@ TRANSCRIPT:
         return entities
 
     def _parse_response(
-        self, response_text: str, transcript: str, workflow: str
+        self, response_text: str, transcript: str = "", workflow: str = "general"
     ) -> ClinicalEntities:
         """Parse MedGemma response into ClinicalEntities."""
         # Try to extract JSON from response
@@ -247,9 +248,10 @@ TRANSCRIPT:
         # Parse conditions
         for c in data.get("conditions", []):
             condition = Condition(
-                description=c.get("description", ""),
-                severity=ConditionSeverity(c.get("severity", "unknown")),
+                name=c.get("name") or c.get("description", ""),
+                severity=c.get("severity"),
                 onset=c.get("onset"),
+                icd10=c.get("icd10"),
                 is_chief_complaint=False,
             )
             entities.conditions.append(condition)
@@ -260,47 +262,81 @@ TRANSCRIPT:
             entities.conditions[0].is_chief_complaint = True
         elif chief:
             entities.conditions.insert(
-                0, Condition(description=chief, is_chief_complaint=True)
+                0, Condition(name=chief, is_chief_complaint=True)
             )
 
-        # Parse observations
+        # Parse vitals
+        for v in data.get("vitals", []):
+            vital = Vital(
+                type=v.get("type") or v.get("name", ""),
+                value=v.get("value", ""),
+                unit=v.get("unit"),
+            )
+            entities.vitals.append(vital)
+
+        # Parse observations (legacy format - convert to vitals)
         for o in data.get("observations", []):
-            obs = Observation(
-                name=o.get("name", ""),
+            vital = Vital(
+                type=o.get("name", ""),
                 value=o.get("value", ""),
                 unit=o.get("unit"),
             )
-            entities.observations.append(obs)
+            entities.vitals.append(vital)
+
+        # Parse lab results
+        for lr in data.get("lab_results", []):
+            lab = LabResult(
+                name=lr.get("name", ""),
+                value=lr.get("value", ""),
+                unit=lr.get("unit"),
+                interpretation=lr.get("interpretation"),
+                reference_range=lr.get("reference_range"),
+            )
+            entities.lab_results.append(lab)
 
         # Parse allergies
         for a in data.get("allergies", []):
             allergy = Allergy(
                 substance=a.get("substance", ""),
                 reaction=a.get("reaction"),
+                severity=a.get("severity"),
             )
             entities.allergies.append(allergy)
 
-        # Parse current medications
+        # Parse medications
+        for m in data.get("medications", []):
+            med = Medication(
+                name=m.get("name", ""),
+                dose=m.get("dose"),
+                frequency=m.get("frequency"),
+                route=m.get("route"),
+                rxnorm=m.get("rxnorm"),
+                status="active",
+                is_new_order=m.get("is_new_order", False),
+            )
+            entities.medications.append(med)
+
+        # Parse current_medications (legacy format)
         for m in data.get("current_medications", []):
             med = Medication(
                 name=m.get("name", ""),
                 dose=m.get("dose"),
                 frequency=m.get("frequency"),
-                status=MedicationStatus.ACTIVE,
+                status="active",
                 is_new_order=False,
             )
-            entities.current_medications.append(med)
+            entities.medications.append(med)
 
-        # Parse new medications
+        # Parse new_medications (legacy format)
         for m in data.get("new_medications", []):
             med = Medication(
                 name=m.get("name", ""),
                 dose=m.get("dose"),
                 frequency=m.get("frequency"),
-                status=MedicationStatus.ACTIVE,
+                status="active",
                 is_new_order=True,
             )
-            entities.new_medications.append(med)
+            entities.medications.append(med)
 
         return entities
 

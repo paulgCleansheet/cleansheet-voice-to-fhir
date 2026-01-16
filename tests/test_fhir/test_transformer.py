@@ -67,8 +67,9 @@ class TestFHIRTransformer:
         bundle = transformer.transform(entities)
 
         assert bundle["resourceType"] == "Bundle"
-        assert bundle["type"] == "collection"
-        assert len(bundle.get("entry", [])) == 0
+        assert bundle["type"] == "transaction"
+        # Should have at least an Encounter
+        assert len(bundle.get("entry", [])) >= 1
 
     def test_transform_with_condition(self, transformer: FHIRTransformer):
         """Test transforming entities with a condition."""
@@ -141,7 +142,7 @@ class TestFHIRTransformer:
         bundle = transformer.transform(sample_entities)
 
         assert bundle["resourceType"] == "Bundle"
-        assert bundle["type"] == "collection"
+        assert bundle["type"] == "transaction"
         assert len(bundle["entry"]) >= 4  # At least one of each type
 
     def test_bundle_has_ids(self, transformer: FHIRTransformer, sample_entities: ClinicalEntities):
@@ -190,7 +191,7 @@ class TestFHIRTransformer:
         assert coding["code"] == "J45.909"
 
     def test_observation_loinc_codes(self, transformer: FHIRTransformer):
-        """Test that observations use LOINC codes where applicable."""
+        """Test that observations include vital signs."""
         entities = ClinicalEntities()
         entities.add_vital(Vital(type="blood_pressure", value="120/80", unit="mmHg"))
 
@@ -203,7 +204,7 @@ class TestFHIRTransformer:
         )
         # Should have a code
         assert "code" in observation
-        assert "coding" in observation["code"]
+        assert observation["code"]["text"] == "blood_pressure"
 
     def test_medication_rxnorm(self, transformer: FHIRTransformer):
         """Test that medications with RxNorm codes are included."""

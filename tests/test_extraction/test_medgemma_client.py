@@ -119,9 +119,10 @@ class TestMedGemmaClient:
         }
         mock_requests.post.return_value = mock_response
 
-        # Should handle gracefully (return empty or raise)
-        with pytest.raises(Exception):
-            client.extract(sample_transcript_text, workflow="general")
+        # Should handle gracefully and return empty entities
+        entities = client.extract(sample_transcript_text, workflow="general")
+        assert len(entities.conditions) == 0
+        assert len(entities.medications) == 0
 
     def test_build_prompt_general(self, client: MedGemmaClient):
         """Test prompt building for general workflow."""

@@ -7,7 +7,7 @@ License: CC BY 4.0
 
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock, patch
 
 from voice_to_fhir.transcription.medasr_client import MedASRClient, MedASRClientConfig
 from voice_to_fhir.capture.audio_utils import AudioSegment
@@ -70,12 +70,11 @@ class TestMedASRClient:
         assert client.config.api_key == "test-key"
 
     def test_initialization_without_key(self):
-        """Test initialization without API key raises warning."""
+        """Test initialization without API key raises error."""
         config = MedASRClientConfig(api_key=None)
 
-        # Should not raise, but may log warning
-        client = MedASRClient(config)
-        assert client.config.api_key is None
+        with pytest.raises(ValueError):
+            MedASRClient(config)
 
     @patch("voice_to_fhir.transcription.medasr_client.requests")
     def test_transcribe_success(
@@ -86,21 +85,13 @@ class TestMedASRClient:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "text": "Patient has chest pain.",
-            "segments": [
-                {
-                    "text": "Patient has chest pain.",
-                    "start": 0.0,
-                    "end": 2.0,
-                    "confidence": 0.95,
-                }
-            ],
+            "confidence": 0.95,
         }
         mock_requests.post.return_value = mock_response
 
         transcript = client.transcribe(sample_audio)
 
         assert transcript.text == "Patient has chest pain."
-        assert len(transcript.segments) == 1
         assert transcript.confidence == 0.95
 
     @patch("voice_to_fhir.transcription.medasr_client.requests")
@@ -137,13 +128,12 @@ class TestMedASRClient:
         """Test handling of empty response."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"text": "", "segments": []}
+        mock_response.json.return_value = {"text": ""}
         mock_requests.post.return_value = mock_response
 
         transcript = client.transcribe(sample_audio)
 
         assert transcript.text == ""
-        assert len(transcript.segments) == 0
 
     def test_prepare_audio_data(self, client: MedASRClient, sample_audio: AudioSegment):
         """Test audio data preparation for API."""
@@ -162,19 +152,14 @@ class TestMedASRClient:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "text": "Test text",
-            "language": "en",
-            "segments": [],
         }
         mock_requests.post.return_value = mock_response
 
-        transcript = client.transcribe(sample_audio, language="en")
+        transcript = client.transcribe(sample_audio, language_hint="en")
 
-        # Verify language was passed in request
-        call_kwargs = mock_requests.post.call_args
         assert transcript.language == "en"
 
     def test_health_check(self, client: MedASRClient):
         """Test API health check."""
-        # This would typically ping the API
-        # For now, just verify the method exists
         assert hasattr(client, "health_check")
+        assert callable(client.health_check)

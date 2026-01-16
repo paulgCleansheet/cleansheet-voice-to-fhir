@@ -65,19 +65,24 @@ class TestPipelineLazyLoading:
 
     def test_transcriber_lazy_loading(self):
         """Test that transcriber is lazily loaded."""
-        pipeline = Pipeline(PipelineConfig())
+        config = PipelineConfig()
+        config.hf_token = "test-token"  # Provide token to avoid error
+        pipeline = Pipeline(config)
 
         assert pipeline._transcriber is None
-        # Note: Accessing transcriber may require network/model
-        # Just test the property exists
-        assert hasattr(pipeline, "transcriber")
+        # Access property to verify lazy loading
+        _ = pipeline.transcriber
+        assert pipeline._transcriber is not None
 
     def test_extractor_lazy_loading(self):
         """Test that extractor is lazily loaded."""
-        pipeline = Pipeline(PipelineConfig())
+        config = PipelineConfig()
+        config.hf_token = "test-token"  # Provide token to avoid error
+        pipeline = Pipeline(config)
 
         assert pipeline._extractor is None
-        assert hasattr(pipeline, "extractor")
+        _ = pipeline.extractor
+        assert pipeline._extractor is not None
 
     def test_transformer_lazy_loading(self):
         """Test that transformer is lazily loaded."""

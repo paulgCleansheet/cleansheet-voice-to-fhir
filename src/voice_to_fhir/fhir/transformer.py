@@ -4,8 +4,8 @@ FHIR Transformer
 Transform extracted clinical entities to FHIR R4 resources.
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any
 import json
 import uuid
@@ -14,7 +14,8 @@ from voice_to_fhir.extraction.extraction_types import (
     ClinicalEntities,
     Condition,
     Medication,
-    Observation,
+    Vital,
+    LabResult,
     Allergy,
 )
 
@@ -43,7 +44,7 @@ class FHIRTransformer:
             "resourceType": "Bundle",
             "id": str(uuid.uuid4()),
             "type": "transaction",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "entry": [],
         }
 
@@ -69,10 +70,17 @@ class FHIRTransformer:
             )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
-        # Create Observations (vital signs, etc.)
-        for observation in entities.observations:
-            resource = self._create_observation(
-                observation, patient_ref, encounter_ref
+        # Create Observations for vitals
+        for vital in entities.vitals:
+            resource = self._create_observation_from_vital(
+                vital, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create Observations for lab results
+        for lab in entities.lab_results:
+            resource = self._create_observation_from_lab(
+                lab, patient_ref, encounter_ref
             )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
@@ -81,18 +89,16 @@ class FHIRTransformer:
             resource = self._create_allergy_intolerance(allergy, patient_ref)
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
-        # Create MedicationStatements (current medications)
-        for med in entities.current_medications:
-            resource = self._create_medication_statement(
-                med, patient_ref, encounter_ref
-            )
-            bundle["entry"].append(self._wrap_entry(resource, "POST"))
-
-        # Create MedicationRequests (new medications)
-        for med in entities.new_medications:
-            resource = self._create_medication_request(
-                med, patient_ref, encounter_ref
-            )
+        # Create MedicationStatements/MedicationRequests for medications
+        for med in entities.medications:
+            if med.is_new_order:
+                resource = self._create_medication_request(
+                    med, patient_ref, encounter_ref
+                )
+            else:
+                resource = self._create_medication_statement(
+                    med, patient_ref, encounter_ref
+                )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
         return bundle
@@ -175,6 +181,12 @@ class FHIRTransformer:
             "hpi": ("hpi", "History of present illness"),
             "assessment": ("assessment", "Clinical assessment"),
             "general": ("general", "General encounter"),
+            "emergency": ("emergency", "Emergency encounter"),
+            "followup": ("followup", "Follow-up visit"),
+            "procedure": ("procedure", "Procedure"),
+            "discharge": ("discharge", "Discharge"),
+            "radiology": ("radiology", "Radiology"),
+            "lab_review": ("lab_review", "Lab review"),
         }
 
         if workflow in workflow_types:
@@ -207,12 +219,12 @@ class FHIRTransformer:
                 "coding": [
                     {
                         "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
-                        "code": "active",
+                        "code": condition.status or "active",
                     }
                 ]
             },
             "code": {
-                "text": condition.description,
+                "text": condition.name,
             },
         }
 
@@ -222,25 +234,35 @@ class FHIRTransformer:
         if encounter_ref:
             resource["encounter"] = {"reference": encounter_ref}
 
-        # Add SNOMED code if available
-        if condition.code and condition.code.system == "SNOMED":
+        # Add ICD-10 code if available
+        if condition.icd10:
             resource["code"]["coding"] = [
                 {
-                    "system": "http://snomed.info/sct",
-                    "code": condition.code.code,
-                    "display": condition.code.display,
+                    "system": "http://hl7.org/fhir/sid/icd-10",
+                    "code": condition.icd10,
+                    "display": condition.name,
                 }
             ]
 
+        # Add SNOMED code if available
+        if condition.snomed:
+            codings = resource["code"].get("coding", [])
+            codings.append({
+                "system": "http://snomed.info/sct",
+                "code": condition.snomed,
+                "display": condition.name,
+            })
+            resource["code"]["coding"] = codings
+
         # Add severity
-        if condition.severity.value != "unknown":
+        if condition.severity and condition.severity != "unknown":
             severity_codes = {
                 "mild": ("255604002", "Mild"),
                 "moderate": ("6736007", "Moderate"),
                 "severe": ("24484000", "Severe"),
             }
-            if condition.severity.value in severity_codes:
-                code, display = severity_codes[condition.severity.value]
+            if condition.severity in severity_codes:
+                code, display = severity_codes[condition.severity]
                 resource["severity"] = {
                     "coding": [
                         {
@@ -268,19 +290,30 @@ class FHIRTransformer:
 
         return resource
 
-    def _create_observation(
+    def _create_observation_from_vital(
         self,
-        observation: Observation,
+        vital: Vital,
         patient_ref: str | None,
         encounter_ref: str | None,
     ) -> dict[str, Any]:
-        """Create Observation resource."""
+        """Create Observation resource from vital sign."""
         resource = {
             "resourceType": "Observation",
             "id": str(uuid.uuid4()),
             "status": "final",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs",
+                            "display": "Vital Signs",
+                        }
+                    ]
+                }
+            ],
             "code": {
-                "text": observation.name,
+                "text": vital.type,
             },
         }
 
@@ -291,49 +324,105 @@ class FHIRTransformer:
             resource["encounter"] = {"reference": encounter_ref}
 
         # Add LOINC code if available
-        if observation.code and observation.code.system == "LOINC":
+        if vital.loinc:
             resource["code"]["coding"] = [
                 {
                     "system": "http://loinc.org",
-                    "code": observation.code.code,
-                    "display": observation.code.display,
+                    "code": vital.loinc,
+                    "display": vital.type,
                 }
             ]
 
         # Try to parse numeric value
         try:
-            numeric_value = float(observation.value.replace(",", ""))
+            numeric_value = float(vital.value.replace(",", "").split("/")[0])
             resource["valueQuantity"] = {
                 "value": numeric_value,
-                "unit": observation.unit or "",
+                "unit": vital.unit or "",
             }
         except ValueError:
-            resource["valueString"] = observation.value
+            resource["valueString"] = vital.value
 
-        # Add vital signs category
-        vital_signs = [
-            "blood pressure",
-            "heart rate",
-            "pulse",
-            "temperature",
-            "respiratory rate",
-            "oxygen saturation",
-            "weight",
-            "height",
-            "bmi",
-        ]
-        if any(vs in observation.name.lower() for vs in vital_signs):
-            resource["category"] = [
+        return resource
+
+    def _create_observation_from_lab(
+        self,
+        lab: LabResult,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create Observation resource from lab result."""
+        resource = {
+            "resourceType": "Observation",
+            "id": str(uuid.uuid4()),
+            "status": "final",
+            "category": [
                 {
                     "coding": [
                         {
                             "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "vital-signs",
-                            "display": "Vital Signs",
+                            "code": "laboratory",
+                            "display": "Laboratory",
                         }
                     ]
                 }
+            ],
+            "code": {
+                "text": lab.name,
+            },
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        # Add LOINC code if available
+        if lab.loinc:
+            resource["code"]["coding"] = [
+                {
+                    "system": "http://loinc.org",
+                    "code": lab.loinc,
+                    "display": lab.name,
+                }
             ]
+
+        # Try to parse numeric value
+        try:
+            numeric_value = float(lab.value.replace(",", ""))
+            resource["valueQuantity"] = {
+                "value": numeric_value,
+                "unit": lab.unit or "",
+            }
+        except ValueError:
+            resource["valueString"] = lab.value
+
+        # Add reference range if available
+        if lab.reference_range:
+            resource["referenceRange"] = [{"text": lab.reference_range}]
+
+        # Add interpretation if available
+        if lab.interpretation:
+            interpretation_map = {
+                "normal": ("N", "Normal"),
+                "high": ("H", "High"),
+                "low": ("L", "Low"),
+                "critical": ("AA", "Critical abnormal"),
+            }
+            if lab.interpretation.lower() in interpretation_map:
+                code, display = interpretation_map[lab.interpretation.lower()]
+                resource["interpretation"] = [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                                "code": code,
+                                "display": display,
+                            }
+                        ]
+                    }
+                ]
 
         return resource
 
@@ -369,6 +458,8 @@ class FHIRTransformer:
 
         if allergy.severity:
             resource["reaction"] = resource.get("reaction", [{}])
+            if not resource["reaction"]:
+                resource["reaction"] = [{}]
             resource["reaction"][0]["severity"] = allergy.severity.lower()
 
         return resource
@@ -383,7 +474,7 @@ class FHIRTransformer:
         resource = {
             "resourceType": "MedicationStatement",
             "id": str(uuid.uuid4()),
-            "status": medication.status.value,
+            "status": medication.status or "active",
             "medicationCodeableConcept": {
                 "text": medication.name,
             },
@@ -396,12 +487,12 @@ class FHIRTransformer:
             resource["context"] = {"reference": encounter_ref}
 
         # Add RxNorm code if available
-        if medication.code and medication.code.system == "RxNorm":
+        if medication.rxnorm:
             resource["medicationCodeableConcept"]["coding"] = [
                 {
                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
-                    "code": medication.code.code,
-                    "display": medication.code.display,
+                    "code": medication.rxnorm,
+                    "display": medication.name,
                 }
             ]
 
@@ -442,12 +533,12 @@ class FHIRTransformer:
             resource["encounter"] = {"reference": encounter_ref}
 
         # Add RxNorm code if available
-        if medication.code and medication.code.system == "RxNorm":
+        if medication.rxnorm:
             resource["medicationCodeableConcept"]["coding"] = [
                 {
                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
-                    "code": medication.code.code,
-                    "display": medication.code.display,
+                    "code": medication.rxnorm,
+                    "display": medication.name,
                 }
             ]
 

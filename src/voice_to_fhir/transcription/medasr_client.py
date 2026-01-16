@@ -8,6 +8,8 @@ from dataclasses import dataclass
 import os
 from typing import Iterator
 
+import requests
+
 from voice_to_fhir.capture.audio_utils import AudioSegment, AudioChunk
 from voice_to_fhir.transcription.transcript_types import Transcript, TranscriptChunk
 
@@ -19,8 +21,18 @@ class MedASRClientConfig:
     api_key: str | None = None
     model_id: str = "google/medasr"
     api_url: str = "https://api-inference.huggingface.co/models"
+    timeout: float = 30.0
     timeout_seconds: float = 30.0
     max_retries: int = 3
+
+    @classmethod
+    def from_env(cls) -> "MedASRClientConfig":
+        """Create configuration from environment variables."""
+        return cls(
+            api_key=os.environ.get("HF_TOKEN"),
+            model_id=os.environ.get("MEDASR_MODEL_ID", "google/medasr"),
+            timeout=float(os.environ.get("MEDASR_TIMEOUT", "30.0")),
+        )
 
 
 class MedASRClient:
@@ -48,23 +60,36 @@ class MedASRClient:
         """API endpoint URL."""
         return f"{self.config.api_url}/{self.config.model_id}"
 
-    def transcribe(self, audio: AudioSegment) -> Transcript:
-        """Transcribe audio to text."""
-        import requests
+    def health_check(self) -> bool:
+        """Check if the API is reachable."""
+        try:
+            response = requests.get(
+                f"{self.config.api_url}/{self.config.model_id}",
+                headers=self._headers,
+                timeout=10.0,
+            )
+            return response.status_code in [200, 503]  # 503 = model loading
+        except Exception:
+            return False
 
+    def _prepare_audio(self, audio: AudioSegment) -> bytes:
+        """Prepare audio data for API request."""
         # Ensure correct sample rate (MedASR expects 16kHz)
         if audio.sample_rate != 16000:
             audio = audio.resample(16000)
+        return audio.to_bytes(format="wav")
 
-        # Convert to bytes
-        audio_bytes = audio.to_bytes(format="wav")
+    def transcribe(self, audio: AudioSegment, language_hint: str | None = None) -> Transcript:
+        """Transcribe audio to text."""
+        # Prepare audio
+        audio_bytes = self._prepare_audio(audio)
 
         # Make API request
         response = requests.post(
             self._endpoint,
             headers=self._headers,
             data=audio_bytes,
-            timeout=self.config.timeout_seconds,
+            timeout=self.config.timeout or self.config.timeout_seconds,
         )
 
         if response.status_code != 200:
@@ -88,7 +113,7 @@ class MedASRClient:
         return Transcript(
             text=text,
             confidence=confidence,
-            language="en",
+            language=language_hint or "en",
             metadata={"model": self.config.model_id, "backend": "cloud"},
         )
 
