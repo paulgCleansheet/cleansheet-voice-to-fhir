@@ -16,7 +16,10 @@ from voice_to_fhir.extraction.extraction_types import (
     Medication,
     Vital,
     LabResult,
+    LabOrder,
     Allergy,
+    FamilyHistory,
+    SocialHistory,
 )
 
 
@@ -84,6 +87,13 @@ class FHIRTransformer:
             )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
+        # Create Observations for lab orders (pending)
+        for lab_order in entities.lab_orders:
+            resource = self._create_observation_from_lab_order(
+                lab_order, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
         # Create AllergyIntolerances
         for allergy in entities.allergies:
             resource = self._create_allergy_intolerance(allergy, patient_ref)
@@ -100,6 +110,18 @@ class FHIRTransformer:
                     med, patient_ref, encounter_ref
                 )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create FamilyMemberHistory resources
+        for fh in entities.family_history:
+            resource = self._create_family_member_history(fh, patient_ref)
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create social history Observations
+        if entities.social_history:
+            for resource in self._create_social_history_observations(
+                entities.social_history, patient_ref, encounter_ref
+            ):
+                bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
         return bundle
 
@@ -352,10 +374,15 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create Observation resource from lab result."""
+        # Map lab status to FHIR Observation status
+        # pending → registered (ordered but no result yet)
+        # completed → final (result available)
+        fhir_status = "registered" if lab.status == "pending" else "final"
+
         resource = {
             "resourceType": "Observation",
             "id": str(uuid.uuid4()),
-            "status": "final",
+            "status": fhir_status,
             "category": [
                 {
                     "coding": [
@@ -388,15 +415,18 @@ class FHIRTransformer:
                 }
             ]
 
-        # Try to parse numeric value
-        try:
-            numeric_value = float(lab.value.replace(",", ""))
-            resource["valueQuantity"] = {
-                "value": numeric_value,
-                "unit": lab.unit or "",
-            }
-        except ValueError:
-            resource["valueString"] = lab.value
+        # Add value if available (not for pending labs)
+        # Also treat string "null" as no value (LLM sometimes returns this)
+        if lab.value and lab.value.lower() != "null":
+            # Try to parse numeric value
+            try:
+                numeric_value = float(lab.value.replace(",", ""))
+                resource["valueQuantity"] = {
+                    "value": numeric_value,
+                    "unit": lab.unit or "",
+                }
+            except ValueError:
+                resource["valueString"] = lab.value
 
         # Add reference range if available
         if lab.reference_range:
@@ -424,6 +454,52 @@ class FHIRTransformer:
                     }
                 ]
 
+        return resource
+
+    def _create_observation_from_lab_order(
+        self,
+        lab_order: LabOrder,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create Observation resource from lab order (pending, no value)."""
+        resource = {
+            "resourceType": "Observation",
+            "id": str(uuid.uuid4()),
+            "status": "registered",  # Ordered but no result yet
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory",
+                            "display": "Laboratory",
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": lab_order.name,
+            },
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        # Add LOINC code if available
+        if lab_order.loinc:
+            resource["code"]["coding"] = [
+                {
+                    "system": "http://loinc.org",
+                    "code": lab_order.loinc,
+                    "display": lab_order.name,
+                }
+            ]
+
+        # No value for pending orders
         return resource
 
     def _create_allergy_intolerance(
@@ -463,6 +539,149 @@ class FHIRTransformer:
             resource["reaction"][0]["severity"] = allergy.severity.lower()
 
         return resource
+
+    def _create_family_member_history(
+        self, fh: FamilyHistory, patient_ref: str | None
+    ) -> dict[str, Any]:
+        """Create FamilyMemberHistory resource."""
+        # Map relationship to HL7 v3-RoleCode
+        relationship_codes = {
+            "mother": ("MTH", "Mother"),
+            "father": ("FTH", "Father"),
+            "brother": ("BRO", "Brother"),
+            "sister": ("SIS", "Sister"),
+            "son": ("SON", "Son"),
+            "daughter": ("DAU", "Daughter"),
+            "maternal grandmother": ("MGRMTH", "Maternal Grandmother"),
+            "maternal grandfather": ("MGRFTH", "Maternal Grandfather"),
+            "paternal grandmother": ("PGRMTH", "Paternal Grandmother"),
+            "paternal grandfather": ("PGRFTH", "Paternal Grandfather"),
+            "aunt": ("AUNT", "Aunt"),
+            "uncle": ("UNCLE", "Uncle"),
+            "cousin": ("COUSN", "Cousin"),
+            "spouse": ("SPS", "Spouse"),
+        }
+
+        rel_lower = fh.relationship.lower()
+        code, display = relationship_codes.get(rel_lower, ("FAMMEMB", fh.relationship))
+
+        resource = {
+            "resourceType": "FamilyMemberHistory",
+            "id": str(uuid.uuid4()),
+            "status": "completed",
+            "relationship": {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                        "code": code,
+                        "display": display,
+                    }
+                ]
+            },
+            "condition": [
+                {
+                    "code": {
+                        "text": fh.condition,
+                    }
+                }
+            ],
+        }
+
+        if patient_ref:
+            resource["patient"] = {"reference": patient_ref}
+
+        # Add age of onset if available
+        if fh.age_of_onset:
+            try:
+                age_value = int(fh.age_of_onset.split()[0])
+                resource["condition"][0]["onsetAge"] = {
+                    "value": age_value,
+                    "unit": "years",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "a",
+                }
+            except (ValueError, IndexError):
+                resource["condition"][0]["onsetString"] = fh.age_of_onset
+
+        # Add deceased status if known
+        if fh.deceased is not None:
+            resource["deceasedBoolean"] = fh.deceased
+
+        return resource
+
+    def _create_social_history_observations(
+        self,
+        social: SocialHistory,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> list[dict[str, Any]]:
+        """Create Observation resources for social history."""
+        observations = []
+
+        # LOINC codes for social history components
+        social_history_codes = {
+            "tobacco": ("72166-2", "Tobacco smoking status"),
+            "alcohol": ("74013-4", "Alcohol use status"),
+            "drugs": ("74204-9", "Drug use"),
+            "occupation": ("11341-5", "History of occupation"),
+            "living_situation": ("63512-8", "Living situation"),
+        }
+
+        def create_observation(code_key: str, value: str) -> dict[str, Any]:
+            loinc_code, display = social_history_codes[code_key]
+            resource = {
+                "resourceType": "Observation",
+                "id": str(uuid.uuid4()),
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "social-history",
+                                "display": "Social History",
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": loinc_code,
+                            "display": display,
+                        }
+                    ],
+                    "text": display,
+                },
+                "valueString": value,
+            }
+
+            if patient_ref:
+                resource["subject"] = {"reference": patient_ref}
+
+            if encounter_ref:
+                resource["encounter"] = {"reference": encounter_ref}
+
+            return resource
+
+        # Create observation for each non-null social history field
+        if social.tobacco:
+            observations.append(create_observation("tobacco", social.tobacco))
+
+        if social.alcohol:
+            observations.append(create_observation("alcohol", social.alcohol))
+
+        if social.drugs:
+            observations.append(create_observation("drugs", social.drugs))
+
+        if social.occupation:
+            observations.append(create_observation("occupation", social.occupation))
+
+        if social.living_situation:
+            observations.append(create_observation("living_situation", social.living_situation))
+
+        return observations
 
     def _create_medication_statement(
         self,

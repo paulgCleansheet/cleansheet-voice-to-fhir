@@ -9,6 +9,53 @@ You are a clinical documentation assistant. Extract structured clinical informat
 6. Note temporal relationships (onset, duration)
 7. Capture severity and status information
 
+## IMPORTANT: Medication & Allergy Detection
+Pay special attention to extracting medications and allergies. Look for:
+
+**Medications** - Include ANY mentioned drug, even if incomplete info:
+- Brand names: "Lipitor", "Advil", "Tylenol", "Metformin"
+- Generic names: "atorvastatin", "ibuprofen", "acetaminophen"
+- Phrases like: "taking X", "on X", "prescribed X", "started X", "continues X", "currently taking"
+- Dosing patterns: "81 milligrams", "twice daily", "once a day", "PRN"
+- Even partial mentions: if you see a drug name, include it with available details
+
+**Allergies** - Include ANY mentioned sensitivity or reaction:
+- Direct statements: "allergic to X", "allergy to X", "can't take X"
+- Reactions: "breaks out in hives", "throat swells", "anaphylaxis"
+- Food allergies, drug allergies, environmental allergies
+- NKDA (No Known Drug Allergies) should result in empty allergies array
+
+**Family History** - Include ANY mentioned family medical history:
+- Phrases like: "father had X", "mother has X", "family history of X", "runs in the family"
+- Include the relationship (mother, father, sibling, etc.) and condition
+- Include age of onset if mentioned
+
+**Social History** - Include ANY mentioned social history:
+- Tobacco: "smokes", "quit smoking", "never smoked", "pack-year history"
+- Alcohol: "drinks", "social drinker", "doesn't drink", "heavy drinker"
+- Drugs: "uses marijuana", "no illicit drugs", "former drug use"
+- Occupation: job title, work environment, hazards
+- Living situation: "lives alone", "lives with family", "homeless"
+
+**Lab Results vs Lab Orders** - These are SEPARATE categories:
+- **lab_results**: Labs with EXPLICIT numeric values stated: "A1c was 6.5%", "hemoglobin 14.2"
+- **lab_orders**: Labs being ordered WITHOUT values: "order A1c", "check lipid panel", "get metabolic panel"
+- Labs mentioned in the PLAN section are almost always ORDERS, not results
+- CRITICAL: If no numeric value is explicitly stated, put it in lab_orders, NOT lab_results
+- Do NOT invent or assume values - if you don't see a number, it's an order
+
+If a medication or allergy is mentioned but details are missing, still include it with null for unknown fields.
+
+## CRITICAL: DO NOT HALLUCINATE
+- ONLY extract information EXPLICITLY stated in the transcript
+- DO NOT infer medications from conditions (e.g., don't add statins just because someone has hypertension)
+- DO NOT confuse allergies with medications - if something is an ALLERGY, it goes ONLY in allergies, NOT medications
+- "On room air" means NO supplemental oxygen - do NOT create an oxygen medication
+- DO NOT invent lab values - if a lab is mentioned without a numeric result, it is an ORDER (pending)
+- Labs in the Plan section are almost always orders, not results
+- If unsure whether something was mentioned, leave it out
+- It is better to miss something than to hallucinate something that wasn't said
+
 ## Transcript
 {transcript}
 
@@ -60,11 +107,30 @@ Return a JSON object with the following structure:
   "lab_results": [
     {
       "name": "test name",
-      "value": "result value",
+      "value": "REQUIRED numeric result that was explicitly stated",
       "unit": "unit or null",
       "interpretation": "normal|abnormal|critical or null"
     }
   ],
+  "lab_orders": [
+    {
+      "name": "test name being ordered (no value available yet)"
+    }
+  ],
+  "family_history": [
+    {
+      "relationship": "mother|father|sibling|etc",
+      "condition": "condition name",
+      "age_of_onset": "age or null"
+    }
+  ],
+  "social_history": {
+    "tobacco": "current|former|never + details or null",
+    "alcohol": "usage description or null",
+    "drugs": "usage description or null",
+    "occupation": "job description or null",
+    "living_situation": "living situation or null"
+  },
   "patient": {
     "age": "numeric age or null",
     "gender": "male|female|other or null"

@@ -2,6 +2,11 @@
 MedGemma Cloud Client
 
 HuggingFace Inference API client for MedGemma entity extraction.
+
+Supports multiple backends:
+- dedicated: HuggingFace Inference Endpoints (paid, recommended)
+- local: Local server running medgemma-server.py
+- serverless: HF Inference API (may not work for gated models)
 """
 
 from dataclasses import dataclass
@@ -17,7 +22,10 @@ from voice_to_fhir.extraction.extraction_types import (
     Medication,
     Vital,
     LabResult,
+    LabOrder,
     Allergy,
+    FamilyHistory,
+    SocialHistory,
     PatientDemographics,
 )
 
@@ -27,26 +35,59 @@ class MedGemmaClientConfig:
     """Configuration for MedGemma cloud client."""
 
     api_key: str | None = None
-    model_id: str = "google/medgemma-4b"
+    model_id: str = "google/medgemma-4b-it"
+    # Backend: "dedicated" (HF Endpoint), "local", or "serverless"
+    backend: str = "dedicated"
+    # For dedicated HF Endpoints (e.g., "https://xxxxx.endpoints.huggingface.cloud")
+    endpoint_url: str | None = None
+    # For local server (e.g., "http://localhost:3003")
+    local_url: str = "http://localhost:3003"
+    # Legacy serverless API
     api_url: str = "https://api-inference.huggingface.co/models"
-    timeout_seconds: float = 60.0
+    timeout_seconds: float = 120.0
     max_tokens: int = 2048
     temperature: float = 0.1
     prompts_dir: str | Path = "src/voice_to_fhir/extraction/prompts"
 
+    @classmethod
+    def from_env(cls) -> "MedGemmaClientConfig":
+        """Create configuration from environment variables."""
+        return cls(
+            api_key=os.environ.get("HF_TOKEN"),
+            model_id=os.environ.get("MEDGEMMA_MODEL_ID", "google/medgemma-4b-it"),
+            backend=os.environ.get("MEDGEMMA_BACKEND", "dedicated"),
+            endpoint_url=os.environ.get("MEDGEMMA_ENDPOINT_URL"),
+            local_url=os.environ.get("MEDGEMMA_LOCAL_URL", "http://localhost:3003"),
+            timeout_seconds=float(os.environ.get("MEDGEMMA_TIMEOUT", "120.0")),
+        )
+
 
 class MedGemmaClient:
-    """HuggingFace Inference API client for MedGemma."""
+    """HuggingFace client for MedGemma entity extraction.
+
+    Supports multiple backends:
+    - dedicated: HuggingFace Inference Endpoints (paid, recommended)
+    - local: Local server running medgemma-server.py
+    - serverless: HF Inference API (may not work for gated models)
+    """
 
     def __init__(self, config: MedGemmaClientConfig | None = None):
         """Initialize MedGemma client."""
         self.config = config or MedGemmaClientConfig()
 
         self.api_key = self.config.api_key or os.environ.get("HF_TOKEN")
-        if not self.api_key:
+
+        # Validate based on backend
+        if self.config.backend in ["dedicated", "serverless"] and not self.api_key:
             raise ValueError(
-                "HuggingFace API key required. "
+                "HuggingFace API key required for cloud backends. "
                 "Set HF_TOKEN environment variable or pass api_key in config."
+            )
+
+        if self.config.backend == "dedicated" and not self.config.endpoint_url:
+            raise ValueError(
+                "endpoint_url required for dedicated backend. "
+                "Set MEDGEMMA_ENDPOINT_URL or pass endpoint_url in config."
             )
 
         self._prompts_cache: dict[str, str] = {}
@@ -54,15 +95,23 @@ class MedGemmaClient:
     @property
     def _headers(self) -> dict[str, str]:
         """Request headers."""
-        return {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
 
     @property
     def _endpoint(self) -> str:
-        """API endpoint URL."""
-        return f"{self.config.api_url}/{self.config.model_id}"
+        """API endpoint URL based on backend."""
+        if self.config.backend == "dedicated":
+            # HF Endpoints use OpenAI-compatible format
+            base = self.config.endpoint_url.rstrip("/")
+            return f"{base}/v1/chat/completions"
+        elif self.config.backend == "local":
+            return self.config.local_url
+        else:
+            # Serverless
+            return f"{self.config.api_url}/{self.config.model_id}"
 
     def _load_prompt(self, workflow: str) -> str:
         """Load prompt template for workflow."""
@@ -171,15 +220,37 @@ TRANSCRIPT:
         # Build prompt
         full_prompt = self._build_prompt(transcript, workflow)
 
-        # Make API request
-        payload = {
-            "inputs": full_prompt,
-            "parameters": {
-                "max_new_tokens": self.config.max_tokens,
+        backend = self.config.backend
+        print(f"[MedGemma] Extracting with backend: {backend}")
+
+        # Build payload based on backend
+        if backend == "dedicated":
+            # OpenAI-compatible chat completions format
+            payload = {
+                "model": self.config.model_id,
+                "messages": [
+                    {"role": "user", "content": full_prompt}
+                ],
+                "max_tokens": self.config.max_tokens,
                 "temperature": self.config.temperature,
-                "return_full_text": False,
-            },
-        }
+            }
+        elif backend == "local":
+            # Simple prompt format for local server
+            payload = {
+                "prompt": full_prompt,
+                "max_tokens": self.config.max_tokens,
+                "temperature": self.config.temperature,
+            }
+        else:
+            # Serverless HF Inference format
+            payload = {
+                "inputs": full_prompt,
+                "parameters": {
+                    "max_new_tokens": self.config.max_tokens,
+                    "temperature": self.config.temperature,
+                    "return_full_text": False,
+                },
+            }
 
         response = requests.post(
             self._endpoint,
@@ -190,18 +261,37 @@ TRANSCRIPT:
 
         if response.status_code != 200:
             raise RuntimeError(
-                f"MedGemma API error: {response.status_code} - {response.text}"
+                f"MedGemma API error: {response.status_code} - {response.text[:500]}"
             )
 
         result = response.json()
 
-        # Parse response
-        if isinstance(result, list) and result:
-            generated_text = result[0].get("generated_text", "")
-        elif isinstance(result, dict):
-            generated_text = result.get("generated_text", "")
+        # Parse response based on backend format
+        if backend == "dedicated":
+            # OpenAI format: {"choices": [{"message": {"content": "..."}}]}
+            choices = result.get("choices", [])
+            if choices:
+                generated_text = choices[0].get("message", {}).get("content", "")
+            else:
+                generated_text = ""
+        elif backend == "local":
+            # Local server format: {"text": "..."}
+            generated_text = result.get("text", "")
         else:
-            generated_text = str(result)
+            # Serverless format: [{"generated_text": "..."}] or {"generated_text": "..."}
+            if isinstance(result, list) and result:
+                generated_text = result[0].get("generated_text", "")
+            elif isinstance(result, dict):
+                generated_text = result.get("generated_text", "")
+            else:
+                generated_text = str(result)
+
+        # Debug: Log raw MedGemma response
+        print(f"[MedGemma] Raw response length: {len(generated_text)}")
+        if len(generated_text) < 2000:
+            print(f"[MedGemma] Raw response: {generated_text}")
+        else:
+            print(f"[MedGemma] Raw response preview: {generated_text[:500]}...")
 
         # Parse JSON from response
         entities = self._parse_response(generated_text, transcript, workflow)
@@ -220,9 +310,17 @@ TRANSCRIPT:
             if json_start >= 0 and json_end > json_start:
                 json_str = response_text[json_start:json_end]
                 data = json.loads(json_str)
+                # Debug: Log parsed data keys and medication count
+                print(f"[MedGemma Parse] Keys in response: {list(data.keys())}")
+                print(f"[MedGemma Parse] Medications found: {len(data.get('medications', []))}")
+                print(f"[MedGemma Parse] Allergies found: {len(data.get('allergies', []))}")
+                if data.get('medications'):
+                    print(f"[MedGemma Parse] Medication names: {[m.get('name') for m in data.get('medications', [])]}")
             else:
+                print("[MedGemma Parse] No JSON found in response")
                 data = {}
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"[MedGemma Parse] JSON decode error: {e}")
             data = {}
 
         # Build ClinicalEntities from parsed data
@@ -283,16 +381,25 @@ TRANSCRIPT:
             )
             entities.vitals.append(vital)
 
-        # Parse lab results
+        # Parse lab results (completed labs with values)
         for lr in data.get("lab_results", []):
             lab = LabResult(
                 name=lr.get("name", ""),
-                value=lr.get("value", ""),
+                value=lr.get("value"),  # Can be None for pending labs
                 unit=lr.get("unit"),
                 interpretation=lr.get("interpretation"),
                 reference_range=lr.get("reference_range"),
+                status=lr.get("status", "completed"),
             )
             entities.lab_results.append(lab)
+
+        # Parse lab orders (pending labs without values)
+        for lo in data.get("lab_orders", []):
+            lab_order = LabOrder(
+                name=lo.get("name", ""),
+                loinc=lo.get("loinc"),
+            )
+            entities.lab_orders.append(lab_order)
 
         # Parse allergies
         for a in data.get("allergies", []):
@@ -337,6 +444,27 @@ TRANSCRIPT:
                 is_new_order=True,
             )
             entities.medications.append(med)
+
+        # Parse family_history
+        for fh in data.get("family_history", []):
+            family_hist = FamilyHistory(
+                relationship=fh.get("relationship", ""),
+                condition=fh.get("condition", ""),
+                age_of_onset=fh.get("age_of_onset"),
+                deceased=fh.get("deceased"),
+            )
+            entities.family_history.append(family_hist)
+
+        # Parse social_history
+        sh = data.get("social_history")
+        if sh:
+            entities.social_history = SocialHistory(
+                tobacco=sh.get("tobacco"),
+                alcohol=sh.get("alcohol"),
+                drugs=sh.get("drugs"),
+                occupation=sh.get("occupation"),
+                living_situation=sh.get("living_situation"),
+            )
 
         return entities
 

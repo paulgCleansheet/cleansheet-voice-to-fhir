@@ -163,12 +163,13 @@ class LabResult:
     """An extracted lab result."""
 
     name: str
-    value: str
+    value: str | None = None  # None for pending/ordered labs
     unit: str | None = None
     reference_range: str | None = None
     interpretation: str | None = None  # "normal", "high", "low", "critical"
     loinc: str | None = None
     timestamp: str | None = None
+    status: str = "completed"  # "pending", "completed", "cancelled"
     confidence: float = 1.0
 
     def to_dict(self) -> dict[str, Any]:
@@ -181,6 +182,7 @@ class LabResult:
             "interpretation": self.interpretation,
             "loinc": self.loinc,
             "timestamp": self.timestamp,
+            "status": self.status,
             "confidence": self.confidence,
         }
 
@@ -189,12 +191,39 @@ class LabResult:
         """Create from dictionary."""
         return cls(
             name=data["name"],
-            value=data["value"],
+            value=data.get("value"),
             unit=data.get("unit"),
             reference_range=data.get("reference_range"),
             interpretation=data.get("interpretation"),
             loinc=data.get("loinc"),
             timestamp=data.get("timestamp"),
+            status=data.get("status", "completed"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class LabOrder:
+    """An ordered lab test (no results yet)."""
+
+    name: str
+    loinc: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "loinc": self.loinc,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "LabOrder":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            loinc=data.get("loinc"),
             confidence=data.get("confidence", 1.0),
         )
 
@@ -276,6 +305,73 @@ class Allergy:
 
 
 @dataclass
+class FamilyHistory:
+    """An extracted family history item."""
+
+    relationship: str  # mother, father, sibling, etc.
+    condition: str
+    age_of_onset: str | None = None
+    deceased: bool | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "relationship": self.relationship,
+            "condition": self.condition,
+            "age_of_onset": self.age_of_onset,
+            "deceased": self.deceased,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "FamilyHistory":
+        """Create from dictionary."""
+        return cls(
+            relationship=data["relationship"],
+            condition=data["condition"],
+            age_of_onset=data.get("age_of_onset"),
+            deceased=data.get("deceased"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class SocialHistory:
+    """Extracted social history."""
+
+    tobacco: str | None = None  # current|former|never + details
+    alcohol: str | None = None  # usage description
+    drugs: str | None = None  # usage description or "none"
+    occupation: str | None = None
+    living_situation: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "tobacco": self.tobacco,
+            "alcohol": self.alcohol,
+            "drugs": self.drugs,
+            "occupation": self.occupation,
+            "living_situation": self.living_situation,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "SocialHistory":
+        """Create from dictionary."""
+        return cls(
+            tobacco=data.get("tobacco"),
+            alcohol=data.get("alcohol"),
+            drugs=data.get("drugs"),
+            occupation=data.get("occupation"),
+            living_situation=data.get("living_situation"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
 class PatientDemographics:
     """Extracted patient demographics."""
 
@@ -335,6 +431,7 @@ class ClinicalEntities:
     conditions: list[Condition] = field(default_factory=list)
     vitals: list[Vital] = field(default_factory=list)
     lab_results: list[LabResult] = field(default_factory=list)
+    lab_orders: list["LabOrder"] = field(default_factory=list)
     allergies: list[Allergy] = field(default_factory=list)
 
     # Medications
@@ -342,6 +439,12 @@ class ClinicalEntities:
 
     # Procedures
     procedures: list[Procedure] = field(default_factory=list)
+
+    # Family history
+    family_history: list[FamilyHistory] = field(default_factory=list)
+
+    # Social history
+    social_history: SocialHistory | None = None
 
     # Assessment & Plan
     assessment: Assessment | None = None
@@ -384,6 +487,10 @@ class ClinicalEntities:
         """Add a lab result to the list."""
         self.lab_results.append(lab_result)
 
+    def add_family_history(self, fh: FamilyHistory) -> None:
+        """Add a family history item to the list."""
+        self.family_history.append(fh)
+
     def merge(self, other: "ClinicalEntities") -> "ClinicalEntities":
         """Merge another ClinicalEntities into a new combined instance."""
         merged = ClinicalEntities(
@@ -391,9 +498,12 @@ class ClinicalEntities:
             conditions=self.conditions + other.conditions,
             vitals=self.vitals + other.vitals,
             lab_results=self.lab_results + other.lab_results,
+            lab_orders=self.lab_orders + other.lab_orders,
             allergies=self.allergies + other.allergies,
             medications=self.medications + other.medications,
             procedures=self.procedures + other.procedures,
+            family_history=self.family_history + other.family_history,
+            social_history=self.social_history or other.social_history,
             workflow=self.workflow,
             raw_transcript=self.raw_transcript + " " + other.raw_transcript,
         )
@@ -412,8 +522,14 @@ class ClinicalEntities:
             parts.append(f"{len(self.vitals)} vitals")
         if self.lab_results:
             parts.append(f"{len(self.lab_results)} lab results")
+        if self.lab_orders:
+            parts.append(f"{len(self.lab_orders)} lab orders")
         if self.procedures:
             parts.append(f"{len(self.procedures)} procedures")
+        if self.family_history:
+            parts.append(f"{len(self.family_history)} family history")
+        if self.social_history:
+            parts.append("social history")
 
         if not parts:
             return "No clinical entities extracted"
@@ -426,9 +542,12 @@ class ClinicalEntities:
             "conditions": [c.to_dict() for c in self.conditions],
             "vitals": [v.to_dict() for v in self.vitals],
             "lab_results": [lr.to_dict() for lr in self.lab_results],
+            "lab_orders": [lo.to_dict() for lo in self.lab_orders],
             "allergies": [a.to_dict() for a in self.allergies],
             "medications": [m.to_dict() for m in self.medications],
             "procedures": [p.to_dict() for p in self.procedures],
+            "family_history": [fh.to_dict() for fh in self.family_history],
+            "social_history": self.social_history.to_dict() if self.social_history else None,
             "workflow": self.workflow,
         }
 
@@ -443,13 +562,20 @@ class ClinicalEntities:
         if data.get("patient"):
             patient = PatientDemographics.from_dict(data["patient"])
 
+        social_history = None
+        if data.get("social_history"):
+            social_history = SocialHistory.from_dict(data["social_history"])
+
         return cls(
             patient=patient,
             conditions=[Condition.from_dict(c) for c in data.get("conditions", [])],
             vitals=[Vital.from_dict(v) for v in data.get("vitals", [])],
             lab_results=[LabResult.from_dict(lr) for lr in data.get("lab_results", [])],
+            lab_orders=[LabOrder.from_dict(lo) for lo in data.get("lab_orders", [])],
             allergies=[Allergy.from_dict(a) for a in data.get("allergies", [])],
             medications=[Medication.from_dict(m) for m in data.get("medications", [])],
             procedures=[Procedure.from_dict(p) for p in data.get("procedures", [])],
+            family_history=[FamilyHistory.from_dict(fh) for fh in data.get("family_history", [])],
+            social_history=social_history,
             workflow=data.get("workflow", "general"),
         )
