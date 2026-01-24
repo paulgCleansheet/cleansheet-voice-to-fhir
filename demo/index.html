@@ -411,6 +411,22 @@
             background: var(--color-bg-light);
             border-radius: var(--radius-md);
             font-size: 0.875rem;
+            transition: background-color 0.15s, border-color 0.15s;
+            border: 2px solid transparent;
+        }
+
+        .queue-item.done {
+            cursor: pointer;
+        }
+
+        .queue-item.done:hover {
+            background: var(--color-success-bg, #dcfce7);
+            border-color: var(--color-success);
+        }
+
+        .queue-item.selected {
+            background: var(--color-primary-bg, #e0f2fe);
+            border-color: var(--color-primary);
         }
 
         .queue-item-status {
@@ -1272,6 +1288,21 @@
                     <i class="ph ph-plus"></i>
                     Add to Queue
                 </button>
+
+                <!-- Batch Upload Divider -->
+                <div style="text-align: center; color: var(--color-text-muted); font-size: 0.75rem; margin-top: var(--spacing-md);">
+                    or batch upload
+                </div>
+
+                <!-- Batch Upload -->
+                <div class="batch-upload-section">
+                    <input type="file" id="batchFileInput" accept=".wav,.weba,.webm,.mp3,.ogg,.m4a" multiple style="display: none;">
+                    <button class="btn-secondary" id="batchUploadBtn" style="width: 100%;">
+                        <i class="ph ph-folder-open"></i>
+                        Select Multiple Files
+                    </button>
+                    <div class="batch-info" id="batchInfo" style="display: none; margin-top: var(--spacing-sm); font-size: 0.75rem; color: var(--color-text-secondary);"></div>
+                </div>
             </div>
         </section>
 
@@ -1345,16 +1376,20 @@
                     <i class="ph ph-note-blank"></i>
                     <p>Process audio to generate clinical notes</p>
                 </div>
-                <div id="notesSections"></div>
                 <div class="transcript-panel" id="transcriptPanel" style="display: none;">
                     <div class="transcript-header">
                         <span>Original Transcript</span>
-                        <button class="btn-icon" id="toggleTranscript" title="Toggle">
+                        <button class="btn-icon" id="playTranscriptAudio" title="Play original audio" style="margin-left: var(--spacing-xs); opacity: 0.6;">
+                            <i class="ph ph-speaker-high"></i>
+                        </button>
+                        <button class="btn-icon" id="toggleTranscript" title="Toggle" style="margin-left: auto;">
                             <i class="ph ph-caret-down"></i>
                         </button>
                     </div>
+                    <audio id="transcriptAudioPlayer" style="display: none;"></audio>
                     <div class="transcript-text" id="transcriptText"></div>
                 </div>
+                <div id="notesSections"></div>
             </div>
 
             <!-- Tab Content: EHR Data -->
@@ -1375,7 +1410,15 @@
                 <div id="ordersList"></div>
             </div>
 
-            <div class="panel-footer">
+            <div class="panel-footer" style="gap: var(--spacing-sm);">
+                <button class="btn-secondary" id="exportResultsBtn" disabled title="Export all results as single JSON">
+                    <i class="ph ph-export"></i>
+                    Bulk
+                </button>
+                <button class="btn-secondary" id="exportIndividualBtn" disabled title="Export each result as separate .actual.json file (for comparison with expected)">
+                    <i class="ph ph-files"></i>
+                    Individual
+                </button>
                 <button class="btn-primary" id="submitToEhrBtn" disabled style="flex: 1;">
                     <i class="ph ph-check-circle"></i>
                     Submit Approved to Mock EHR
@@ -1552,9 +1595,11 @@
         function showToast(message, type = 'info') {
             elements.toast.textContent = message;
             elements.toast.className = `toast ${type} visible`;
+            // Longer duration for errors so user can read them
+            const duration = type === 'error' ? 8000 : 5000;
             setTimeout(() => {
                 elements.toast.classList.remove('visible');
-            }, 3000);
+            }, duration);
         }
 
         // ============================================================================
@@ -1892,6 +1937,97 @@
             showToast('Added to queue', 'success');
         }
 
+        // Filename to workflow mapping for batch uploads
+        function filenameToWorkflow(filename) {
+            // Remove extension and convert to lowercase
+            const baseName = filename.replace(/\.[^/.]+$/, '').toLowerCase();
+
+            // Direct mappings for special cases
+            const specialMappings = {
+                'follow-up': 'followup',
+                'cardiology-consult': 'cardiology',
+                'lab-review': 'lab_review',
+                'h-p': 'hp',
+                'soap': 'soap'
+            };
+
+            // Check special mappings first
+            if (specialMappings[baseName]) {
+                return specialMappings[baseName];
+            }
+
+            // Try direct match with workflow IDs
+            const workflowIds = state.workflows.map(w => w.id);
+            if (workflowIds.includes(baseName)) {
+                return baseName;
+            }
+
+            // Try matching with hyphens converted to underscores
+            const underscored = baseName.replace(/-/g, '_');
+            if (workflowIds.includes(underscored)) {
+                return underscored;
+            }
+
+            // Try matching without hyphens
+            const noHyphens = baseName.replace(/-/g, '');
+            if (workflowIds.includes(noHyphens)) {
+                return noHyphens;
+            }
+
+            // Try matching with suffix stripped (e.g., "-consult", "-note")
+            const suffixStripped = baseName.replace(/-(consult|note|visit|report)$/, '');
+            if (workflowIds.includes(suffixStripped)) {
+                return suffixStripped;
+            }
+
+            // Default to general
+            return 'general';
+        }
+
+        function getWorkflowName(workflowId) {
+            const workflow = state.workflows.find(w => w.id === workflowId);
+            return workflow ? workflow.name : 'General Encounter';
+        }
+
+        function batchAddToQueue(files) {
+            const results = [];
+
+            for (const file of files) {
+                const workflowId = filenameToWorkflow(file.name);
+                const workflowName = getWorkflowName(workflowId);
+
+                const item = {
+                    id: generateId(),
+                    audioBlob: file,
+                    filename: file.name,
+                    workflow: workflowId,
+                    workflowName: workflowName,
+                    status: 'pending',
+                    result: null,
+                    metrics: null
+                };
+
+                state.queue.push(item);
+                results.push({ filename: file.name, workflow: workflowName });
+            }
+
+            renderQueue();
+
+            // Show summary
+            const summary = results.map(r => `${r.filename} → ${r.workflow}`).join('\n');
+            console.log('Batch upload:\n' + summary);
+            showToast(`Added ${files.length} files to queue`, 'success');
+
+            // Update batch info display
+            const batchInfo = document.getElementById('batchInfo');
+            if (batchInfo) {
+                batchInfo.style.display = 'block';
+                batchInfo.innerHTML = `<strong>Added ${files.length} files:</strong><br>` +
+                    results.map(r => `• ${r.filename} → ${r.workflow}`).join('<br>');
+                setTimeout(() => { batchInfo.style.display = 'none'; }, 5000);
+            }
+        }
+
         function removeFromQueue(id) {
             state.queue = state.queue.filter(item => item.id !== id);
             renderQueue();
@@ -1955,8 +2091,13 @@
                     </div>
                 ` : '';
 
+                // Check if this queue item is currently selected in review
+                const reviewIndex = state.reviewPool.findIndex(r => r.id === item.id);
+                const isSelected = reviewIndex !== -1 && reviewIndex === state.currentReviewIndex;
+                const clickHandler = item.status === 'done' ? `onclick="selectReviewByQueueId('${item.id}')"` : '';
+
                 return `
-                    <div class="queue-item" data-id="${item.id}">
+                    <div class="queue-item ${item.status}${isSelected ? ' selected' : ''}" data-id="${item.id}" ${clickHandler}>
                         <div class="queue-item-status ${item.status}">${statusIcon}</div>
                         <div class="queue-item-info">
                             <div class="queue-item-workflow">${item.workflowName}</div>
@@ -1965,12 +2106,12 @@
                         </div>
                         <div class="queue-item-actions">
                             ${item.status === 'error' ? `
-                                <button class="btn-icon" onclick="retryQueueItem('${item.id}')" title="Retry">
+                                <button class="btn-icon" onclick="event.stopPropagation(); retryQueueItem('${item.id}')" title="Retry">
                                     <i class="ph ph-arrow-clockwise"></i>
                                 </button>
                             ` : ''}
                             ${item.status !== 'processing' ? `
-                                <button class="btn-icon" onclick="removeFromQueue('${item.id}')" title="Remove">
+                                <button class="btn-icon" onclick="event.stopPropagation(); removeFromQueue('${item.id}')" title="Remove">
                                     <i class="ph ph-x"></i>
                                 </button>
                             ` : ''}
@@ -2054,14 +2195,38 @@
         // Review Pool
         // ============================================================================
         function addToReviewPool(item) {
+            // Start with FHIR bundle extraction for detailed resource data
+            const fhirData = extractDataFromBundle(item.result.fhir_bundle);
+
+            // Merge with entities dict from server (has chief_complaint, family_history, social_history)
+            const entities = item.result.entities || {};
+            const extractedData = {
+                ...fhirData,
+                chiefComplaint: entities.chief_complaint || null,
+                // Use entities data for family/social history if available (more complete than FHIR extraction)
+                familyHistory: (entities.family_history || []).map((fh, i) => ({
+                    id: `fh-${i}`,
+                    relationship: fh.relationship,
+                    condition: fh.condition,
+                    ageOfOnset: fh.age_of_onset,
+                    deceased: fh.deceased,
+                    approved: null
+                })),
+                socialHistory: entities.social_history || null,
+                patient: entities.patient || fhirData.patient,
+            };
+
             const reviewItem = {
                 id: item.id,
                 workflow: item.workflow,
                 workflowName: item.workflowName,
+                filename: item.filename,
+                audioBlob: item.audioBlob,
                 transcript: item.result.transcript,
                 fhirBundle: item.result.fhir_bundle,
                 metrics: item.metrics,
-                extractedData: extractDataFromBundle(item.result.fhir_bundle),
+                status: item.status,
+                extractedData: extractedData,
                 approved: {}
             };
 
@@ -2219,10 +2384,26 @@
             return data;
         }
 
+        // Navigate to a review item by its queue ID
+        function selectReviewByQueueId(queueId) {
+            const reviewIndex = state.reviewPool.findIndex(item => item.id === queueId);
+            if (reviewIndex !== -1) {
+                state.currentReviewIndex = reviewIndex;
+                renderCurrentReview();
+                updateReviewPoolUI();
+                renderQueue(); // Update queue to show selection
+            }
+        }
+
         function updateReviewPoolUI() {
+            const exportBtn = document.getElementById('exportResultsBtn');
+            const exportIndividualBtn = document.getElementById('exportIndividualBtn');
+
             if (state.reviewPool.length === 0) {
                 elements.reviewPoolSelector.style.display = 'none';
                 elements.submitToEhrBtn.disabled = true;
+                if (exportBtn) exportBtn.disabled = true;
+                if (exportIndividualBtn) exportIndividualBtn.disabled = true;
                 return;
             }
 
@@ -2233,6 +2414,8 @@
 
             elements.reviewItemSelect.value = state.currentReviewIndex;
             elements.submitToEhrBtn.disabled = false;
+            if (exportBtn) exportBtn.disabled = false;
+            if (exportIndividualBtn) exportIndividualBtn.disabled = false;
         }
 
         function renderCurrentReview() {
@@ -2281,20 +2464,33 @@
             // Show transcript
             elements.transcriptPanel.style.display = 'block';
             elements.transcriptText.textContent = item.transcript;
+
+            // Set up audio playback for the original recording
+            const audioPlayer = document.getElementById('transcriptAudioPlayer');
+            const playBtn = document.getElementById('playTranscriptAudio');
+            if (audioPlayer && item.audioBlob) {
+                // Revoke previous object URL to avoid memory leaks
+                if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(audioPlayer.src);
+                }
+                audioPlayer.src = URL.createObjectURL(item.audioBlob);
+                playBtn.style.display = '';
+            } else if (playBtn) {
+                playBtn.style.display = 'none';
+            }
         }
 
         function generateNoteSections(workflow, data) {
             const sections = [];
 
-            // Chief Complaint / HPI
-            const chiefComplaints = data.conditions.filter(c => c.name);
+            // Chief Complaint / HPI - prefer direct chiefComplaint field, fallback to first condition
+            const chiefComplaintText = data.chiefComplaint ||
+                (data.conditions.length > 0 ? data.conditions[0].name : null);
             sections.push({
                 key: 'chiefComplaint',
                 title: 'Chief Complaint',
                 icon: 'chat-circle-text',
-                content: chiefComplaints.length > 0
-                    ? chiefComplaints.map(c => c.name).join(', ')
-                    : 'No chief complaint documented'
+                content: chiefComplaintText || 'No chief complaint documented'
             });
 
             // History of Present Illness
@@ -2302,8 +2498,8 @@
                 key: 'hpi',
                 title: 'History of Present Illness',
                 icon: 'clipboard-text',
-                content: 'Patient presents with ' + (chiefComplaints.length > 0
-                    ? chiefComplaints.map(c => c.name.toLowerCase()).join(', ')
+                content: 'Patient presents with ' + (chiefComplaintText
+                    ? chiefComplaintText.toLowerCase()
                     : 'symptoms as described')
             });
 
@@ -2568,6 +2764,169 @@
             localStorage.setItem('mockEHR', JSON.stringify(state.mockEHR));
         }
 
+        // Convert item to expected JSON format for comparison
+        function itemToExpectedFormat(item) {
+            const data = item.extractedData || {};
+            const baseFilename = item.filename?.replace(/\.(webm|wav|mp3|weba|m4a|ogg)$/i, '') || item.workflow;
+
+            return {
+                metadata: {
+                    script_file: item.filename || `${item.workflow}.webm`,
+                    workflow: item.workflow,
+                    description: `Extracted from ${item.filename || 'recording'}`,
+                    processed_at: new Date().toISOString(),
+                    metrics: item.metrics || null
+                },
+                patient: data.patient ? {
+                    name: data.patient.name || null,
+                    age: data.patient.age || null,
+                    gender: data.patient.gender || null,
+                    date_of_birth: data.patient.dateOfBirth || null
+                } : null,
+                ehr_data: {
+                    chief_complaint: data.chiefComplaint || null,
+                    conditions: (data.conditions || []).map(c => ({
+                        name: c.name,
+                        icd10: c.icd10 || null,
+                        status: c.status || 'active',
+                        severity: c.severity || null
+                    })),
+                    vitals: (data.vitals || []).map(v => ({
+                        type: v.type,
+                        value: v.value,
+                        unit: v.unit || null
+                    })),
+                    allergies: (data.allergies || []).map(a => ({
+                        substance: a.substance,
+                        reaction: a.reaction || null,
+                        severity: a.severity || null
+                    })),
+                    medications: (data.medications || []).filter(m => !m.isNewOrder).map(m => ({
+                        name: m.name,
+                        dose: m.dose || null,
+                        frequency: m.frequency || null,
+                        route: m.route || null
+                    })),
+                    family_history: (data.familyHistory || []).map(fh => ({
+                        relationship: fh.relationship,
+                        condition: fh.condition,
+                        age_of_onset: fh.ageOfOnset || null,
+                        deceased: fh.deceased || null
+                    })),
+                    social_history: data.socialHistory ? {
+                        tobacco: data.socialHistory.tobacco || null,
+                        alcohol: data.socialHistory.alcohol || null,
+                        drugs: data.socialHistory.drugs || null,
+                        occupation: data.socialHistory.occupation || null,
+                        living_situation: data.socialHistory.livingSituation || null
+                    } : null,
+                    lab_results: (data.labResults || []).map(l => ({
+                        name: l.name,
+                        value: l.value || null,
+                        unit: l.unit || null,
+                        interpretation: l.interpretation || null
+                    }))
+                },
+                orders: {
+                    medication_orders: (data.orders?.medications || []).map(m => ({
+                        name: m.name,
+                        dose: m.dose || null,
+                        frequency: m.frequency || null,
+                        route: m.route || null,
+                        duration: m.duration || null,
+                        instructions: m.instructions || null
+                    })),
+                    lab_orders: (data.orders?.labs || []).map(l => ({
+                        name: l.name,
+                        loinc: l.loinc || null
+                    })),
+                    referral_orders: (data.orders?.consults || []).map(r => ({
+                        specialty: r.specialty,
+                        reason: r.reason || null
+                    })),
+                    procedure_orders: (data.orders?.procedures || []).map(p => ({
+                        name: p.name
+                    })),
+                    imaging_orders: (data.orders?.imaging || []).map(i => ({
+                        name: i.name
+                    }))
+                },
+                transcript: item.transcript || null
+            };
+        }
+
+        function exportAllResults() {
+            if (state.reviewPool.length === 0) {
+                showToast('No results to export', 'warning');
+                return;
+            }
+
+            const exportData = {
+                exportedAt: new Date().toISOString(),
+                totalItems: state.reviewPool.length,
+                summary: {
+                    successful: state.reviewPool.filter(i => i.status === 'done').length,
+                    failed: state.reviewPool.filter(i => i.status === 'error').length,
+                    workflows: [...new Set(state.reviewPool.map(i => i.workflow))]
+                },
+                results: state.reviewPool.map(item => itemToExpectedFormat(item))
+            };
+
+            // Create and download JSON file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voice-to-fhir-results-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(`Exported ${state.reviewPool.length} results`, 'success');
+        }
+
+        function exportIndividualResults() {
+            if (state.reviewPool.length === 0) {
+                showToast('No results to export', 'warning');
+                return;
+            }
+
+            // Export each result as a separate file
+            const successfulItems = state.reviewPool.filter(i => i.status === 'done');
+
+            if (successfulItems.length === 0) {
+                showToast('No successful results to export', 'warning');
+                return;
+            }
+
+            // Create a zip-like structure by downloading each file
+            // For simplicity, we'll use a small delay between downloads
+            let exported = 0;
+
+            successfulItems.forEach((item, index) => {
+                setTimeout(() => {
+                    const exportData = itemToExpectedFormat(item);
+                    const baseFilename = item.filename?.replace(/\.(webm|wav|mp3|weba|m4a|ogg)$/i, '') || item.workflow;
+
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${baseFilename}.actual.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    exported++;
+                    if (exported === successfulItems.length) {
+                        showToast(`Exported ${exported} individual files`, 'success');
+                    }
+                }, index * 200); // 200ms delay between downloads
+            });
+        }
+
         function submitToMockEHR() {
             if (state.currentReviewIndex < 0) return;
 
@@ -2700,6 +3059,22 @@
                 e.target.value = '';
             });
 
+            // Batch upload
+            const batchFileInput = document.getElementById('batchFileInput');
+            const batchUploadBtn = document.getElementById('batchUploadBtn');
+
+            batchUploadBtn.addEventListener('click', () => {
+                batchFileInput.click();
+            });
+
+            batchFileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    batchAddToQueue(files);
+                }
+                e.target.value = '';
+            });
+
             // Drag and drop
             elements.uploadSection.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -2713,9 +3088,13 @@
             elements.uploadSection.addEventListener('drop', (e) => {
                 e.preventDefault();
                 elements.uploadSection.style.borderColor = '';
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith('audio/')) {
-                    setCurrentAudio(file, file.name);
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('audio/'));
+                if (files.length > 1) {
+                    // Multiple files - batch add to queue
+                    batchAddToQueue(files);
+                } else if (files.length === 1) {
+                    // Single file - use existing behavior
+                    setCurrentAudio(files[0], files[0].name);
                 }
             });
 
@@ -2747,6 +3126,7 @@
             elements.reviewItemSelect.addEventListener('change', (e) => {
                 state.currentReviewIndex = parseInt(e.target.value);
                 renderCurrentReview();
+                renderQueue(); // Update queue selection indicator
             });
 
             // Tab switching
@@ -2759,6 +3139,10 @@
                     document.getElementById(`${tab.dataset.tab}Content`).classList.add('active');
                 });
             });
+
+            // Export results
+            document.getElementById('exportResultsBtn').addEventListener('click', exportAllResults);
+            document.getElementById('exportIndividualBtn').addEventListener('click', exportIndividualResults);
 
             // Submit to EHR
             elements.submitToEhrBtn.addEventListener('click', submitToMockEHR);
@@ -2780,6 +3164,28 @@
                     text.style.display = 'none';
                     icon.className = 'ph ph-caret-right';
                 }
+            });
+
+            // Play original audio button
+            const transcriptAudioPlayer = document.getElementById('transcriptAudioPlayer');
+            const playTranscriptAudioBtn = document.getElementById('playTranscriptAudio');
+
+            playTranscriptAudioBtn.addEventListener('click', () => {
+                if (transcriptAudioPlayer.paused) {
+                    transcriptAudioPlayer.play();
+                    playTranscriptAudioBtn.querySelector('i').className = 'ph ph-stop-circle';
+                    playTranscriptAudioBtn.style.opacity = '1';
+                } else {
+                    transcriptAudioPlayer.pause();
+                    transcriptAudioPlayer.currentTime = 0;
+                    playTranscriptAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                    playTranscriptAudioBtn.style.opacity = '0.6';
+                }
+            });
+
+            transcriptAudioPlayer.addEventListener('ended', () => {
+                playTranscriptAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                playTranscriptAudioBtn.style.opacity = '0.6';
             });
 
             // Settings modal
