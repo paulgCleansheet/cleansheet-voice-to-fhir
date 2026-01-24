@@ -266,6 +266,7 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create Condition resource."""
+        condition_name = condition.name or "unspecified condition"
         resource = {
             "resourceType": "Condition",
             "id": str(uuid.uuid4()),
@@ -278,7 +279,7 @@ class FHIRTransformer:
                 ]
             },
             "code": {
-                "text": condition.name,
+                "text": condition_name,
             },
         }
 
@@ -294,7 +295,7 @@ class FHIRTransformer:
                 {
                     "system": "http://hl7.org/fhir/sid/icd-10",
                     "code": condition.icd10,
-                    "display": condition.name,
+                    "display": condition_name,
                 }
             ]
 
@@ -304,7 +305,7 @@ class FHIRTransformer:
             codings.append({
                 "system": "http://snomed.info/sct",
                 "code": condition.snomed,
-                "display": condition.name,
+                "display": condition_name,
             })
             resource["code"]["coding"] = codings
 
@@ -351,6 +352,7 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create Observation resource from vital sign."""
+        vital_type = vital.type or "unspecified vital"
         resource = {
             "resourceType": "Observation",
             "id": str(uuid.uuid4()),
@@ -367,7 +369,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": vital.type,
+                "text": vital_type,
             },
         }
 
@@ -383,19 +385,20 @@ class FHIRTransformer:
                 {
                     "system": "http://loinc.org",
                     "code": vital.loinc,
-                    "display": vital.type,
+                    "display": vital_type,
                 }
             ]
 
         # Try to parse numeric value
+        value_str = vital.value or ""
         try:
-            numeric_value = float(vital.value.replace(",", "").split("/")[0])
+            numeric_value = float(value_str.replace(",", "").split("/")[0])
             resource["valueQuantity"] = {
                 "value": numeric_value,
                 "unit": vital.unit or "",
             }
-        except ValueError:
-            resource["valueString"] = vital.value
+        except (ValueError, IndexError):
+            resource["valueString"] = value_str if value_str else "no value"
 
         return resource
 
@@ -409,7 +412,9 @@ class FHIRTransformer:
         # Map lab status to FHIR Observation status
         # pending → registered (ordered but no result yet)
         # completed → final (result available)
-        fhir_status = "registered" if lab.status == "pending" else "final"
+        lab_status = getattr(lab, 'status', None) or "completed"
+        fhir_status = "registered" if lab_status == "pending" else "final"
+        lab_name = lab.name or "unspecified lab"
 
         resource = {
             "resourceType": "Observation",
@@ -427,7 +432,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": lab.name,
+                "text": lab_name,
             },
         }
 
@@ -443,7 +448,7 @@ class FHIRTransformer:
                 {
                     "system": "http://loinc.org",
                     "code": lab.loinc,
-                    "display": lab.name,
+                    "display": lab_name,
                 }
             ]
 
@@ -495,6 +500,7 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create ServiceRequest resource for lab order."""
+        lab_order_name = lab_order.name or "unspecified lab order"
         resource = {
             "resourceType": "ServiceRequest",
             "id": str(uuid.uuid4()),
@@ -512,7 +518,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": lab_order.name,
+                "text": lab_order_name,
             },
             "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
@@ -529,7 +535,7 @@ class FHIRTransformer:
                 {
                     "system": "http://loinc.org",
                     "code": lab_order.loinc,
-                    "display": lab_order.name,
+                    "display": lab_order_name,
                 }
             ]
 
@@ -559,7 +565,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": referral.specialty,
+                "text": referral.specialty or "unspecified specialty",
             },
             "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
@@ -599,7 +605,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": proc_order.name,
+                "text": proc_order.name or "unspecified procedure",
             },
             "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
@@ -636,7 +642,7 @@ class FHIRTransformer:
                 }
             ],
             "code": {
-                "text": imaging_order.name,
+                "text": imaging_order.name or "unspecified imaging",
             },
             "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
@@ -662,7 +668,7 @@ class FHIRTransformer:
             "status": "active",
             "intent": "order",
             "medicationCodeableConcept": {
-                "text": med_order.name,
+                "text": med_order.name or "unspecified medication",
             },
             "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
@@ -703,7 +709,7 @@ class FHIRTransformer:
                 ]
             },
             "code": {
-                "text": allergy.substance,
+                "text": allergy.substance or "unspecified allergen",
             },
         }
 
@@ -747,8 +753,10 @@ class FHIRTransformer:
             "spouse": ("SPS", "Spouse"),
         }
 
-        rel_lower = fh.relationship.lower()
-        code, display = relationship_codes.get(rel_lower, ("FAMMEMB", fh.relationship))
+        # Handle None/empty relationship values
+        relationship = fh.relationship or "unknown"
+        rel_lower = relationship.lower()
+        code, display = relationship_codes.get(rel_lower, ("FAMMEMB", relationship))
 
         resource = {
             "resourceType": "FamilyMemberHistory",
@@ -766,7 +774,7 @@ class FHIRTransformer:
             "condition": [
                 {
                     "code": {
-                        "text": fh.condition,
+                        "text": fh.condition or "unspecified",
                     }
                 }
             ],
@@ -875,12 +883,13 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create MedicationStatement resource."""
+        med_name = medication.name or "unspecified medication"
         resource = {
             "resourceType": "MedicationStatement",
             "id": str(uuid.uuid4()),
             "status": medication.status or "active",
             "medicationCodeableConcept": {
-                "text": medication.name,
+                "text": med_name,
             },
         }
 
@@ -896,7 +905,7 @@ class FHIRTransformer:
                 {
                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                     "code": medication.rxnorm,
-                    "display": medication.name,
+                    "display": med_name,
                 }
             ]
 
@@ -920,13 +929,14 @@ class FHIRTransformer:
         encounter_ref: str | None,
     ) -> dict[str, Any]:
         """Create MedicationRequest resource."""
+        med_name = medication.name or "unspecified medication"
         resource = {
             "resourceType": "MedicationRequest",
             "id": str(uuid.uuid4()),
             "status": "active",
             "intent": "order",
             "medicationCodeableConcept": {
-                "text": medication.name,
+                "text": med_name,
             },
         }
 
@@ -942,7 +952,7 @@ class FHIRTransformer:
                 {
                     "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
                     "code": medication.rxnorm,
-                    "display": medication.name,
+                    "display": med_name,
                 }
             ]
 

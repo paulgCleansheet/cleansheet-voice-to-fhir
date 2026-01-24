@@ -340,17 +340,27 @@ TRANSCRIPT:
         # Parse patient
         if "patient" in data and data["patient"]:
             p = data["patient"]
-            entities.patient = PatientDemographics(
-                name=p.get("name"),
-                date_of_birth=p.get("date_of_birth"),
-                gender=p.get("gender"),
-                mrn=p.get("mrn"),
-            )
+            if isinstance(p, dict):
+                entities.patient = PatientDemographics(
+                    name=p.get("name"),
+                    date_of_birth=p.get("date_of_birth"),
+                    gender=p.get("gender"),
+                    mrn=p.get("mrn"),
+                )
 
         # Parse conditions
         for c in data.get("conditions", []):
+            if not isinstance(c, dict):
+                # Handle string conditions
+                if isinstance(c, str) and c:
+                    entities.conditions.append(Condition(name=c, is_chief_complaint=False))
+                continue
+            # Handle null values from JSON
+            name = c.get("name") or c.get("description") or ""
+            if not name:
+                continue  # Skip conditions without a name
             condition = Condition(
-                name=c.get("name") or c.get("description", ""),
+                name=name,
                 severity=c.get("severity"),
                 onset=c.get("onset"),
                 icd10=c.get("icd10"),
@@ -369,15 +379,24 @@ TRANSCRIPT:
 
         # Parse vitals
         for v in data.get("vitals", []):
+            if not isinstance(v, dict):
+                continue
+            # Handle null values from JSON
+            vital_type = v.get("type") or v.get("name") or ""
+            vital_value = v.get("value") or ""
+            if not vital_type or not vital_value:
+                continue  # Skip vitals without type or value
             vital = Vital(
-                type=v.get("type") or v.get("name", ""),
-                value=v.get("value", ""),
+                type=vital_type,
+                value=vital_value,
                 unit=v.get("unit"),
             )
             entities.vitals.append(vital)
 
         # Parse observations (legacy format - convert to vitals)
         for o in data.get("observations", []):
+            if not isinstance(o, dict):
+                continue
             vital = Vital(
                 type=o.get("name", ""),
                 value=o.get("value", ""),
@@ -387,28 +406,52 @@ TRANSCRIPT:
 
         # Parse lab results (completed labs with values)
         for lr in data.get("lab_results", []):
+            if not isinstance(lr, dict):
+                continue
+            # Handle null values from JSON
+            lab_name = lr.get("name") or ""
+            if not lab_name:
+                continue  # Skip lab results without a name
             lab = LabResult(
-                name=lr.get("name", ""),
+                name=lab_name,
                 value=lr.get("value"),  # Can be None for pending labs
                 unit=lr.get("unit"),
                 interpretation=lr.get("interpretation"),
                 reference_range=lr.get("reference_range"),
-                status=lr.get("status", "completed"),
+                status=lr.get("status") or "completed",
             )
             entities.lab_results.append(lab)
 
         # Parse lab orders (pending labs without values)
         for lo in data.get("lab_orders", []):
+            if not isinstance(lo, dict):
+                # Handle string lab orders
+                if isinstance(lo, str) and lo:
+                    entities.lab_orders.append(LabOrder(name=lo))
+                continue
+            # Handle null values from JSON
+            lab_order_name = lo.get("name") or ""
+            if not lab_order_name:
+                continue  # Skip lab orders without a name
             lab_order = LabOrder(
-                name=lo.get("name", ""),
+                name=lab_order_name,
                 loinc=lo.get("loinc"),
             )
             entities.lab_orders.append(lab_order)
 
         # Parse medication orders (new prescriptions)
         for mo in data.get("medication_orders", []):
+            if not isinstance(mo, dict):
+                # Handle string medication orders
+                if isinstance(mo, str) and mo:
+                    entities.medication_orders.append(MedicationOrder(name=mo))
+                continue
+            # Handle null values from JSON
+            med_order_name = mo.get("name") or ""
+            if not med_order_name:
+                continue  # Skip medication orders without a name
             med_order = MedicationOrder(
-                name=mo.get("name", ""),
+                name=med_order_name,
                 dose=mo.get("dose"),
                 frequency=mo.get("frequency"),
                 instructions=mo.get("instructions"),
@@ -417,30 +460,62 @@ TRANSCRIPT:
 
         # Parse referral orders (consults)
         for ro in data.get("referral_orders", []):
+            if not isinstance(ro, dict):
+                if isinstance(ro, str) and ro:
+                    entities.referral_orders.append(ReferralOrder(specialty=ro))
+                continue
+            # Handle null values from JSON
+            specialty = ro.get("specialty") or ro.get("name") or ""
+            if not specialty:
+                continue  # Skip referral orders without a specialty
             ref_order = ReferralOrder(
-                specialty=ro.get("specialty", ro.get("name", "")),
+                specialty=specialty,
                 reason=ro.get("reason"),
             )
             entities.referral_orders.append(ref_order)
 
         # Parse procedure orders
         for po in data.get("procedure_orders", []):
+            if not isinstance(po, dict):
+                if isinstance(po, str) and po:
+                    entities.procedure_orders.append(ProcedureOrder(name=po))
+                continue
+            # Handle null values from JSON
+            proc_name = po.get("name") or ""
+            if not proc_name:
+                continue  # Skip procedure orders without a name
             proc_order = ProcedureOrder(
-                name=po.get("name", ""),
+                name=proc_name,
             )
             entities.procedure_orders.append(proc_order)
 
         # Parse imaging orders
         for io in data.get("imaging_orders", []):
+            if not isinstance(io, dict):
+                if isinstance(io, str) and io:
+                    entities.imaging_orders.append(ImagingOrder(name=io))
+                continue
+            # Handle null values from JSON
+            img_name = io.get("name") or ""
+            if not img_name:
+                continue  # Skip imaging orders without a name
             img_order = ImagingOrder(
-                name=io.get("name", ""),
+                name=img_name,
             )
             entities.imaging_orders.append(img_order)
 
         # Parse allergies
         for a in data.get("allergies", []):
+            if not isinstance(a, dict):
+                if isinstance(a, str) and a:
+                    entities.allergies.append(Allergy(substance=a))
+                continue
+            # Handle null values from JSON
+            substance = a.get("substance") or ""
+            if not substance:
+                continue  # Skip allergies without a substance
             allergy = Allergy(
-                substance=a.get("substance", ""),
+                substance=substance,
                 reaction=a.get("reaction"),
                 severity=a.get("severity"),
             )
@@ -448,8 +523,16 @@ TRANSCRIPT:
 
         # Parse medications
         for m in data.get("medications", []):
+            if not isinstance(m, dict):
+                if isinstance(m, str) and m:
+                    entities.medications.append(Medication(name=m, status="active"))
+                continue
+            # Handle null values from JSON
+            med_name = m.get("name") or ""
+            if not med_name:
+                continue  # Skip medications without a name
             med = Medication(
-                name=m.get("name", ""),
+                name=med_name,
                 dose=m.get("dose"),
                 frequency=m.get("frequency"),
                 route=m.get("route"),
@@ -461,8 +544,16 @@ TRANSCRIPT:
 
         # Parse current_medications (legacy format)
         for m in data.get("current_medications", []):
+            if not isinstance(m, dict):
+                if isinstance(m, str) and m:
+                    entities.medications.append(Medication(name=m, status="active"))
+                continue
+            # Handle null values from JSON
+            med_name = m.get("name") or ""
+            if not med_name:
+                continue  # Skip medications without a name
             med = Medication(
-                name=m.get("name", ""),
+                name=med_name,
                 dose=m.get("dose"),
                 frequency=m.get("frequency"),
                 status="active",
@@ -472,8 +563,16 @@ TRANSCRIPT:
 
         # Parse new_medications (legacy format)
         for m in data.get("new_medications", []):
+            if not isinstance(m, dict):
+                if isinstance(m, str) and m:
+                    entities.medications.append(Medication(name=m, status="active", is_new_order=True))
+                continue
+            # Handle null values from JSON
+            med_name = m.get("name") or ""
+            if not med_name:
+                continue  # Skip medications without a name
             med = Medication(
-                name=m.get("name", ""),
+                name=med_name,
                 dose=m.get("dose"),
                 frequency=m.get("frequency"),
                 status="active",
@@ -483,9 +582,18 @@ TRANSCRIPT:
 
         # Parse family_history
         for fh in data.get("family_history", []):
+            if not isinstance(fh, dict):
+                if isinstance(fh, str) and fh:
+                    entities.family_history.append(FamilyHistory(relationship="unknown", condition=fh))
+                continue
+            # Handle null values from JSON (dict.get returns None for explicit nulls)
+            relationship = fh.get("relationship") or "unknown"
+            condition = fh.get("condition") or ""
+            if not condition:
+                continue  # Skip family history entries without a condition
             family_hist = FamilyHistory(
-                relationship=fh.get("relationship", ""),
-                condition=fh.get("condition", ""),
+                relationship=relationship,
+                condition=condition,
                 age_of_onset=fh.get("age_of_onset"),
                 deceased=fh.get("deceased"),
             )
@@ -493,7 +601,7 @@ TRANSCRIPT:
 
         # Parse social_history
         sh = data.get("social_history")
-        if sh:
+        if sh and isinstance(sh, dict):
             entities.social_history = SocialHistory(
                 tobacco=sh.get("tobacco"),
                 alcohol=sh.get("alcohol"),
