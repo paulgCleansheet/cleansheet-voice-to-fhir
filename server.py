@@ -30,6 +30,7 @@ from pydantic import BaseModel
 
 # Import the pipeline
 from voice_to_fhir import Pipeline
+from voice_to_fhir.extraction.post_processor import post_process
 
 
 def convert_to_wav(input_path: str, output_path: str) -> bool:
@@ -147,6 +148,8 @@ def get_pipeline(
 # Available clinical workflows
 WORKFLOWS = [
     {"id": "general", "name": "General Encounter", "description": "Standard clinical encounters"},
+    {"id": "soap", "name": "SOAP Note", "description": "Structured Subjective/Objective/Assessment/Plan format"},
+    {"id": "hp", "name": "History & Physical", "description": "Comprehensive H&P, annual physicals, wellness exams"},
     {"id": "emergency", "name": "Emergency / Trauma", "description": "ED visits, trauma, acute care"},
     {"id": "intake", "name": "Patient Intake", "description": "New patient registration, full history"},
     {"id": "followup", "name": "Follow-up Visit", "description": "Return visits, progress notes"},
@@ -585,11 +588,18 @@ async def process_chunk(
                 entities = pipeline.extractor.extract(full_transcript, workflow)
                 metrics.extraction_ms = round((time.time() - extraction_start) * 1000, 1)
 
+                # Step 3.5: Post-processing - extract from markers, filter placeholders
+                print(f"[Post-process] Applying transcript marker extraction and validation...")
+                entities = post_process(entities, full_transcript)
+
                 # Debug: Log extracted entities
                 print(f"[Extraction] Conditions: {len(entities.conditions)}")
                 print(f"[Extraction] Medications: {len(entities.medications)} - {[m.name for m in entities.medications]}")
                 print(f"[Extraction] Allergies: {len(entities.allergies)} - {[a.substance for a in entities.allergies]}")
                 print(f"[Extraction] Vitals: {len(entities.vitals)}")
+                print(f"[Extraction] Family History: {len(entities.family_history)}")
+                print(f"[Extraction] Social History: {'Yes' if entities.social_history else 'No'}")
+                print(f"[Extraction] Chief Complaint: {entities.chief_complaint.name if entities.chief_complaint else 'None'}")
 
                 # Step 4: FHIR transformation
                 fhir_start = time.time()
@@ -597,12 +607,33 @@ async def process_chunk(
                 metrics.fhir_transform_ms = round((time.time() - fhir_start) * 1000, 1)
 
                 # Convert entities to dict for response
+                chief = entities.chief_complaint
                 entities_dict = {
-                    "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity} for c in entities.conditions],
-                    "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "status": m.status} for m in entities.medications],
+                    "chief_complaint": chief.name if chief else None,
+                    "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
+                    "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route, "status": m.status, "is_new_order": m.is_new_order} for m in entities.medications],
                     "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
                     "vitals": [{"type": v.type, "value": v.value, "unit": v.unit} for v in entities.vitals],
                     "lab_results": [{"name": l.name, "value": l.value, "unit": l.unit, "interpretation": l.interpretation} for l in entities.lab_results],
+                    "family_history": [{"relationship": fh.relationship, "condition": fh.condition, "age_of_onset": fh.age_of_onset, "deceased": fh.deceased} for fh in entities.family_history],
+                    "social_history": {
+                        "tobacco": entities.social_history.tobacco,
+                        "alcohol": entities.social_history.alcohol,
+                        "drugs": entities.social_history.drugs,
+                        "occupation": entities.social_history.occupation,
+                        "living_situation": entities.social_history.living_situation,
+                    } if entities.social_history else None,
+                    "patient": {
+                        "name": entities.patient.name,
+                        "age": getattr(entities.patient, 'age', None),
+                        "gender": entities.patient.gender,
+                        "date_of_birth": entities.patient.date_of_birth,
+                    } if entities.patient else None,
+                    "lab_orders": [{"name": lo.name, "loinc": lo.loinc} for lo in entities.lab_orders],
+                    "medication_orders": [{"name": mo.name, "dose": mo.dose, "frequency": mo.frequency, "duration": getattr(mo, 'duration', None), "instructions": mo.instructions} for mo in entities.medication_orders],
+                    "referral_orders": [{"specialty": ro.specialty, "reason": ro.reason} for ro in entities.referral_orders],
+                    "procedure_orders": [{"name": po.name} for po in entities.procedure_orders],
+                    "imaging_orders": [{"name": io.name} for io in entities.imaging_orders],
                 }
 
         except Exception as e:
@@ -613,7 +644,12 @@ async def process_chunk(
                     success=True,
                     chunk_id=chunk_id,
                     transcript="[DEMO MODE] Chunk processed",
-                    entities={"conditions": [], "medications": [], "allergies": [], "vitals": [], "lab_results": []},
+                    entities={
+                        "chief_complaint": None,
+                        "conditions": [], "medications": [], "allergies": [], "vitals": [], "lab_results": [],
+                        "family_history": [], "social_history": None, "patient": None,
+                        "lab_orders": [], "medication_orders": [], "referral_orders": [], "procedure_orders": [], "imaging_orders": [],
+                    },
                     fhir_bundle=_get_demo_bundle(workflow),
                     is_final=is_final,
                     metrics=metrics,
