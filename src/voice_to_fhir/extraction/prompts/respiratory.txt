@@ -1,22 +1,29 @@
-You are a respiratory therapy documentation assistant. Extract structured clinical information from this respiratory/pulmonary encounter transcript with emphasis on airway management, ventilation, and oxygenation.
+You are a respiratory therapy documentation specialist. Extract structured clinical information from this respiratory/pulmonary encounter transcript.
 
-## PRIORITY EXTRACTION
-Focus on respiratory-critical information:
+## Focus Areas
+- Respiratory conditions and diagnoses
 - Ventilator settings and modes
-- Oxygen delivery method and FiO2
-- Arterial blood gas (ABG) values
-- Lung sounds and breath sounds
-- Airway status and secretions
-- Weaning parameters and readiness
+- Oxygen delivery and ABG values
+- Lung examination findings
+- Respiratory medications
+- Treatment plans and weaning protocols
 
 ## Instructions
-1. Capture all ventilator parameters precisely
-2. Note oxygen delivery devices and flow rates
-3. Document ABG values with timestamps
-4. Record lung auscultation findings by location
-5. Note any airway interventions or suctioning
-6. Capture weaning trial results and tolerance
-7. Document patient effort and work of breathing
+1. Extract the primary respiratory concern/chief complaint
+2. Document all diagnoses with ICD-10 codes where possible
+3. Capture vital signs including SpO2, respiratory rate
+4. Note ventilator settings as vitals (type: "ventilator_setting_X")
+5. Document ABG values as lab results
+6. Capture all respiratory medications
+7. Include any orders for treatments or changes
+
+## CRITICAL: Use Standard JSON Schema
+Map respiratory-specific data to standard fields:
+- Ventilator settings → vitals array (e.g., type: "tidal_volume", "PEEP", "FiO2")
+- ABG values → lab_results array
+- Diagnoses → conditions array
+- Respiratory meds → medications or medication_orders arrays
+- Treatment changes → procedure_orders or medication_orders
 
 ## Transcript
 {transcript}
@@ -26,99 +33,58 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "ventilator": {
-    "mode": "AC/VC|AC/PC|SIMV|PSV|CPAP|BiPAP|HFNC|null",
-    "settings": {
-      "tidal_volume": "value in mL or null",
-      "respiratory_rate": "breaths/min or null",
-      "peep": "cmH2O or null",
-      "fio2": "percentage or null",
-      "pressure_support": "cmH2O or null",
-      "pip": "peak inspiratory pressure or null",
-      "i_e_ratio": "inspiratory:expiratory ratio or null"
-    },
-    "measured": {
-      "minute_ventilation": "L/min or null",
-      "exhaled_tidal_volume": "mL or null",
-      "auto_peep": "cmH2O or null"
-    }
-  },
-  "oxygenation": {
-    "device": "ventilator|hfnc|simple_mask|non_rebreather|nasal_cannula|room_air",
-    "flow_rate": "L/min or null",
-    "fio2": "percentage",
-    "spo2": "percentage or null",
-    "pao2": "mmHg or null",
-    "pao2_fio2_ratio": "P/F ratio or null"
-  },
-  "abg": {
-    "ph": "value or null",
-    "pco2": "mmHg or null",
-    "po2": "mmHg or null",
-    "hco3": "mEq/L or null",
-    "base_excess": "value or null",
-    "lactate": "mmol/L or null",
-    "interpretation": "normal|respiratory_acidosis|respiratory_alkalosis|metabolic_acidosis|metabolic_alkalosis|mixed or null"
-  },
-  "lung_exam": {
-    "breath_sounds": {
-      "right_upper": "clear|diminished|absent|crackles|wheezes|rhonchi or null",
-      "right_lower": "clear|diminished|absent|crackles|wheezes|rhonchi or null",
-      "left_upper": "clear|diminished|absent|crackles|wheezes|rhonchi or null",
-      "left_lower": "clear|diminished|absent|crackles|wheezes|rhonchi or null"
-    },
-    "work_of_breathing": "normal|mild|moderate|severe",
-    "accessory_muscle_use": true/false,
-    "retractions": true/false
-  },
-  "airway": {
-    "type": "natural|ett|trach|lma or null",
-    "size": "tube size or null",
-    "position": "depth at lip/teeth in cm or null",
-    "cuff_pressure": "cmH2O or null",
-    "secretions": {
-      "amount": "none|scant|moderate|copious",
-      "character": "thin|thick|tenacious or null",
-      "color": "clear|white|yellow|green|blood-tinged or null"
-    }
-  },
-  "weaning": {
-    "trial_type": "SBT|PSV_trial|CPAP_trial|T-piece or null",
-    "rsbi": "rapid shallow breathing index or null",
-    "nif": "negative inspiratory force or null",
-    "tolerance": "tolerated|not_tolerated or null",
-    "duration_minutes": "duration of trial or null",
-    "failure_reason": "reason if not tolerated or null"
-  },
-  "interventions": [
+  "chief_complaint": "primary respiratory issue or reason for assessment",
+  "conditions": [
     {
-      "type": "suctioning|nebulizer|bronchodilator|chest_pt|prone_positioning|recruitment_maneuver",
-      "details": "specifics of intervention",
-      "response": "patient response or null"
+      "name": "respiratory diagnosis",
+      "icd10": "ICD-10 code or null",
+      "status": "active|improving|resolved",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "vitals": [
+    {
+      "type": "vital type (e.g., oxygen_saturation, respiratory_rate, tidal_volume, PEEP, FiO2)",
+      "value": "measured value",
+      "unit": "unit (%, breaths/min, mL, cmH2O, etc.)"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "lab name (e.g., pH, pCO2, pO2, HCO3, lactate)",
+      "value": "result value",
+      "unit": "unit or null",
+      "interpretation": "normal|high|low or null"
     }
   ],
   "medications": [
     {
-      "name": "medication name",
-      "dose": "dose with units",
-      "route": "inhaled|iv|oral",
-      "frequency": "frequency",
-      "indication": "bronchodilation|sedation|paralytic or null"
+      "name": "current respiratory medication",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "route": "route (inhaled, IV, etc.) or null",
+      "is_new_order": false
     }
   ],
-  "conditions": [
+  "medication_orders": [
     {
-      "name": "condition name",
-      "icd10": "ICD-10 code or null",
-      "status": "active|improving|worsening",
-      "severity": "mild|moderate|severe"
+      "name": "new medication or dose change",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "instructions": "special instructions"
     }
   ],
-  "assessment": {
-    "summary": "brief clinical summary",
-    "plan": "respiratory care plan"
+  "procedure_orders": [
+    {
+      "name": "respiratory procedure (e.g., extubation, bronchoscopy, SBT)"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
   }
 }
 ```
 
-Extract information ONLY from the transcript. Note any critical values. Return valid JSON only.
+Extract ONLY information explicitly stated in the transcript.
+Return ONLY valid JSON, no additional text.

@@ -1,23 +1,32 @@
-You are a critical care documentation assistant. Extract structured clinical information from this ICU encounter transcript with emphasis on hemodynamic status, organ function, and critical interventions.
+You are a critical care documentation specialist. Extract structured clinical information from this ICU encounter transcript.
 
-## PRIORITY EXTRACTION
-Focus on ICU-critical information:
-- Hemodynamic status and vasopressor requirements
-- Ventilator settings and respiratory status
-- Sedation and pain management (RASS, CPOT, CAM-ICU)
-- Lines, drains, and devices
-- Organ function (renal, hepatic, neurologic)
-- Fluid balance and nutrition
-- Infection markers and antibiotics
+## Focus Areas
+- Hemodynamic status and vital signs
+- Ventilator settings and ABG values
+- Current medications (vasopressors, sedation, antibiotics)
+- Lab results indicating organ function
+- Active diagnoses and conditions
+- Medication and procedure orders
 
 ## Instructions
-1. Capture all vasopressor doses and MAP goals
-2. Document sedation scores and targets
-3. Note all invasive lines and access points
-4. Record input/output and fluid balance
-5. Capture lab trends indicating organ function
-6. Document ventilator parameters and ABGs
-7. Note any acute changes or events
+1. Extract the primary ICU problem as chief complaint
+2. Document diagnoses with ICD-10 codes in conditions array
+3. Capture all vitals including MAP, HR, CVP, ventilator settings
+4. Note vasopressors and sedation in medications array
+5. Document ABG values and labs in lab_results array
+6. Capture medication changes in medication_orders
+7. Note procedures and interventions in procedure_orders
+
+## CRITICAL: Use Standard JSON Schema
+Map ICU-specific data to standard fields:
+- Hemodynamics → vitals array (type: "MAP", "CVP", "heart_rate", etc.)
+- Ventilator settings → vitals array (type: "FiO2", "PEEP", "tidal_volume", etc.)
+- Vasopressors/sedation → medications array (include dose and frequency)
+- ABG values → lab_results array
+- Organ function labs → lab_results array
+- Diagnoses → conditions array
+- New/changed medications → medication_orders array
+- Procedures → procedure_orders array
 
 ## Transcript
 {transcript}
@@ -27,137 +36,71 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "hemodynamics": {
-    "map": "mean arterial pressure or null",
-    "sbp": "systolic BP or null",
-    "dbp": "diastolic BP or null",
-    "heart_rate": "bpm or null",
-    "cvp": "central venous pressure or null",
-    "cardiac_output": "L/min or null",
-    "svr": "systemic vascular resistance or null",
-    "lactate": "mmol/L or null",
-    "shock_index": "HR/SBP or null"
-  },
-  "vasopressors": [
-    {
-      "name": "norepinephrine|epinephrine|vasopressin|dopamine|dobutamine|phenylephrine",
-      "dose": "dose value",
-      "unit": "mcg/kg/min|mcg/min|units/min",
-      "trend": "increasing|stable|weaning|off"
-    }
-  ],
-  "sedation": {
-    "rass": "Richmond Agitation-Sedation Scale -5 to +4 or null",
-    "rass_target": "target RASS or null",
-    "cam_icu": "positive|negative or null",
-    "cpot": "Critical Care Pain Observation Tool 0-8 or null",
-    "medications": [
-      {
-        "name": "propofol|fentanyl|midazolam|dexmedetomidine|ketamine",
-        "dose": "dose value",
-        "unit": "mcg/kg/hr|mg/hr|mcg/hr"
-      }
-    ]
-  },
-  "ventilation": {
-    "mode": "AC/VC|AC/PC|SIMV|PSV|CPAP|APRV|HFOV or null",
-    "fio2": "percentage or null",
-    "peep": "cmH2O or null",
-    "tidal_volume": "mL or null",
-    "respiratory_rate": "breaths/min or null",
-    "plateau_pressure": "cmH2O or null",
-    "driving_pressure": "cmH2O or null",
-    "compliance": "mL/cmH2O or null"
-  },
-  "abg": {
-    "ph": "value or null",
-    "pco2": "mmHg or null",
-    "po2": "mmHg or null",
-    "hco3": "mEq/L or null",
-    "pf_ratio": "P/F ratio or null"
-  },
-  "lines_access": [
-    {
-      "type": "central_line|arterial_line|picc|dialysis_catheter|chest_tube|foley|ng_tube|ett|trach",
-      "location": "site location",
-      "day": "line day or null",
-      "status": "functional|positional|needs_replacement"
-    }
-  ],
-  "fluid_balance": {
-    "intake_24h": "mL or null",
-    "output_24h": "mL or null",
-    "net_balance": "mL or null",
-    "urine_output": "mL/hr or null",
-    "uop_per_kg": "mL/kg/hr or null"
-  },
-  "renal": {
-    "creatinine": "mg/dL or null",
-    "bun": "mg/dL or null",
-    "gfr": "mL/min or null",
-    "rrt_type": "CRRT|iHD|SLED or null",
-    "rrt_settings": "settings if on dialysis or null"
-  },
-  "infectious": {
-    "temperature": "Celsius or null",
-    "wbc": "K/uL or null",
-    "procalcitonin": "ng/mL or null",
-    "cultures": [
-      {
-        "source": "blood|urine|sputum|wound|csf",
-        "result": "pending|no_growth|organism identified",
-        "organism": "organism name or null"
-      }
-    ],
-    "antibiotics": [
-      {
-        "name": "antibiotic name",
-        "dose": "dose",
-        "frequency": "frequency",
-        "day": "antibiotic day or null"
-      }
-    ]
-  },
-  "nutrition": {
-    "route": "npo|enteral|tpn|oral",
-    "formula": "formula name or null",
-    "rate": "mL/hr or null",
-    "residuals": "mL or null",
-    "goal_rate": "mL/hr or null"
-  },
-  "neurologic": {
-    "gcs": "Glasgow Coma Scale 3-15 or null",
-    "pupils": "pupil exam findings or null",
-    "motor": "motor exam findings or null",
-    "icp": "intracranial pressure if monitored or null"
-  },
+  "chief_complaint": "primary ICU problem or reason for admission",
   "conditions": [
     {
-      "name": "condition/diagnosis",
+      "name": "diagnosis or condition",
       "icd10": "ICD-10 code or null",
-      "status": "active|resolving|worsening",
-      "severity": "mild|moderate|severe|critical"
+      "status": "active|improving|worsening",
+      "severity": "mild|moderate|severe|critical or null"
     }
   ],
-  "events": [
+  "vitals": [
     {
-      "type": "code|rapid_response|procedure|acute_change",
-      "description": "event description",
-      "time": "time if mentioned or null",
-      "intervention": "intervention performed or null"
+      "type": "vital type (e.g., MAP, heart_rate, CVP, FiO2, PEEP, tidal_volume, respiratory_rate, temperature, SpO2)",
+      "value": "measured value",
+      "unit": "unit (mmHg, bpm, cmH2O, %, mL, etc.) or null"
     }
   ],
-  "assessment": {
-    "primary_problem": "primary ICU problem",
-    "sofa_score": "Sequential Organ Failure Assessment or null",
-    "apache": "APACHE II score or null",
-    "prognosis": "clinical trajectory assessment or null"
-  },
-  "plan": {
-    "goals_of_care": "full_code|dnr|dni|comfort or null",
-    "priorities": ["priority 1", "priority 2"]
+  "lab_results": [
+    {
+      "name": "lab name (e.g., pH, pCO2, pO2, HCO3, lactate, creatinine, BUN, WBC, procalcitonin)",
+      "value": "result value",
+      "unit": "unit or null",
+      "interpretation": "normal|high|low|critical or null"
+    }
+  ],
+  "medications": [
+    {
+      "name": "current medication (vasopressor, sedation, antibiotic, etc.)",
+      "dose": "dose with units",
+      "frequency": "continuous|frequency or null",
+      "route": "IV|oral|etc. or null",
+      "is_new_order": false
+    }
+  ],
+  "allergies": [
+    {
+      "substance": "allergen name",
+      "reaction": "reaction or null",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "medication_orders": [
+    {
+      "name": "new or changed medication",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "instructions": "special instructions or null"
+    }
+  ],
+  "procedure_orders": [
+    {
+      "name": "procedure or intervention"
+    }
+  ],
+  "lab_orders": [
+    {
+      "name": "lab test ordered",
+      "loinc": "LOINC code or null"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
   }
 }
 ```
 
-Extract information ONLY from the transcript. Flag critical values. Return valid JSON only.
+Extract ONLY information explicitly stated in the transcript.
+Return ONLY valid JSON, no additional text.

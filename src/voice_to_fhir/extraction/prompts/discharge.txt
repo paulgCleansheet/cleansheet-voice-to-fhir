@@ -1,21 +1,28 @@
-You are a discharge documentation assistant. Extract structured information from this hospital discharge encounter transcript.
+You are a discharge documentation specialist. Extract structured clinical information from this hospital discharge encounter transcript.
 
 ## Focus Areas
-- Admission diagnosis vs discharge diagnosis
-- Hospital course summary
-- Procedures performed during stay
-- Discharge medications (especially changes)
-- Follow-up appointments and instructions
+- Discharge diagnoses
+- Discharge medications (new and continued)
+- Follow-up appointments
+- Activity and diet instructions
 - Warning signs requiring return
 
 ## Instructions
-1. Document all discharge diagnoses with ICD-10
-2. Capture complete discharge medication list
-3. Clearly note NEW medications started
-4. Note medications STOPPED or changed
-5. Document all follow-up appointments
-6. Capture patient education provided
-7. List red flag symptoms for return
+1. Extract the primary discharge diagnosis as chief complaint
+2. Document all diagnoses with ICD-10 codes in conditions array
+3. Capture discharge medications in medications array (is_new_order: false)
+4. Note NEW medications in medication_orders array
+5. Document follow-up appointments in referral_orders array
+6. Capture pending labs in lab_orders array
+
+## CRITICAL: Use Standard JSON Schema
+Map discharge-specific data to standard fields:
+- Discharge diagnoses → conditions array
+- Current/continued meds → medications array (is_new_order: false)
+- New prescriptions → medication_orders array
+- Follow-up appointments → referral_orders array
+- Pending/ordered labs → lab_orders array
+- Ordered imaging → imaging_orders array
 
 ## Transcript
 {transcript}
@@ -25,85 +32,66 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "admission": {
-    "date": "admission date or null",
-    "diagnosis": "admitting diagnosis",
-    "source": "ED|clinic|transfer|direct or null"
-  },
-  "discharge": {
-    "date": "discharge date or null",
-    "disposition": "home|SNF|rehab|LTAC|AMA|deceased",
-    "condition": "stable|improved|guarded"
-  },
-  "diagnoses": [
+  "chief_complaint": "primary discharge diagnosis or reason for hospitalization",
+  "conditions": [
     {
-      "name": "diagnosis name",
+      "name": "discharge diagnosis",
       "icd10": "ICD-10 code or null",
-      "type": "primary|secondary",
-      "present_on_admission": true/false/null
+      "status": "active|resolved|chronic",
+      "severity": "mild|moderate|severe or null"
     }
   ],
-  "hospital_course": {
-    "summary": "brief summary of hospital stay",
-    "key_events": ["significant events during stay"],
-    "consultations": ["consulting services"]
-  },
-  "procedures_performed": [
+  "vitals": [
     {
-      "name": "procedure name",
-      "date": "procedure date or null",
-      "cpt": "CPT code or null",
-      "findings": "key findings or null"
+      "type": "vital type at discharge",
+      "value": "measured value",
+      "unit": "unit or null"
     }
   ],
-  "discharge_medications": [
+  "medications": [
     {
-      "name": "medication name",
-      "dose": "dose with units",
-      "frequency": "frequency",
-      "route": "route of administration",
-      "duration": "duration if limited or null",
-      "change_status": "new|continued|changed|discontinued",
-      "instructions": "special instructions or null"
+      "name": "discharge medication (continued)",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "route": "route or null",
+      "is_new_order": false
     }
   ],
-  "medication_reconciliation": {
-    "new_medications": ["list of new meds"],
-    "discontinued_medications": ["list of stopped meds"],
-    "dose_changes": ["meds with dose changes"]
-  },
-  "follow_up": [
+  "allergies": [
     {
-      "provider": "provider/specialty",
-      "timeframe": "when to follow up",
-      "appointment_date": "specific date if scheduled or null",
-      "reason": "reason for follow-up"
+      "substance": "allergen name",
+      "reaction": "reaction or null",
+      "severity": "mild|moderate|severe or null"
     }
   ],
-  "pending_results": [
+  "medication_orders": [
     {
-      "test": "test name",
-      "expected": "when results expected",
-      "who_to_contact": "contact for results"
+      "name": "new medication prescribed at discharge",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "instructions": "duration or special instructions"
     }
   ],
-  "patient_education": {
-    "diagnosis_education": ["conditions explained"],
-    "medication_education": ["medication instructions given"],
-    "activity_restrictions": ["activity limitations"],
-    "diet_instructions": "dietary guidance or null",
-    "wound_care": "wound care instructions or null"
-  },
-  "return_precautions": [
+  "lab_orders": [
     {
-      "symptom": "warning sign",
-      "action": "what to do (call, ED, 911)"
+      "name": "pending or follow-up lab",
+      "loinc": "LOINC code or null"
     }
   ],
-  "durable_medical_equipment": [
+  "imaging_orders": [
     {
-      "item": "equipment name",
-      "purpose": "reason needed"
+      "name": "follow-up imaging ordered"
+    }
+  ],
+  "referral_orders": [
+    {
+      "specialty": "follow-up provider or specialty",
+      "reason": "timeframe or reason (e.g., '2 weeks for wound check')"
+    }
+  ],
+  "procedure_orders": [
+    {
+      "name": "follow-up procedure if scheduled"
     }
   ],
   "patient": {
@@ -113,4 +101,5 @@ Return a JSON object with the following structure:
 }
 ```
 
-Extract information ONLY from the transcript. Return valid JSON only.
+Extract ONLY information explicitly stated in the transcript.
+Return ONLY valid JSON, no additional text.

@@ -1,20 +1,20 @@
-You are a laboratory results documentation assistant. Extract structured information from this lab review or results discussion transcript.
-
-## Focus Areas
-- Laboratory tests and results
-- Reference ranges and interpretations
-- Critical values
-- Trends from prior results
-- Clinical correlation
-- Action items based on results
+You are a laboratory results documentation specialist. Extract structured clinical information from this lab review or results discussion transcript.
 
 ## Instructions
-1. Document all lab values with units
-2. Note if values are normal, high, or low
-3. Flag critical values requiring immediate action
-4. Compare to prior values when mentioned
-5. Capture clinical interpretation
-6. Document any orders resulting from review
+1. Extract ALL lab values with their units and interpretations
+2. Document the clinical context and patient conditions
+3. Capture any medication changes based on lab results
+4. Note follow-up lab orders
+5. Use standard medical terminology
+6. Include ICD-10 codes where confidently determinable
+
+## CRITICAL: Use Standard JSON Schema
+You MUST return data in the standard clinical extraction format below.
+Map lab-specific data to the appropriate standard fields:
+- Individual lab results → lab_results array
+- Diagnoses/conditions based on labs → conditions array
+- Medication adjustments → medication_orders array
+- Follow-up lab tests → lab_orders array
 
 ## Transcript
 {transcript}
@@ -24,63 +24,44 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "lab_panel": {
-    "name": "panel name (CBC, BMP, etc.) or null",
-    "collection_date": "specimen collection date or null",
-    "collection_time": "collection time or null"
-  },
-  "results": [
-    {
-      "test_name": "test name",
-      "loinc": "LOINC code or null",
-      "value": "numeric value as string",
-      "unit": "unit of measurement",
-      "reference_range": "reference range or null",
-      "interpretation": "normal|low|high|critical-low|critical-high",
-      "prior_value": "previous value or null",
-      "trend": "increasing|decreasing|stable or null",
-      "is_critical": true/false
-    }
-  ],
-  "critical_values": [
-    {
-      "test": "test name",
-      "value": "critical value",
-      "action_taken": "action taken or null",
-      "provider_notified": "who was notified or null"
-    }
-  ],
-  "calculated_values": [
-    {
-      "name": "calculated value name (e.g., eGFR, Anion Gap)",
-      "value": "calculated value",
-      "interpretation": "interpretation or null"
-    }
-  ],
-  "clinical_correlation": {
-    "summary": "clinical interpretation of results",
-    "differential": ["differential diagnoses based on labs"],
-    "recommendations": ["clinical recommendations"]
-  },
-  "follow_up_orders": [
-    {
-      "test": "test ordered",
-      "timing": "when to repeat",
-      "reason": "reason for repeat"
-    }
-  ],
-  "medication_adjustments": [
-    {
-      "medication": "medication name",
-      "adjustment": "dose change or action",
-      "reason": "reason based on labs"
-    }
-  ],
+  "chief_complaint": "reason for lab review or null",
   "conditions": [
     {
-      "name": "condition suggested by labs",
+      "name": "diagnosis or condition name",
       "icd10": "ICD-10 code or null",
-      "status": "confirmed|suspected|monitoring"
+      "status": "active|resolved|suspected",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "lab test name",
+      "value": "numeric or string value",
+      "unit": "unit of measurement or null",
+      "interpretation": "normal|high|low|critical or null",
+      "reference_range": "reference range or null"
+    }
+  ],
+  "medications": [
+    {
+      "name": "current medication name",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "is_new_order": false
+    }
+  ],
+  "medication_orders": [
+    {
+      "name": "new or adjusted medication",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "instructions": "adjustment reason or special instructions"
+    }
+  ],
+  "lab_orders": [
+    {
+      "name": "follow-up lab test ordered",
+      "loinc": "LOINC code or null"
     }
   ],
   "patient": {
@@ -90,4 +71,5 @@ Return a JSON object with the following structure:
 }
 ```
 
-Extract information ONLY from the transcript. Return valid JSON only.
+Extract information ONLY from the transcript. Do not infer or hallucinate.
+Return ONLY valid JSON, no additional text.

@@ -1,24 +1,30 @@
-You are a neurology documentation assistant. Extract structured clinical information from this neurological encounter transcript with emphasis on the neurological examination, stroke assessment, and seizure documentation.
+You are a neurology documentation specialist. Extract structured clinical information from this neurological encounter transcript.
 
-## PRIORITY EXTRACTION
-Focus on neuro-critical information:
-- Mental status and level of consciousness
-- Cranial nerve examination
-- Motor and sensory examination
-- Reflexes and coordination
-- Stroke scales (NIHSS) and timing
-- Seizure semiology and duration
-- Headache characterization
+## Focus Areas
+- Neurological symptoms and chief complaint
+- Diagnoses (stroke, seizure, headache, neuropathy, etc.)
+- Medications (antiepileptics, anticoagulants, etc.)
+- Vital signs and examination findings
+- Lab and imaging results
+- Orders and follow-up plans
 
 ## Instructions
-1. Document mental status systematically
-2. Capture all cranial nerve findings
-3. Record motor strength by muscle group (0-5 scale)
-4. Note sensory deficits with distribution
-5. Document reflexes with grading
-6. Capture NIHSS components if stroke suspected
-7. Record seizure details including semiology and duration
-8. Note time of symptom onset precisely (last known well)
+1. Extract the chief complaint (primary neurological symptom)
+2. Document all diagnoses with ICD-10 codes where possible
+3. Capture all medications with doses
+4. Note vitals and key examination findings
+5. Include any imaging or lab results mentioned
+6. Document medication and lab orders
+7. Note allergies and relevant history
+
+## CRITICAL: Use Standard JSON Schema
+Return data in the standard clinical extraction format below.
+Map neurological findings appropriately:
+- Diagnoses → conditions array
+- Current medications → medications array (is_new_order: false)
+- New prescriptions → medication_orders array
+- Imaging findings → lab_results array (use interpretation field)
+- Ordered tests → lab_orders or imaging_orders arrays
 
 ## Transcript
 {transcript}
@@ -28,254 +34,89 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "chief_complaint": {
-    "symptom": "primary neurological symptom",
-    "onset": "time of onset or last known well",
-    "duration": "duration of symptoms",
-    "progression": "sudden|gradual|stepwise|fluctuating"
-  },
-  "mental_status": {
-    "level_of_consciousness": "alert|lethargic|obtunded|stuporous|comatose",
-    "gcs": {
-      "total": "3-15 or null",
-      "eye": "1-4 or null",
-      "verbal": "1-5 or null",
-      "motor": "1-6 or null"
-    },
-    "orientation": {
-      "person": true/false/null,
-      "place": true/false/null,
-      "time": true/false/null,
-      "situation": true/false/null
-    },
-    "attention": "intact|impaired or null",
-    "memory": {
-      "immediate": "intact|impaired or null",
-      "recent": "intact|impaired or null",
-      "remote": "intact|impaired or null"
-    },
-    "language": {
-      "fluency": "fluent|non-fluent|mute or null",
-      "comprehension": "intact|impaired or null",
-      "repetition": "intact|impaired or null",
-      "naming": "intact|impaired or null",
-      "reading": "intact|impaired or null",
-      "writing": "intact|impaired or null"
-    },
-    "neglect": "present|absent or null",
-    "apraxia": "present|absent or null"
-  },
-  "cranial_nerves": {
-    "cn1_olfactory": "intact|impaired|not_tested or null",
-    "cn2_optic": {
-      "visual_acuity": "findings or null",
-      "visual_fields": "full|deficit_description or null",
-      "fundoscopy": "findings or null"
-    },
-    "cn3_4_6_extraocular": {
-      "movements": "full|restricted or null",
-      "nystagmus": "present|absent or null",
-      "nystagmus_type": "horizontal|vertical|rotary or null",
-      "pupils": {
-        "right_size": "mm or null",
-        "left_size": "mm or null",
-        "right_reactive": true/false/null,
-        "left_reactive": true/false/null,
-        "apd": "present|absent or null"
-      },
-      "ptosis": "present|absent or null"
-    },
-    "cn5_trigeminal": {
-      "sensation": "intact|decreased or null",
-      "distribution": "V1|V2|V3 or null",
-      "masseter_strength": "intact|weak or null"
-    },
-    "cn7_facial": {
-      "symmetry": "symmetric|asymmetric",
-      "forehead": "intact|weak or null",
-      "eye_closure": "intact|weak or null",
-      "smile": "symmetric|asymmetric or null",
-      "pattern": "upper_motor_neuron|lower_motor_neuron or null"
-    },
-    "cn8_vestibulocochlear": {
-      "hearing": "intact|decreased or null",
-      "lateralization": "Weber/Rinne findings or null"
-    },
-    "cn9_10_glossopharyngeal_vagus": {
-      "palate": "symmetric|asymmetric or null",
-      "gag": "present|absent or null",
-      "voice": "normal|dysarthric|hoarse or null"
-    },
-    "cn11_accessory": {
-      "scm_strength": "intact|weak or null",
-      "trapezius_strength": "intact|weak or null"
-    },
-    "cn12_hypoglossal": {
-      "tongue_protrusion": "midline|deviated or null",
-      "tongue_atrophy": "present|absent or null",
-      "fasciculations": "present|absent or null"
-    }
-  },
-  "motor": {
-    "bulk": "normal|atrophy|hypertrophy",
-    "tone": "normal|spastic|rigid|flaccid|hypotonic",
-    "strength": {
-      "right_deltoid": "0-5 or null",
-      "left_deltoid": "0-5 or null",
-      "right_biceps": "0-5 or null",
-      "left_biceps": "0-5 or null",
-      "right_triceps": "0-5 or null",
-      "left_triceps": "0-5 or null",
-      "right_wrist_extension": "0-5 or null",
-      "left_wrist_extension": "0-5 or null",
-      "right_grip": "0-5 or null",
-      "left_grip": "0-5 or null",
-      "right_hip_flexion": "0-5 or null",
-      "left_hip_flexion": "0-5 or null",
-      "right_knee_extension": "0-5 or null",
-      "left_knee_extension": "0-5 or null",
-      "right_ankle_dorsiflexion": "0-5 or null",
-      "left_ankle_dorsiflexion": "0-5 or null"
-    },
-    "drift": {
-      "right_pronator": "present|absent or null",
-      "left_pronator": "present|absent or null"
-    },
-    "pattern": "hemiparesis|paraparesis|quadriparesis|monoparesis or null",
-    "side": "right|left|bilateral or null"
-  },
-  "sensory": {
-    "light_touch": "intact|decreased|absent",
-    "pinprick": "intact|decreased|absent",
-    "proprioception": "intact|impaired",
-    "vibration": "intact|decreased|absent",
-    "distribution": "dermatomal|peripheral_nerve|hemisensory|stocking_glove or null",
-    "level": "sensory level if present or null"
-  },
-  "reflexes": {
-    "right_biceps": "0|1|2|3|4 or null",
-    "left_biceps": "0|1|2|3|4 or null",
-    "right_triceps": "0|1|2|3|4 or null",
-    "left_triceps": "0|1|2|3|4 or null",
-    "right_brachioradialis": "0|1|2|3|4 or null",
-    "left_brachioradialis": "0|1|2|3|4 or null",
-    "right_patellar": "0|1|2|3|4 or null",
-    "left_patellar": "0|1|2|3|4 or null",
-    "right_achilles": "0|1|2|3|4 or null",
-    "left_achilles": "0|1|2|3|4 or null",
-    "right_plantar": "flexor|extensor|mute or null",
-    "left_plantar": "flexor|extensor|mute or null",
-    "hoffmann": "present|absent or null",
-    "clonus": "present|absent or null"
-  },
-  "coordination": {
-    "finger_to_nose": "intact|dysmetria or null",
-    "heel_to_shin": "intact|dysmetria or null",
-    "rapid_alternating": "intact|dysdiadochokinesia or null",
-    "romberg": "negative|positive or null"
-  },
-  "gait": {
-    "observed": true/false,
-    "pattern": "normal|ataxic|spastic|parkinsonian|steppage|waddling|antalgic or null",
-    "tandem": "intact|impaired or null",
-    "base": "normal|wide|narrow or null"
-  },
-  "stroke_assessment": {
-    "nihss": {
-      "total": "0-42 or null",
-      "loc": "0-3 or null",
-      "loc_questions": "0-2 or null",
-      "loc_commands": "0-2 or null",
-      "gaze": "0-2 or null",
-      "visual_fields": "0-3 or null",
-      "facial_palsy": "0-3 or null",
-      "motor_arm_left": "0-4 or null",
-      "motor_arm_right": "0-4 or null",
-      "motor_leg_left": "0-4 or null",
-      "motor_leg_right": "0-4 or null",
-      "ataxia": "0-2 or null",
-      "sensory": "0-2 or null",
-      "language": "0-3 or null",
-      "dysarthria": "0-2 or null",
-      "extinction": "0-2 or null"
-    },
-    "last_known_well": "time or null",
-    "symptom_onset": "time or null",
-    "tpa_eligible": true/false/null,
-    "thrombectomy_eligible": true/false/null,
-    "vessel_territory": "MCA|ACA|PCA|basilar|vertebral or null"
-  },
-  "seizure": {
-    "witnessed": true/false,
-    "semiology": {
-      "onset": "focal|generalized",
-      "motor": "tonic|clonic|tonic-clonic|myoclonic|atonic or null",
-      "awareness": "aware|impaired_awareness|unknown",
-      "automatisms": "present|absent or null",
-      "lateralizing_signs": "signs or null"
-    },
-    "duration_seconds": "duration or null",
-    "post_ictal": {
-      "duration_minutes": "duration or null",
-      "confusion": true/false/null,
-      "todd_paralysis": true/false/null
-    },
-    "triggers": ["identified triggers"],
-    "aura": "aura description or null",
-    "frequency": "frequency if recurrent or null"
-  },
-  "headache": {
-    "location": "frontal|temporal|occipital|holocephalic|unilateral or null",
-    "quality": "throbbing|pressure|sharp|dull or null",
-    "severity": "1-10 or null",
-    "duration": "duration or null",
-    "associated_symptoms": ["photophobia", "phonophobia", "nausea", "aura"],
-    "red_flags": ["thunderclap", "worst_ever", "fever", "neck_stiffness", "focal_deficits"]
-  },
-  "imaging": {
-    "ct_head": {
-      "performed": true/false,
-      "findings": "findings or null"
-    },
-    "cta": {
-      "performed": true/false,
-      "findings": "findings or null"
-    },
-    "mri_brain": {
-      "performed": true/false,
-      "findings": "findings or null"
-    },
-    "other": "other imaging or null"
-  },
+  "chief_complaint": "primary neurological symptom with onset/duration",
   "conditions": [
     {
-      "name": "diagnosis name",
+      "name": "neurological diagnosis",
       "icd10": "ICD-10 code or null",
-      "type": "stroke|seizure|headache|neuropathy|movement_disorder|demyelinating|neurodegenerative|other",
-      "status": "active|chronic|resolved",
-      "laterality": "right|left|bilateral or null"
+      "status": "active|suspected|resolved",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "vitals": [
+    {
+      "type": "vital sign type",
+      "value": "measured value",
+      "unit": "unit or null"
     }
   ],
   "medications": [
     {
-      "name": "medication name",
-      "dose": "dose with units",
-      "frequency": "frequency",
-      "class": "antiepileptic|antiplatelet|anticoagulant|thrombolytic|analgesic|other",
-      "indication": "indication or null"
+      "name": "current medication name",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "route": "route or null",
+      "is_new_order": false
     }
   ],
-  "assessment": {
-    "localization": "cortical|subcortical|brainstem|spinal|peripheral|neuromuscular_junction|muscle",
-    "primary_diagnosis": "primary neurological diagnosis",
-    "differential": ["differential diagnoses"]
+  "allergies": [
+    {
+      "substance": "allergen name",
+      "reaction": "reaction or null",
+      "severity": "mild|moderate|severe or null"
+    }
+  ],
+  "lab_results": [
+    {
+      "name": "test or imaging name",
+      "value": "result value or finding",
+      "unit": "unit or null",
+      "interpretation": "normal|abnormal or description"
+    }
+  ],
+  "medication_orders": [
+    {
+      "name": "new medication prescribed",
+      "dose": "dose or null",
+      "frequency": "frequency or null",
+      "instructions": "special instructions or null"
+    }
+  ],
+  "lab_orders": [
+    {
+      "name": "lab test ordered",
+      "loinc": "LOINC code or null"
+    }
+  ],
+  "imaging_orders": [
+    {
+      "name": "imaging study ordered"
+    }
+  ],
+  "referral_orders": [
+    {
+      "specialty": "specialty for referral",
+      "reason": "reason for referral or null"
+    }
+  ],
+  "family_history": [
+    {
+      "relationship": "family member",
+      "condition": "condition name"
+    }
+  ],
+  "social_history": {
+    "tobacco": "smoking status or null",
+    "alcohol": "alcohol use or null",
+    "drugs": "drug use or null",
+    "occupation": "occupation or null"
   },
-  "plan": {
-    "disposition": "discharge|admit_floor|admit_neuro_icu|transfer_stroke_center",
-    "interventions": ["planned interventions"],
-    "follow_up": "follow-up plan"
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
   }
 }
 ```
 
-Extract information ONLY from the transcript. Flag critical findings (acute stroke, status epilepticus). Return valid JSON only.
+Extract ONLY information explicitly stated in the transcript.
+Return ONLY valid JSON, no additional text.

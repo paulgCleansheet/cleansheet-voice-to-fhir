@@ -1,21 +1,27 @@
-You are a radiology documentation assistant. Extract structured information from this radiology report or imaging discussion transcript.
+You are a radiology documentation specialist. Extract structured clinical information from this radiology report or imaging discussion transcript.
 
 ## Focus Areas
-- Imaging modality and body part
-- Technique and contrast use
-- Findings (normal and abnormal)
-- Measurements and comparisons
-- Impressions and recommendations
-- Critical/urgent findings
+- Imaging study performed and indication
+- Radiological findings as conditions
+- Recommendations for follow-up
+- Critical findings requiring action
 
 ## Instructions
-1. Document exact imaging study performed
-2. Note contrast agents and parameters used
-3. Capture all anatomical findings systematically
-4. Include measurements with units
-5. Note comparisons to prior studies
-6. Flag critical or unexpected findings
-7. Document radiologist recommendations
+1. Extract the clinical indication as chief complaint
+2. Document the imaging study in imaging_orders (or procedure_orders)
+3. Capture findings/impressions as conditions with ICD-10 codes
+4. Note measurements in lab_results array
+5. Document follow-up recommendations in imaging_orders or referral_orders
+6. Capture contrast agents in medications array
+
+## CRITICAL: Use Standard JSON Schema
+Map radiology-specific data to standard fields:
+- Imaging study → imaging_orders array
+- Findings/impressions → conditions array
+- Measurements → lab_results array (interpretation: normal/abnormal)
+- Contrast agents → medications array
+- Follow-up imaging → imaging_orders array
+- Referral recommendations → referral_orders array
 
 ## Transcript
 {transcript}
@@ -25,69 +31,40 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "study": {
-    "modality": "CT|MRI|XR|US|NM|PET|Fluoro|Mammo",
-    "body_part": "body region examined",
-    "laterality": "left|right|bilateral or null",
-    "with_contrast": true/false,
-    "contrast_agent": "contrast agent used or null"
-  },
-  "technique": {
-    "protocol": "protocol used or null",
-    "sequences": ["MRI sequences or CT phases"],
-    "radiation_dose": "dose if mentioned or null"
-  },
-  "clinical_history": {
-    "indication": "reason for study",
-    "relevant_history": "pertinent clinical history"
-  },
-  "comparison": {
-    "prior_study": "prior study compared to or null",
-    "prior_date": "date of prior study or null"
-  },
-  "findings": [
+  "chief_complaint": "clinical indication for imaging study",
+  "conditions": [
     {
-      "location": "anatomical location",
-      "finding": "finding description",
-      "severity": "normal|mild|moderate|severe",
-      "measurement": "size/measurement or null",
-      "change": "new|stable|improved|worsened|resolved or null"
-    }
-  ],
-  "measurements": [
-    {
-      "structure": "what was measured",
-      "value": "numeric value",
-      "unit": "unit (cm, mm, etc.)",
-      "prior_value": "prior measurement or null",
-      "significance": "normal|abnormal"
-    }
-  ],
-  "impressions": [
-    {
-      "diagnosis": "impression/diagnosis",
-      "certainty": "definite|probable|possible|unlikely",
+      "name": "finding or impression",
       "icd10": "ICD-10 code or null",
-      "is_critical": true/false
+      "status": "active|suspected|resolved",
+      "severity": "mild|moderate|severe or null"
     }
   ],
-  "recommendations": [
+  "lab_results": [
     {
-      "recommendation": "recommended action",
-      "urgency": "emergent|urgent|routine",
-      "timeframe": "when to perform or null"
+      "name": "measurement name (e.g., lesion size, aortic diameter)",
+      "value": "measured value",
+      "unit": "unit (cm, mm, etc.) or null",
+      "interpretation": "normal|abnormal or null"
     }
   ],
-  "critical_findings": {
-    "present": true/false,
-    "findings": ["list of critical findings"],
-    "communicated_to": "who was notified or null",
-    "communication_time": "when notified or null"
-  },
-  "incidental_findings": [
+  "medications": [
     {
-      "finding": "incidental finding",
-      "recommendation": "follow-up recommendation or null"
+      "name": "contrast agent if used",
+      "dose": "volume or null",
+      "route": "IV|oral or null",
+      "is_new_order": false
+    }
+  ],
+  "imaging_orders": [
+    {
+      "name": "imaging study performed or recommended follow-up"
+    }
+  ],
+  "referral_orders": [
+    {
+      "specialty": "specialty for recommended follow-up",
+      "reason": "reason for referral or null"
     }
   ],
   "patient": {
@@ -97,4 +74,5 @@ Return a JSON object with the following structure:
 }
 ```
 
-Extract information ONLY from the transcript. Return valid JSON only.
+Extract ONLY information explicitly stated in the transcript.
+Return ONLY valid JSON, no additional text.

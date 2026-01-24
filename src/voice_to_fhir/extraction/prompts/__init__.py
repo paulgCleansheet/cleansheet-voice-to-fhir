@@ -14,6 +14,8 @@ PROMPTS_DIR = Path(__file__).parent
 
 AVAILABLE_WORKFLOWS = [
     "general",
+    "soap",
+    "hp",
     "emergency",
     "intake",
     "followup",
