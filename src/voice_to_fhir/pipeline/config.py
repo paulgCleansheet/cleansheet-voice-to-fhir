@@ -26,9 +26,14 @@ class CaptureConfig:
 class TranscriptionConfig:
     """Transcription configuration."""
 
-    backend: str = "cloud"  # cloud, local
+    # Backend: "dedicated" (HF Endpoint), "local", "whisper" (fallback), or "cloud" (legacy)
+    backend: str = "whisper"
     model_id: str = "google/medasr"
     model_path: str = "models/medasr"
+    # For dedicated HF Endpoints (e.g., "https://xxxxx.endpoints.huggingface.cloud")
+    endpoint_url: str | None = None
+    # For local server
+    local_url: str = "http://localhost:3002"
     device: str = "cuda"
     precision: str = "fp16"
     use_tensorrt: bool = False
@@ -38,9 +43,14 @@ class TranscriptionConfig:
 class ExtractionConfig:
     """Extraction configuration."""
 
-    backend: str = "cloud"  # cloud, local
-    model_id: str = "google/medgemma-4b"
+    # Backend: "dedicated" (HF Endpoint), "local", or "serverless"
+    backend: str = "dedicated"
+    model_id: str = "google/medgemma-4b-it"
     model_path: str = "models/medgemma-4b"
+    # For dedicated HF Endpoints (e.g., "https://xxxxx.endpoints.huggingface.cloud")
+    endpoint_url: str | None = None
+    # For local server
+    local_url: str = "http://localhost:3003"
     device: str = "cuda"
     precision: str = "int8"
     max_tokens: int = 2048
@@ -101,9 +111,11 @@ class PipelineConfig:
         if "transcription" in data:
             trans = data["transcription"]
             config.transcription = TranscriptionConfig(
-                backend=trans.get("backend", "cloud"),
+                backend=trans.get("backend", "whisper"),
                 model_id=trans.get("model_id", "google/medasr"),
                 model_path=trans.get("model_path", "models/medasr"),
+                endpoint_url=trans.get("endpoint_url"),
+                local_url=trans.get("local_url", "http://localhost:3002"),
                 device=trans.get("device", "cuda"),
                 precision=trans.get("precision", "fp16"),
                 use_tensorrt=trans.get("use_tensorrt", False),
@@ -113,9 +125,11 @@ class PipelineConfig:
         if "extraction" in data:
             ext = data["extraction"]
             config.extraction = ExtractionConfig(
-                backend=ext.get("backend", "cloud"),
-                model_id=ext.get("model_id", "google/medgemma-4b"),
+                backend=ext.get("backend", "dedicated"),
+                model_id=ext.get("model_id", "google/medgemma-4b-it"),
                 model_path=ext.get("model_path", "models/medgemma-4b"),
+                endpoint_url=ext.get("endpoint_url"),
+                local_url=ext.get("local_url", "http://localhost:3003"),
                 device=ext.get("device", "cuda"),
                 precision=ext.get("precision", "int8"),
                 max_tokens=ext.get("max_tokens", 2048),
@@ -152,6 +166,8 @@ class PipelineConfig:
                 "backend": self.transcription.backend,
                 "model_id": self.transcription.model_id,
                 "model_path": self.transcription.model_path,
+                "endpoint_url": self.transcription.endpoint_url,
+                "local_url": self.transcription.local_url,
                 "device": self.transcription.device,
                 "precision": self.transcription.precision,
                 "use_tensorrt": self.transcription.use_tensorrt,
@@ -160,6 +176,8 @@ class PipelineConfig:
                 "backend": self.extraction.backend,
                 "model_id": self.extraction.model_id,
                 "model_path": self.extraction.model_path,
+                "endpoint_url": self.extraction.endpoint_url,
+                "local_url": self.extraction.local_url,
                 "device": self.extraction.device,
                 "precision": self.extraction.precision,
                 "max_tokens": self.extraction.max_tokens,

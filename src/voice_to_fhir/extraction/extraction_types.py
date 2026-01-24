@@ -229,6 +229,110 @@ class LabOrder:
 
 
 @dataclass
+class MedicationOrder:
+    """A new medication being prescribed."""
+
+    name: str
+    dose: str | None = None
+    frequency: str | None = None
+    instructions: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "dose": self.dose,
+            "frequency": self.frequency,
+            "instructions": self.instructions,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "MedicationOrder":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            dose=data.get("dose"),
+            frequency=data.get("frequency"),
+            instructions=data.get("instructions"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class ReferralOrder:
+    """A referral or consult order."""
+
+    specialty: str
+    reason: str | None = None
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "specialty": self.specialty,
+            "reason": self.reason,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ReferralOrder":
+        """Create from dictionary."""
+        return cls(
+            specialty=data.get("specialty", data.get("name", "")),
+            reason=data.get("reason"),
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class ProcedureOrder:
+    """A procedure or study being ordered."""
+
+    name: str
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ProcedureOrder":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
+class ImagingOrder:
+    """An imaging study being ordered."""
+
+    name: str
+    confidence: float = 1.0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "name": self.name,
+            "confidence": self.confidence,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ImagingOrder":
+        """Create from dictionary."""
+        return cls(
+            name=data["name"],
+            confidence=data.get("confidence", 1.0),
+        )
+
+
+@dataclass
 class Observation:
     """An extracted observation (generic clinical finding)."""
 
@@ -437,6 +541,12 @@ class ClinicalEntities:
     # Medications
     medications: list[Medication] = field(default_factory=list)
 
+    # Orders (new prescriptions, consults, procedures, imaging)
+    medication_orders: list["MedicationOrder"] = field(default_factory=list)
+    referral_orders: list["ReferralOrder"] = field(default_factory=list)
+    procedure_orders: list["ProcedureOrder"] = field(default_factory=list)
+    imaging_orders: list["ImagingOrder"] = field(default_factory=list)
+
     # Procedures
     procedures: list[Procedure] = field(default_factory=list)
 
@@ -501,6 +611,10 @@ class ClinicalEntities:
             lab_orders=self.lab_orders + other.lab_orders,
             allergies=self.allergies + other.allergies,
             medications=self.medications + other.medications,
+            medication_orders=self.medication_orders + other.medication_orders,
+            referral_orders=self.referral_orders + other.referral_orders,
+            procedure_orders=self.procedure_orders + other.procedure_orders,
+            imaging_orders=self.imaging_orders + other.imaging_orders,
             procedures=self.procedures + other.procedures,
             family_history=self.family_history + other.family_history,
             social_history=self.social_history or other.social_history,
@@ -524,6 +638,14 @@ class ClinicalEntities:
             parts.append(f"{len(self.lab_results)} lab results")
         if self.lab_orders:
             parts.append(f"{len(self.lab_orders)} lab orders")
+        if self.medication_orders:
+            parts.append(f"{len(self.medication_orders)} medication orders")
+        if self.referral_orders:
+            parts.append(f"{len(self.referral_orders)} referrals")
+        if self.procedure_orders:
+            parts.append(f"{len(self.procedure_orders)} procedure orders")
+        if self.imaging_orders:
+            parts.append(f"{len(self.imaging_orders)} imaging orders")
         if self.procedures:
             parts.append(f"{len(self.procedures)} procedures")
         if self.family_history:
@@ -543,6 +665,10 @@ class ClinicalEntities:
             "vitals": [v.to_dict() for v in self.vitals],
             "lab_results": [lr.to_dict() for lr in self.lab_results],
             "lab_orders": [lo.to_dict() for lo in self.lab_orders],
+            "medication_orders": [mo.to_dict() for mo in self.medication_orders],
+            "referral_orders": [ro.to_dict() for ro in self.referral_orders],
+            "procedure_orders": [po.to_dict() for po in self.procedure_orders],
+            "imaging_orders": [io.to_dict() for io in self.imaging_orders],
             "allergies": [a.to_dict() for a in self.allergies],
             "medications": [m.to_dict() for m in self.medications],
             "procedures": [p.to_dict() for p in self.procedures],
@@ -572,6 +698,10 @@ class ClinicalEntities:
             vitals=[Vital.from_dict(v) for v in data.get("vitals", [])],
             lab_results=[LabResult.from_dict(lr) for lr in data.get("lab_results", [])],
             lab_orders=[LabOrder.from_dict(lo) for lo in data.get("lab_orders", [])],
+            medication_orders=[MedicationOrder.from_dict(mo) for mo in data.get("medication_orders", [])],
+            referral_orders=[ReferralOrder.from_dict(ro) for ro in data.get("referral_orders", [])],
+            procedure_orders=[ProcedureOrder.from_dict(po) for po in data.get("procedure_orders", [])],
+            imaging_orders=[ImagingOrder.from_dict(io) for io in data.get("imaging_orders", [])],
             allergies=[Allergy.from_dict(a) for a in data.get("allergies", [])],
             medications=[Medication.from_dict(m) for m in data.get("medications", [])],
             procedures=[Procedure.from_dict(p) for p in data.get("procedures", [])],

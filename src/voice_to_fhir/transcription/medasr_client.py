@@ -2,6 +2,11 @@
 MedASR Cloud Client
 
 HuggingFace Inference API client for MedASR transcription.
+
+Supports multiple backends:
+- dedicated: HuggingFace Inference Endpoints (paid, recommended)
+- local: Local server running medasr-server.py
+- whisper: Whisper via HF Inference API (fallback)
 """
 
 from dataclasses import dataclass
@@ -20,9 +25,18 @@ class MedASRClientConfig:
 
     api_key: str | None = None
     model_id: str = "google/medasr"
+    # Backend: "dedicated" (HF Endpoint), "local", or "whisper" (fallback)
+    backend: str = "dedicated"
+    # For dedicated HF Endpoints (e.g., "https://xxxxx.endpoints.huggingface.cloud")
+    endpoint_url: str | None = None
+    # For local server (e.g., "http://localhost:3002")
+    local_url: str = "http://localhost:3002"
+    # For Whisper fallback via HF Inference Router
+    whisper_url: str = "https://router.huggingface.co/hf-inference/models/openai/whisper-large-v3"
+    # Legacy serverless API (doesn't work for MedASR)
     api_url: str = "https://api-inference.huggingface.co/models"
-    timeout: float = 30.0
-    timeout_seconds: float = 30.0
+    timeout: float = 60.0
+    timeout_seconds: float = 60.0
     max_retries: int = 3
 
     @classmethod
@@ -31,12 +45,21 @@ class MedASRClientConfig:
         return cls(
             api_key=os.environ.get("HF_TOKEN"),
             model_id=os.environ.get("MEDASR_MODEL_ID", "google/medasr"),
-            timeout=float(os.environ.get("MEDASR_TIMEOUT", "30.0")),
+            backend=os.environ.get("MEDASR_BACKEND", "dedicated"),
+            endpoint_url=os.environ.get("MEDASR_ENDPOINT_URL"),
+            local_url=os.environ.get("MEDASR_LOCAL_URL", "http://localhost:3002"),
+            timeout=float(os.environ.get("MEDASR_TIMEOUT", "60.0")),
         )
 
 
 class MedASRClient:
-    """HuggingFace Inference API client for MedASR."""
+    """HuggingFace client for MedASR transcription.
+
+    Supports multiple backends:
+    - dedicated: HuggingFace Inference Endpoints (paid, recommended for MedASR)
+    - local: Local server running medasr-server.py
+    - whisper: Whisper via HF Inference API (fallback, not medical-specific)
+    """
 
     def __init__(self, config: MedASRClientConfig | None = None):
         """Initialize MedASR client."""
@@ -44,27 +67,50 @@ class MedASRClient:
 
         # Get API key from config or environment
         self.api_key = self.config.api_key or os.environ.get("HF_TOKEN")
-        if not self.api_key:
+
+        # Validate based on backend
+        if self.config.backend in ["dedicated", "whisper"] and not self.api_key:
             raise ValueError(
-                "HuggingFace API key required. "
+                "HuggingFace API key required for cloud backends. "
                 "Set HF_TOKEN environment variable or pass api_key in config."
+            )
+
+        if self.config.backend == "dedicated" and not self.config.endpoint_url:
+            raise ValueError(
+                "endpoint_url required for dedicated backend. "
+                "Set MEDASR_ENDPOINT_URL or pass endpoint_url in config."
             )
 
     @property
     def _headers(self) -> dict[str, str]:
         """Request headers."""
-        return {"Authorization": f"Bearer {self.api_key}"}
+        headers = {"Content-Type": "audio/wav"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
 
     @property
     def _endpoint(self) -> str:
-        """API endpoint URL."""
-        return f"{self.config.api_url}/{self.config.model_id}"
+        """API endpoint URL based on backend."""
+        if self.config.backend == "dedicated":
+            return self.config.endpoint_url
+        elif self.config.backend == "local":
+            return self.config.local_url
+        elif self.config.backend == "whisper":
+            return self.config.whisper_url
+        else:
+            # Legacy serverless (doesn't work for MedASR)
+            return f"{self.config.api_url}/{self.config.model_id}"
 
     def health_check(self) -> bool:
         """Check if the API is reachable."""
         try:
+            url = self._endpoint
+            if self.config.backend == "local":
+                url = f"{self.config.local_url}/health"
+
             response = requests.get(
-                f"{self.config.api_url}/{self.config.model_id}",
+                url,
                 headers=self._headers,
                 timeout=10.0,
             )
@@ -80,9 +126,12 @@ class MedASRClient:
         return audio.to_bytes(format="wav")
 
     def transcribe(self, audio: AudioSegment, language_hint: str | None = None) -> Transcript:
-        """Transcribe audio to text."""
+        """Transcribe audio to text using configured backend."""
         # Prepare audio
         audio_bytes = self._prepare_audio(audio)
+
+        backend = self.config.backend
+        print(f"[MedASR] Transcribing with backend: {backend}")
 
         # Make API request
         response = requests.post(
@@ -94,27 +143,31 @@ class MedASRClient:
 
         if response.status_code != 200:
             raise RuntimeError(
-                f"MedASR API error: {response.status_code} - {response.text}"
+                f"MedASR API error: {response.status_code} - {response.text[:500]}"
             )
 
         result = response.json()
 
-        # Parse response
+        # Parse response (format varies by backend)
         if isinstance(result, dict):
             text = result.get("text", "")
             confidence = result.get("confidence", 1.0)
         elif isinstance(result, list) and result:
-            text = result[0].get("text", "")
-            confidence = result[0].get("confidence", 1.0)
+            # Whisper returns list of chunks
+            text = " ".join(chunk.get("text", str(chunk)) for chunk in result)
+            confidence = result[0].get("confidence", 1.0) if isinstance(result[0], dict) else 1.0
         else:
             text = str(result)
             confidence = 1.0
+
+        # Clean up text
+        text = text.strip()
 
         return Transcript(
             text=text,
             confidence=confidence,
             language=language_hint or "en",
-            metadata={"model": self.config.model_id, "backend": "cloud"},
+            metadata={"model": self.config.model_id, "backend": backend},
         )
 
     def transcribe_streaming(

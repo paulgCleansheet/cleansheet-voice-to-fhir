@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-to-FHIR Demo | Cleansheet Medical</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            /* Colors */
+            --color-primary-blue: #0066CC;
+            --color-accent-blue: #004C99;
+            --color-highlight: #11304f;
+            --color-dark: #1a1a1a;
+            --color-text: #333333;
+            --color-text-secondary: #666666;
+            --color-text-muted: #999999;
+            --color-bg: #f5f5f7;
+            --color-bg-light: #f8f8f8;
+            --color-border: #e5e5e7;
+            --color-white: #ffffff;
+
+            /* Status Colors */
+            --color-success: #16a34a;
+            --color-success-bg: #dcfce7;
+            --color-warning: #f59e0b;
+            --color-warning-bg: #fef3c7;
+            --color-error: #dc2626;
+            --color-error-bg: #fef2f2;
+            --color-info: #1565c0;
+            --color-info-bg: #e3f2fd;
+
+            /* Typography */
+            --font-ui: 'Questrial', sans-serif;
+            --font-body: 'Barlow', sans-serif;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 300;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-ui);
+            font-weight: 400;
+        }
+
+        /* Header */
+        .header {
+            background: var(--color-dark);
+            color: var(--color-white);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 0.875rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-text-muted);
+        }
+
+        .status-dot.connected {
+            background: var(--color-success);
+        }
+
+        .status-dot.error {
+            background: var(--color-error);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 320px 1fr 300px;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            height: calc(100vh - 60px);
+        }
+
+        /* Panel Base */
+        .panel {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--color-dark);
+            color: var(--color-white);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-ui);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .panel-body {
+            flex: 1;
+            padding: var(--spacing-md);
+            overflow-y: auto;
+        }
+
+        /* Input Panel */
+        .input-panel .panel-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select, .form-input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            background: var(--color-white);
+            cursor: pointer;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        }
+
+        /* Record Button */
+        .record-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) 0;
+        }
+
+        .record-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--color-border);
+            background: var(--color-white);
+            color: var(--color-error);
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .record-btn:hover {
+            border-color: var(--color-error);
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            border-color: var(--color-error);
+            background: var(--color-error-bg);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+        }
+
+        .record-time {
+            font-family: var(--font-ui);
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Audio Visualizer */
+        .audio-visualizer {
+            width: 100%;
+            height: 40px;
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .visualizer-bar {
+            width: 4px;
+            height: 4px;
+            background: var(--color-primary-blue);
+            border-radius: 2px;
+            transition: height 0.05s ease;
+        }
+
+        /* Upload Button */
+        .upload-section {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--color-primary-blue);
+            background: var(--color-bg-light);
+        }
+
+        .upload-section input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 1.5rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .upload-text {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Audio Preview */
+        .audio-preview {
+            display: none;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .audio-preview.visible {
+            display: flex;
+        }
+
+        .audio-preview audio {
+            width: 100%;
+            height: 36px;
+        }
+
+        .audio-filename {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Add to Queue Button */
+        .btn-primary {
+            background: var(--color-primary-blue);
+            color: var(--color-white);
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-family: var(--font-ui);
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            transition: background 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-accent-blue);
+        }
+
+        .btn-primary:disabled {
+            background: var(--color-border);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--color-white);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-light);
+            border-color: var(--color-text-secondary);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            padding: var(--spacing-xs);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: var(--color-bg-light);
+            color: var(--color-text);
+        }
+
+        /* Queue Panel */
+        .queue-header-extra {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-left: auto;
+        }
+
+        .progress-bar-container {
+            width: 100px;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--color-success);
+            transition: width 0.3s ease;
+        }
+
+        .queue-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        .queue-item-status {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .queue-item-status.pending { color: var(--color-text-muted); }
+        .queue-item-status.processing { color: var(--color-info); }
+        .queue-item-status.done { color: var(--color-success); }
+        .queue-item-status.error { color: var(--color-error); }
+
+        .queue-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .queue-item-workflow {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .queue-item-meta {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .queue-item-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .queue-empty {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--color-text-muted);
+        }
+
+        /* Processing Toggle */
+        .processing-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: var(--color-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--color-primary-blue);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: var(--color-white);
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* Review Panel */
+        .review-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .review-tab {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background: none;
+            font-family: var(--font-ui);
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .review-tab:hover {
+            background: var(--color-bg-light);
+        }
+
+        .review-tab.active {
+            color: var(--color-primary-blue);
+            border-bottom-color: var(--color-primary-blue);
+        }
+
+        .review-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .review-content.active {
+            display: block;
+        }
+
+        /* Clinical Notes Tab */
+        .note-section {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .note-section-header {
+            font-family: var(--font-ui);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-primary-blue);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .note-section-content {
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            min-height: 60px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .note-section-content:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            background: var(--color-white);
+        }
+
+        .transcript-panel {
+            background: var(--color-highlight);
+            color: var(--color-white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .transcript-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .transcript-text {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* EHR Data Tab */
+        .ehr-category {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .ehr-category-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-dark);
+            color: var(--color-white);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-family: var(--font-ui);
+            font-size: 0.875rem;
+        }
+
+        .ehr-category-count {
+            margin-left: auto;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .ehr-items {
+            border: 1px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .ehr-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+        }
+
+        .ehr-item:last-child {
+            border-bottom: none;
+        }
+
+        .ehr-item-content {
+            flex: 1;
+        }
+
+        .ehr-item-name {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .ehr-item-detail {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .ehr-item-code {
+            font-size: 0.75rem;
+            color: var(--color-primary-blue);
+            font-family: monospace;
+        }
+
+        .ehr-item-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .ehr-item.approved {
+            background: var(--color-success-bg);
+        }
+
+        .ehr-item.rejected {
+            background: var(--color-error-bg);
+            opacity: 0.6;
+        }
+
+        /* Orders Tab */
+        .order-card {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+        }
+
+        .order-card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-bg-light);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .order-type-badge {
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .order-type-badge.medication {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+
+        .order-type-badge.lab {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .order-type-badge.consult {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .order-type-badge.procedure {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .order-card-body {
+            padding: var(--spacing-md);
+        }
+
+        .order-detail {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.875rem;
+        }
+
+        .order-detail-label {
+            color: var(--color-text-secondary);
+            min-width: 80px;
+        }
+
+        .order-card-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-bg-light);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .order-card.approved {
+            border-color: var(--color-success);
+        }
+
+        .order-card.approved .order-card-header {
+            background: var(--color-success-bg);
+        }
+
+        .order-card.rejected {
+            border-color: var(--color-error);
+            opacity: 0.6;
+        }
+
+        .order-card.rejected .order-card-header {
+            background: var(--color-error-bg);
+        }
+
+        /* Mock EHR Panel */
+        .mock-ehr-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .mock-ehr-item {
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--color-success);
+        }
+
+        .mock-ehr-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .mock-ehr-item-workflow {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .mock-ehr-item-time {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .mock-ehr-item-stats {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .mock-ehr-empty {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--color-text-muted);
+        }
+
+        .panel-footer {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Review Pool Header */
+        .review-pool-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .review-item-select {
+            flex: 1;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xl);
+            color: var(--color-text-muted);
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Spinning animation for processing */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Metrics Display */
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-label {
+            color: var(--color-text-secondary);
+        }
+
+        .metric-value {
+            font-weight: 500;
+            font-family: monospace;
+        }
+
+        /* Notification toast */
+        .toast {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--color-dark);
+            color: var(--color-white);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--color-success);
+        }
+
+        .toast.error {
+            background: var(--color-error);
+        }
+
+        .toast.info {
+            background: var(--color-info);
+        }
+
+        /* Settings Modal */
+        .settings-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--color-white);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: all 0.2s ease;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .settings-btn.configured {
+            border-color: var(--color-success);
+            color: var(--color-success);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.visible .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .modal-header h2 {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .modal-body {
+            padding: var(--spacing-md);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .setting-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text);
+        }
+
+        .setting-description {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        }
+
+        .setting-input.error {
+            border-color: var(--color-error);
+        }
+
+        .token-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            margin-top: var(--spacing-xs);
+        }
+
+        .token-status.valid {
+            color: var(--color-success);
+        }
+
+        .token-status.invalid {
+            color: var(--color-error);
+        }
+
+        .token-status.checking {
+            color: var(--color-text-secondary);
+        }
+
+        .endpoint-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            margin-top: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        .endpoint-status.running {
+            color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+
+        .endpoint-status.paused {
+            color: var(--color-warning);
+            background: var(--color-warning-bg);
+        }
+
+        .endpoint-status.error {
+            color: var(--color-error);
+            background: var(--color-error-bg);
+        }
+
+        .endpoint-status.checking {
+            color: var(--color-text-secondary);
+            background: var(--color-bg-light);
+        }
+
+        .header-endpoint-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .header-endpoint-status.running {
+            background: rgba(22, 163, 74, 0.2);
+            color: #4ade80;
+        }
+
+        .header-endpoint-status.paused {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .header-endpoint-status.offline {
+            background: rgba(220, 38, 38, 0.2);
+            color: #f87171;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-container {
+                grid-template-columns: 260px 280px 1fr 260px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
+            }
+
+            .input-panel { grid-column: 1; grid-row: 1; }
+            .queue-panel { grid-column: 2; grid-row: 1; }
+            .review-panel { grid-column: 1 / -1; grid-row: 2; }
+            .ehr-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>
+            <i class="ph ph-microphone"></i>
+            Voice-to-FHIR Demo
+        </h1>
+        <div class="header-status">
+            <div class="header-endpoint-status" id="headerEndpointStatus" style="display: none;">
+                <i class="ph ph-cloud"></i>
+                <span id="headerEndpointText">MedGemma</span>
+            </div>
+            <button class="settings-btn" id="settingsBtn">
+                <i class="ph ph-gear"></i>
+                Settings
+            </button>
+            <div class="status-indicator">
+                <span class="status-dot" id="apiStatus"></span>
+                <span id="apiStatusText">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="ph ph-gear"></i> Settings</h2>
+                <button class="btn-icon" id="closeSettingsBtn">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">HuggingFace API Token</label>
+                    <div class="setting-description">
+                        Required for MedGemma extraction. Get your token from
+                        <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a>
+                    </div>
+                    <input type="password" class="setting-input" id="hfTokenInput"
+                           placeholder="hf_xxxxxxxxxxxxxxxxxxxx">
+                    <div class="token-status" id="tokenStatus"></div>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">API Endpoint</label>
+                    <div class="setting-description">
+                        Voice-to-FHIR server URL (default: http://localhost:8001)
+                    </div>
+                    <input type="text" class="setting-input" id="apiUrlInput"
+                           placeholder="http://localhost:8001">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Transcription Backend</label>
+                    <div class="setting-description">
+                        Choose between local MedASR or cloud Whisper
+                    </div>
+                    <select class="form-select" id="transcriptionBackendSelect" style="width: 100%;">
+                        <option value="local">MedASR (Local) - Recommended</option>
+                        <option value="whisper">Whisper (Cloud)</option>
+                        <option value="dedicated">Dedicated Endpoint</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">MedGemma Endpoint URL</label>
+                    <div class="setting-description">
+                        Custom HuggingFace Inference Endpoint for MedGemma
+                    </div>
+                    <input type="text" class="setting-input" id="medgemmaEndpointInput"
+                           placeholder="https://xxxxx.us-east-1.aws.endpoints.huggingface.cloud">
+                    <div class="endpoint-status" id="endpointStatus"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="clearSettingsBtn">
+                    <i class="ph ph-trash"></i> Clear All
+                </button>
+                <button class="btn-primary" id="saveSettingsBtn">
+                    <i class="ph ph-check"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Input Panel -->
+        <section class="panel input-panel">
+            <div class="panel-header">
+                <i class="ph ph-plus-circle"></i>
+                Input
+            </div>
+            <div class="panel-body">
+                <!-- Note Type Selector -->
+                <div class="form-group">
+                    <label>Note Type</label>
+                    <select class="form-select" id="workflowSelect">
+                        <option value="">Loading workflows...</option>
+                    </select>
+                </div>
+
+                <!-- Record Section -->
+                <div class="record-section">
+                    <button class="record-btn" id="recordBtn" title="Click to record">
+                        <i class="ph ph-microphone"></i>
+                    </button>
+                    <div class="record-time" id="recordTime">00:00</div>
+                    <div class="audio-visualizer" id="audioVisualizer">
+                        <!-- Bars will be added dynamically -->
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="text-align: center; color: var(--color-text-muted); font-size: 0.75rem;">
+                    or
+                </div>
+
+                <!-- Upload Section -->
+                <div class="upload-section" id="uploadSection">
+                    <input type="file" id="fileInput" accept=".wav,.weba,.webm,.mp3,.ogg,.m4a">
+                    <div class="upload-icon">
+                        <i class="ph ph-upload-simple"></i>
+                    </div>
+                    <div class="upload-text">Drop audio file or click to browse</div>
+                </div>
+
+                <!-- Audio Preview -->
+                <div class="audio-preview" id="audioPreview">
+                    <div class="audio-filename" id="audioFilename"></div>
+                    <audio controls id="audioPlayer"></audio>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn-secondary" id="downloadAudioBtn">
+                            <i class="ph ph-download-simple"></i> Download
+                        </button>
+                        <button class="btn-secondary" id="clearAudioBtn">
+                            <i class="ph ph-x"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add to Queue -->
+                <button class="btn-primary" id="addToQueueBtn" disabled>
+                    <i class="ph ph-plus"></i>
+                    Add to Queue
+                </button>
+            </div>
+        </section>
+
+        <!-- Processing Queue Panel -->
+        <section class="panel queue-panel">
+            <div class="panel-header">
+                <i class="ph ph-queue"></i>
+                Processing Queue
+                <div class="queue-header-extra">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="queueProgress" style="width: 0%"></div>
+                    </div>
+                    <span id="queueCount">0/0</span>
+                </div>
+            </div>
+            <div class="panel-body">
+                <!-- Processing Toggle -->
+                <div class="processing-toggle">
+                    <span>Sequential</span>
+                    <div class="toggle-switch" id="parallelToggle" title="Toggle parallel processing"></div>
+                    <span>Parallel</span>
+                </div>
+
+                <!-- Queue List -->
+                <div class="queue-list" id="queueList">
+                    <div class="queue-empty">
+                        <i class="ph ph-hourglass"></i>
+                        <p>No items in queue</p>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button class="btn-secondary" id="processQueueBtn" disabled>
+                    <i class="ph ph-play"></i> Process All
+                </button>
+                <button class="btn-secondary" id="clearQueueBtn">
+                    <i class="ph ph-trash"></i> Clear
+                </button>
+            </div>
+        </section>
+
+        <!-- Clinician Review Panel -->
+        <section class="panel review-panel">
+            <div class="panel-header">
+                <i class="ph ph-clipboard-text"></i>
+                Clinician Review
+            </div>
+
+            <!-- Review Item Selector -->
+            <div class="review-pool-selector" id="reviewPoolSelector" style="display: none;">
+                <label style="font-size: 0.75rem; color: var(--color-text-secondary);">Reviewing:</label>
+                <select class="review-item-select" id="reviewItemSelect"></select>
+            </div>
+
+            <!-- Tabs -->
+            <div class="review-tabs">
+                <button class="review-tab active" data-tab="notes">
+                    <i class="ph ph-note"></i> Clinical Notes
+                </button>
+                <button class="review-tab" data-tab="ehr">
+                    <i class="ph ph-database"></i> EHR Data
+                </button>
+                <button class="review-tab" data-tab="orders">
+                    <i class="ph ph-prescription"></i> Orders
+                </button>
+            </div>
+
+            <!-- Tab Content: Clinical Notes -->
+            <div class="review-content active" id="notesContent">
+                <div class="empty-state" id="notesEmpty">
+                    <i class="ph ph-note-blank"></i>
+                    <p>Process audio to generate clinical notes</p>
+                </div>
+                <div id="notesSections"></div>
+                <div class="transcript-panel" id="transcriptPanel" style="display: none;">
+                    <div class="transcript-header">
+                        <span>Original Transcript</span>
+                        <button class="btn-icon" id="toggleTranscript" title="Toggle">
+                            <i class="ph ph-caret-down"></i>
+                        </button>
+                    </div>
+                    <div class="transcript-text" id="transcriptText"></div>
+                </div>
+            </div>
+
+            <!-- Tab Content: EHR Data -->
+            <div class="review-content" id="ehrContent">
+                <div class="empty-state" id="ehrEmpty">
+                    <i class="ph ph-database"></i>
+                    <p>Process audio to extract structured EHR data</p>
+                </div>
+                <div id="ehrCategories"></div>
+            </div>
+
+            <!-- Tab Content: Orders -->
+            <div class="review-content" id="ordersContent">
+                <div class="empty-state" id="ordersEmpty">
+                    <i class="ph ph-prescription"></i>
+                    <p>Process audio to extract clinician orders</p>
+                </div>
+                <div id="ordersList"></div>
+            </div>
+
+            <div class="panel-footer">
+                <button class="btn-primary" id="submitToEhrBtn" disabled style="flex: 1;">
+                    <i class="ph ph-check-circle"></i>
+                    Submit Approved to Mock EHR
+                </button>
+            </div>
+        </section>
+
+        <!-- Mock EHR Panel -->
+        <section class="panel ehr-panel">
+            <div class="panel-header">
+                <i class="ph ph-hospital"></i>
+                Mock EHR
+            </div>
+            <div class="panel-body">
+                <div class="mock-ehr-list" id="mockEhrList">
+                    <div class="mock-ehr-empty" id="mockEhrEmpty">
+                        <i class="ph ph-hospital"></i>
+                        <p>No records submitted</p>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button class="btn-secondary" id="viewEhrBundleBtn" disabled>
+                    <i class="ph ph-code"></i> View Bundle
+                </button>
+                <button class="btn-secondary" id="clearEhrBtn">
+                    <i class="ph ph-trash"></i> Clear
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================================
+        // Configuration
+        // ============================================================================
+        const DEFAULT_API_URL = 'http://localhost:8001';
+        const DEFAULT_MEDGEMMA_ENDPOINT = 'https://cp2wjw95vpf9604w.us-east-1.aws.endpoints.huggingface.cloud';
+        const MAX_PARALLEL = 3;
+
+        // ============================================================================
+        // Settings Management
+        // ============================================================================
+        const settings = {
+            apiUrl: localStorage.getItem('v2f_apiUrl') || DEFAULT_API_URL,
+            hfToken: localStorage.getItem('v2f_hfToken') || '',
+            transcriptionBackend: localStorage.getItem('v2f_transcriptionBackend') || 'local',
+            medgemmaEndpoint: localStorage.getItem('v2f_medgemmaEndpoint') || DEFAULT_MEDGEMMA_ENDPOINT
+        };
+
+        function saveSettings() {
+            localStorage.setItem('v2f_apiUrl', settings.apiUrl);
+            localStorage.setItem('v2f_hfToken', settings.hfToken);
+            localStorage.setItem('v2f_transcriptionBackend', settings.transcriptionBackend);
+            localStorage.setItem('v2f_medgemmaEndpoint', settings.medgemmaEndpoint);
+        }
+
+        function clearSettings() {
+            localStorage.removeItem('v2f_apiUrl');
+            localStorage.removeItem('v2f_hfToken');
+            localStorage.removeItem('v2f_transcriptionBackend');
+            localStorage.removeItem('v2f_medgemmaEndpoint');
+            settings.apiUrl = DEFAULT_API_URL;
+            settings.hfToken = '';
+            settings.transcriptionBackend = 'local';
+            settings.medgemmaEndpoint = DEFAULT_MEDGEMMA_ENDPOINT;
+        }
+
+        function getApiUrl() {
+            return settings.apiUrl || DEFAULT_API_URL;
+        }
+
+        // ============================================================================
+        // State Management
+        // ============================================================================
+        const state = {
+            workflows: [],
+            currentAudioBlob: null,
+            currentFilename: null,
+            isRecording: false,
+            recordingStartTime: null,
+            mediaRecorder: null,
+            audioChunks: [],
+            audioContext: null,
+            analyser: null,
+            queue: [], // { id, audioBlob, filename, workflow, workflowName, status, result, metrics }
+            parallelMode: false,
+            isProcessing: false,
+            reviewPool: [], // Processed items ready for review
+            currentReviewIndex: -1,
+            mockEHR: []
+        };
+
+        // ============================================================================
+        // DOM Elements
+        // ============================================================================
+        const elements = {
+            apiStatus: document.getElementById('apiStatus'),
+            apiStatusText: document.getElementById('apiStatusText'),
+            workflowSelect: document.getElementById('workflowSelect'),
+            recordBtn: document.getElementById('recordBtn'),
+            recordTime: document.getElementById('recordTime'),
+            audioVisualizer: document.getElementById('audioVisualizer'),
+            uploadSection: document.getElementById('uploadSection'),
+            fileInput: document.getElementById('fileInput'),
+            audioPreview: document.getElementById('audioPreview'),
+            audioFilename: document.getElementById('audioFilename'),
+            audioPlayer: document.getElementById('audioPlayer'),
+            downloadAudioBtn: document.getElementById('downloadAudioBtn'),
+            clearAudioBtn: document.getElementById('clearAudioBtn'),
+            addToQueueBtn: document.getElementById('addToQueueBtn'),
+            parallelToggle: document.getElementById('parallelToggle'),
+            queueList: document.getElementById('queueList'),
+            queueProgress: document.getElementById('queueProgress'),
+            queueCount: document.getElementById('queueCount'),
+            processQueueBtn: document.getElementById('processQueueBtn'),
+            clearQueueBtn: document.getElementById('clearQueueBtn'),
+            reviewPoolSelector: document.getElementById('reviewPoolSelector'),
+            reviewItemSelect: document.getElementById('reviewItemSelect'),
+            notesContent: document.getElementById('notesContent'),
+            notesEmpty: document.getElementById('notesEmpty'),
+            notesSections: document.getElementById('notesSections'),
+            transcriptPanel: document.getElementById('transcriptPanel'),
+            transcriptText: document.getElementById('transcriptText'),
+            ehrContent: document.getElementById('ehrContent'),
+            ehrEmpty: document.getElementById('ehrEmpty'),
+            ehrCategories: document.getElementById('ehrCategories'),
+            ordersContent: document.getElementById('ordersContent'),
+            ordersEmpty: document.getElementById('ordersEmpty'),
+            ordersList: document.getElementById('ordersList'),
+            submitToEhrBtn: document.getElementById('submitToEhrBtn'),
+            mockEhrList: document.getElementById('mockEhrList'),
+            mockEhrEmpty: document.getElementById('mockEhrEmpty'),
+            viewEhrBundleBtn: document.getElementById('viewEhrBundleBtn'),
+            clearEhrBtn: document.getElementById('clearEhrBtn'),
+            toast: document.getElementById('toast'),
+            // Settings elements
+            settingsBtn: document.getElementById('settingsBtn'),
+            settingsModal: document.getElementById('settingsModal'),
+            closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+            hfTokenInput: document.getElementById('hfTokenInput'),
+            tokenStatus: document.getElementById('tokenStatus'),
+            apiUrlInput: document.getElementById('apiUrlInput'),
+            transcriptionBackendSelect: document.getElementById('transcriptionBackendSelect'),
+            medgemmaEndpointInput: document.getElementById('medgemmaEndpointInput'),
+            endpointStatus: document.getElementById('endpointStatus'),
+            headerEndpointStatus: document.getElementById('headerEndpointStatus'),
+            headerEndpointText: document.getElementById('headerEndpointText'),
+            clearSettingsBtn: document.getElementById('clearSettingsBtn'),
+            saveSettingsBtn: document.getElementById('saveSettingsBtn')
+        };
+
+        // ============================================================================
+        // Utility Functions
+        // ============================================================================
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatMs(ms) {
+            if (ms < 1000) return `${ms.toFixed(0)}ms`;
+            return `${(ms / 1000).toFixed(1)}s`;
+        }
+
+        function showToast(message, type = 'info') {
+            elements.toast.textContent = message;
+            elements.toast.className = `toast ${type} visible`;
+            setTimeout(() => {
+                elements.toast.classList.remove('visible');
+            }, 3000);
+        }
+
+        // ============================================================================
+        // API Functions
+        // ============================================================================
+        function getApiHeaders() {
+            const headers = {};
+            if (settings.hfToken) {
+                headers['X-HF-Token'] = settings.hfToken;
+            }
+            if (settings.transcriptionBackend) {
+                headers['X-Transcription-Backend'] = settings.transcriptionBackend;
+            }
+            if (settings.medgemmaEndpoint) {
+                headers['X-Extraction-Backend'] = 'dedicated';
+                headers['X-MedGemma-Endpoint'] = settings.medgemmaEndpoint;
+            }
+            return headers;
+        }
+
+        async function checkApiHealth() {
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/health`);
+                const data = await response.json();
+                elements.apiStatus.classList.add('connected');
+                elements.apiStatus.classList.remove('error');
+                elements.apiStatusText.textContent = `Connected (v${data.version})`;
+                return true;
+            } catch (error) {
+                elements.apiStatus.classList.add('error');
+                elements.apiStatus.classList.remove('connected');
+                elements.apiStatusText.textContent = 'Disconnected';
+                return false;
+            }
+        }
+
+        async function loadWorkflows() {
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/workflows`);
+                const data = await response.json();
+                state.workflows = data.workflows;
+
+                elements.workflowSelect.innerHTML = state.workflows.map(w =>
+                    `<option value="${w.id}" title="${w.description}">${w.name}</option>`
+                ).join('');
+            } catch (error) {
+                console.error('Failed to load workflows:', error);
+                elements.workflowSelect.innerHTML = '<option value="general">General Encounter</option>';
+            }
+        }
+
+        async function processAudio(audioBlob, workflow) {
+            const formData = new FormData();
+            formData.append('file', audioBlob, 'recording.webm');
+            formData.append('workflow', workflow);
+
+            const response = await fetch(`${getApiUrl()}/api/v1/process-audio`, {
+                method: 'POST',
+                headers: getApiHeaders(),
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Processing failed');
+            }
+
+            return await response.json();
+        }
+
+        async function validateHfToken(token) {
+            if (!token || !token.startsWith('hf_')) {
+                return { valid: false, message: 'Token should start with hf_' };
+            }
+
+            // Try a simple validation by checking the API with the token
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/health`, {
+                    headers: { 'X-HF-Token': token }
+                });
+                if (response.ok) {
+                    return { valid: true, message: 'Token configured' };
+                }
+                return { valid: false, message: 'Could not validate token' };
+            } catch (error) {
+                return { valid: true, message: 'Token saved (server offline)' };
+            }
+        }
+
+        async function checkEndpointStatus(endpointUrl) {
+            if (!endpointUrl) {
+                return { status: 'offline', message: 'No endpoint configured' };
+            }
+
+            try {
+                // HuggingFace Inference Endpoints return status via a health check
+                // We'll try to hit the endpoint with an empty request to check status
+                const response = await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${settings.hfToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ inputs: '' })
+                });
+
+                if (response.ok) {
+                    return { status: 'running', message: 'Running' };
+                } else if (response.status === 503) {
+                    // 503 typically means the endpoint is paused/scaling
+                    const data = await response.json().catch(() => ({}));
+                    if (data.error && data.error.includes('is currently loading')) {
+                        return { status: 'paused', message: 'Loading...' };
+                    }
+                    return { status: 'paused', message: 'Paused (503)' };
+                } else if (response.status === 401 || response.status === 403) {
+                    return { status: 'error', message: 'Auth error - check token' };
+                } else if (response.status === 400 || response.status === 404 || response.status === 422) {
+                    // 400/404/422 with our test request means the endpoint IS running
+                    // It's just rejecting our health check format - that's fine
+                    return { status: 'running', message: 'Running' };
+                } else {
+                    return { status: 'error', message: `Error (${response.status})` };
+                }
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    return { status: 'offline', message: 'Unreachable' };
+                }
+                return { status: 'error', message: error.message };
+            }
+        }
+
+        function updateEndpointStatusUI(result) {
+            // Update modal status
+            elements.endpointStatus.className = `endpoint-status ${result.status}`;
+            const icon = result.status === 'running' ? 'check-circle' :
+                        result.status === 'paused' ? 'pause-circle' :
+                        result.status === 'error' ? 'x-circle' : 'cloud-slash';
+            elements.endpointStatus.innerHTML = `<i class="ph ph-${icon}"></i> ${result.message}`;
+
+            // Update header status
+            if (settings.medgemmaEndpoint) {
+                elements.headerEndpointStatus.style.display = 'flex';
+                elements.headerEndpointStatus.className = `header-endpoint-status ${result.status === 'running' ? 'running' : result.status === 'paused' ? 'paused' : 'offline'}`;
+                elements.headerEndpointText.textContent = `MedGemma: ${result.message}`;
+            } else {
+                elements.headerEndpointStatus.style.display = 'none';
+            }
+        }
+
+        // ============================================================================
+        // Audio Recording
+        // ============================================================================
+        function initVisualizer() {
+            const barCount = 32;
+            elements.audioVisualizer.innerHTML = '';
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'visualizer-bar';
+                elements.audioVisualizer.appendChild(bar);
+            }
+        }
+
+        function updateVisualizer() {
+            if (!state.analyser) return;
+
+            const bars = elements.audioVisualizer.querySelectorAll('.visualizer-bar');
+            const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
+            state.analyser.getByteFrequencyData(dataArray);
+
+            const step = Math.floor(dataArray.length / bars.length);
+            bars.forEach((bar, i) => {
+                const value = dataArray[i * step];
+                const height = Math.max(4, (value / 255) * 36);
+                bar.style.height = `${height}px`;
+            });
+
+            if (state.isRecording) {
+                requestAnimationFrame(updateVisualizer);
+            }
+        }
+
+        function updateRecordTime() {
+            if (!state.isRecording || !state.recordingStartTime) return;
+
+            const elapsed = (Date.now() - state.recordingStartTime) / 1000;
+            elements.recordTime.textContent = formatTime(elapsed);
+
+            if (state.isRecording) {
+                requestAnimationFrame(updateRecordTime);
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                // Setup audio context for visualization
+                state.audioContext = new AudioContext();
+                state.analyser = state.audioContext.createAnalyser();
+                state.analyser.fftSize = 256;
+                const source = state.audioContext.createMediaStreamSource(stream);
+                source.connect(state.analyser);
+
+                // Setup media recorder
+                state.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                state.audioChunks = [];
+
+                state.mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        state.audioChunks.push(e.data);
+                    }
+                };
+
+                state.mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(state.audioChunks, { type: 'audio/webm' });
+                    setCurrentAudio(audioBlob, 'recording.webm');
+
+                    // Cleanup
+                    stream.getTracks().forEach(track => track.stop());
+                    if (state.audioContext) {
+                        state.audioContext.close();
+                        state.audioContext = null;
+                    }
+                };
+
+                state.mediaRecorder.start(100);
+                state.isRecording = true;
+                state.recordingStartTime = Date.now();
+
+                elements.recordBtn.classList.add('recording');
+                elements.recordBtn.innerHTML = '<i class="ph ph-stop"></i>';
+
+                updateVisualizer();
+                updateRecordTime();
+
+            } catch (error) {
+                console.error('Failed to start recording:', error);
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (state.mediaRecorder && state.isRecording) {
+                state.mediaRecorder.stop();
+                state.isRecording = false;
+                state.recordingStartTime = null;
+
+                elements.recordBtn.classList.remove('recording');
+                elements.recordBtn.innerHTML = '<i class="ph ph-microphone"></i>';
+
+                // Reset visualizer
+                const bars = elements.audioVisualizer.querySelectorAll('.visualizer-bar');
+                bars.forEach(bar => bar.style.height = '4px');
+            }
+        }
+
+        function setCurrentAudio(blob, filename) {
+            state.currentAudioBlob = blob;
+            state.currentFilename = filename;
+
+            const url = URL.createObjectURL(blob);
+            elements.audioPlayer.src = url;
+            elements.audioFilename.textContent = filename;
+            elements.audioPreview.classList.add('visible');
+
+            updateAddToQueueButton();
+        }
+
+        function clearCurrentAudio() {
+            if (elements.audioPlayer.src) {
+                URL.revokeObjectURL(elements.audioPlayer.src);
+            }
+            state.currentAudioBlob = null;
+            state.currentFilename = null;
+            elements.audioPlayer.src = '';
+            elements.audioPreview.classList.remove('visible');
+            elements.recordTime.textContent = '00:00';
+
+            updateAddToQueueButton();
+        }
+
+        function downloadCurrentAudio() {
+            if (!state.currentAudioBlob) return;
+
+            const url = URL.createObjectURL(state.currentAudioBlob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Generate filename with timestamp if it's a recording
+            let filename = state.currentFilename;
+            if (filename === 'recording.webm') {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                filename = `recording-${timestamp}.webm`;
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Recording downloaded', 'success');
+        }
+
+        function updateAddToQueueButton() {
+            const hasAudio = state.currentAudioBlob !== null;
+            const hasWorkflow = elements.workflowSelect.value !== '';
+            elements.addToQueueBtn.disabled = !hasAudio || !hasWorkflow;
+        }
+
+        // ============================================================================
+        // Queue Management
+        // ============================================================================
+        function addToQueue() {
+            if (!state.currentAudioBlob) return;
+
+            const workflow = elements.workflowSelect.value;
+            const workflowName = elements.workflowSelect.options[elements.workflowSelect.selectedIndex].text;
+
+            const item = {
+                id: generateId(),
+                audioBlob: state.currentAudioBlob,
+                filename: state.currentFilename,
+                workflow: workflow,
+                workflowName: workflowName,
+                status: 'pending',
+                result: null,
+                metrics: null
+            };
+
+            state.queue.push(item);
+            clearCurrentAudio();
+            renderQueue();
+            showToast('Added to queue', 'success');
+        }
+
+        function removeFromQueue(id) {
+            state.queue = state.queue.filter(item => item.id !== id);
+            renderQueue();
+        }
+
+        function clearQueue() {
+            state.queue = state.queue.filter(item => item.status === 'processing');
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const pendingCount = state.queue.filter(i => i.status === 'pending').length;
+            const processingCount = state.queue.filter(i => i.status === 'processing').length;
+            const doneCount = state.queue.filter(i => i.status === 'done').length;
+            const totalCount = state.queue.length;
+
+            // Update progress
+            const progress = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+            elements.queueProgress.style.width = `${progress}%`;
+            elements.queueCount.textContent = `${doneCount}/${totalCount}`;
+
+            // Update process button
+            elements.processQueueBtn.disabled = pendingCount === 0 || state.isProcessing;
+
+            if (state.queue.length === 0) {
+                elements.queueList.innerHTML = `
+                    <div class="queue-empty">
+                        <i class="ph ph-hourglass"></i>
+                        <p>No items in queue</p>
+                    </div>
+                `;
+                return;
+            }
+
+            elements.queueList.innerHTML = state.queue.map(item => {
+                const statusIcon = {
+                    pending: '<i class="ph ph-hourglass"></i>',
+                    processing: '<i class="ph ph-spinner spinning"></i>',
+                    done: '<i class="ph ph-check-circle"></i>',
+                    error: '<i class="ph ph-x-circle"></i>'
+                }[item.status];
+
+                const metricsHtml = item.metrics ? `
+                    <div class="metrics-display">
+                        <div class="metric-item">
+                            <span class="metric-label">Transcription:</span>
+                            <span class="metric-value">${formatMs(item.metrics.transcription_ms)}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Extraction:</span>
+                            <span class="metric-value">${formatMs(item.metrics.extraction_ms)}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">FHIR:</span>
+                            <span class="metric-value">${formatMs(item.metrics.fhir_transform_ms)}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Total:</span>
+                            <span class="metric-value">${formatMs(item.metrics.total_ms)}</span>
+                        </div>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="queue-item" data-id="${item.id}">
+                        <div class="queue-item-status ${item.status}">${statusIcon}</div>
+                        <div class="queue-item-info">
+                            <div class="queue-item-workflow">${item.workflowName}</div>
+                            <div class="queue-item-meta">${item.filename}</div>
+                            ${metricsHtml}
+                        </div>
+                        <div class="queue-item-actions">
+                            ${item.status === 'error' ? `
+                                <button class="btn-icon" onclick="retryQueueItem('${item.id}')" title="Retry">
+                                    <i class="ph ph-arrow-clockwise"></i>
+                                </button>
+                            ` : ''}
+                            ${item.status !== 'processing' ? `
+                                <button class="btn-icon" onclick="removeFromQueue('${item.id}')" title="Remove">
+                                    <i class="ph ph-x"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function processQueue() {
+            const pending = state.queue.filter(item => item.status === 'pending');
+            if (pending.length === 0) return;
+
+            state.isProcessing = true;
+            elements.processQueueBtn.disabled = true;
+
+            try {
+                if (state.parallelMode) {
+                    // Process in parallel batches
+                    while (state.queue.some(i => i.status === 'pending')) {
+                        const batch = state.queue
+                            .filter(i => i.status === 'pending')
+                            .slice(0, MAX_PARALLEL);
+
+                        await Promise.all(batch.map(item => processQueueItem(item)));
+                    }
+                } else {
+                    // Process sequentially
+                    for (const item of state.queue) {
+                        if (item.status === 'pending') {
+                            await processQueueItem(item);
+                        }
+                    }
+                }
+            } finally {
+                state.isProcessing = false;
+                renderQueue();
+            }
+        }
+
+        async function processQueueItem(item) {
+            item.status = 'processing';
+            renderQueue();
+
+            try {
+                const result = await processAudio(item.audioBlob, item.workflow);
+
+                if (result.success) {
+                    item.status = 'done';
+                    item.result = result;
+                    item.metrics = result.metrics;
+
+                    // Add to review pool
+                    addToReviewPool(item);
+                } else {
+                    item.status = 'error';
+                    item.error = result.error || 'Processing failed';
+                    showToast(`Error: ${item.error}`, 'error');
+                }
+            } catch (error) {
+                item.status = 'error';
+                item.error = error.message;
+                showToast(`Error: ${error.message}`, 'error');
+            }
+
+            renderQueue();
+        }
+
+        function retryQueueItem(id) {
+            const item = state.queue.find(i => i.id === id);
+            if (item) {
+                item.status = 'pending';
+                item.result = null;
+                item.metrics = null;
+                item.error = null;
+                renderQueue();
+            }
+        }
+
+        // ============================================================================
+        // Review Pool
+        // ============================================================================
+        function addToReviewPool(item) {
+            const reviewItem = {
+                id: item.id,
+                workflow: item.workflow,
+                workflowName: item.workflowName,
+                transcript: item.result.transcript,
+                fhirBundle: item.result.fhir_bundle,
+                metrics: item.metrics,
+                extractedData: extractDataFromBundle(item.result.fhir_bundle),
+                approved: {}
+            };
+
+            state.reviewPool.push(reviewItem);
+            updateReviewPoolUI();
+
+            // Auto-select the new item
+            state.currentReviewIndex = state.reviewPool.length - 1;
+            renderCurrentReview();
+        }
+
+        function extractDataFromBundle(bundle) {
+            const data = {
+                patient: null,
+                conditions: [],
+                medications: [],
+                allergies: [],
+                vitals: [],
+                labResults: [],
+                procedures: [],
+                familyHistory: [],
+                socialHistory: null,
+                orders: {
+                    medications: [],
+                    labs: [],
+                    consults: [],
+                    procedures: []
+                }
+            };
+
+            if (!bundle || !bundle.entry) return data;
+
+            for (const entry of bundle.entry) {
+                const resource = entry.resource;
+                if (!resource) continue;
+
+                switch (resource.resourceType) {
+                    case 'Patient':
+                        data.patient = resource;
+                        break;
+
+                    case 'Condition':
+                        data.conditions.push({
+                            id: resource.id,
+                            name: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
+                            code: resource.code?.coding?.[0]?.code,
+                            system: resource.code?.coding?.[0]?.system,
+                            status: resource.clinicalStatus?.coding?.[0]?.code || 'active',
+                            onset: resource.onsetDateTime || resource.onsetString,
+                            approved: null
+                        });
+                        break;
+
+                    case 'MedicationStatement':
+                        data.medications.push({
+                            id: resource.id,
+                            name: resource.medicationCodeableConcept?.coding?.[0]?.display ||
+                                  resource.medicationCodeableConcept?.text || 'Unknown',
+                            code: resource.medicationCodeableConcept?.coding?.[0]?.code,
+                            dosage: resource.dosage?.[0]?.text || '',
+                            status: resource.status,
+                            approved: null
+                        });
+                        break;
+
+                    case 'MedicationRequest':
+                        data.orders.medications.push({
+                            id: resource.id,
+                            name: resource.medicationCodeableConcept?.coding?.[0]?.display ||
+                                  resource.medicationCodeableConcept?.text || 'Unknown',
+                            code: resource.medicationCodeableConcept?.coding?.[0]?.code,
+                            dosage: resource.dosageInstruction?.[0]?.text || '',
+                            intent: resource.intent,
+                            approved: null
+                        });
+                        break;
+
+                    case 'AllergyIntolerance':
+                        data.allergies.push({
+                            id: resource.id,
+                            substance: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
+                            reaction: resource.reaction?.[0]?.manifestation?.[0]?.coding?.[0]?.display || '',
+                            severity: resource.reaction?.[0]?.severity || 'unknown',
+                            approved: null
+                        });
+                        break;
+
+                    case 'Observation':
+                        const category = resource.category?.[0]?.coding?.[0]?.code;
+                        const obs = {
+                            id: resource.id,
+                            name: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
+                            code: resource.code?.coding?.[0]?.code,
+                            value: resource.valueQuantity?.value ?? resource.valueString ?? '',
+                            unit: resource.valueQuantity?.unit || '',
+                            interpretation: resource.interpretation?.[0]?.coding?.[0]?.code,
+                            approved: null
+                        };
+
+                        if (category === 'vital-signs') {
+                            data.vitals.push(obs);
+                        } else if (category === 'laboratory') {
+                            data.labResults.push(obs);
+                        } else if (category === 'social-history') {
+                            data.socialHistory = obs;
+                        }
+                        break;
+
+                    case 'Procedure':
+                        data.procedures.push({
+                            id: resource.id,
+                            name: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
+                            code: resource.code?.coding?.[0]?.code,
+                            date: resource.performedDateTime,
+                            status: resource.status,
+                            approved: null
+                        });
+                        break;
+
+                    case 'FamilyMemberHistory':
+                        data.familyHistory.push({
+                            id: resource.id,
+                            relationship: resource.relationship?.coding?.[0]?.display || 'Unknown',
+                            condition: resource.condition?.[0]?.code?.coding?.[0]?.display || 'Unknown',
+                            approved: null
+                        });
+                        break;
+
+                    case 'ServiceRequest':
+                        const serviceCategory = resource.category?.[0]?.coding?.[0]?.code;
+                        const serviceItem = {
+                            id: resource.id,
+                            name: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
+                            code: resource.code?.coding?.[0]?.code,
+                            intent: resource.intent,
+                            reason: resource.reasonCode?.[0]?.text || null,
+                            approved: null
+                        };
+
+                        if (serviceCategory === 'laboratory') {
+                            data.orders.labs.push(serviceItem);
+                        } else if (serviceCategory === 'consultation') {
+                            data.orders.consults.push(serviceItem);
+                        } else if (serviceCategory === 'imaging') {
+                            // Put imaging in procedures for now (could add separate category)
+                            serviceItem.type = 'imaging';
+                            data.orders.procedures.push(serviceItem);
+                        } else {
+                            data.orders.procedures.push(serviceItem);
+                        }
+                        break;
+                }
+            }
+
+            return data;
+        }
+
+        function updateReviewPoolUI() {
+            if (state.reviewPool.length === 0) {
+                elements.reviewPoolSelector.style.display = 'none';
+                elements.submitToEhrBtn.disabled = true;
+                return;
+            }
+
+            elements.reviewPoolSelector.style.display = 'flex';
+            elements.reviewItemSelect.innerHTML = state.reviewPool.map((item, index) =>
+                `<option value="${index}">${item.workflowName} - ${new Date().toLocaleTimeString()}</option>`
+            ).join('');
+
+            elements.reviewItemSelect.value = state.currentReviewIndex;
+            elements.submitToEhrBtn.disabled = false;
+        }
+
+        function renderCurrentReview() {
+            if (state.currentReviewIndex < 0 || state.currentReviewIndex >= state.reviewPool.length) {
+                // Show empty states
+                elements.notesEmpty.style.display = 'block';
+                elements.notesSections.innerHTML = '';
+                elements.transcriptPanel.style.display = 'none';
+                elements.ehrEmpty.style.display = 'block';
+                elements.ehrCategories.innerHTML = '';
+                elements.ordersEmpty.style.display = 'block';
+                elements.ordersList.innerHTML = '';
+                return;
+            }
+
+            const item = state.reviewPool[state.currentReviewIndex];
+
+            // Render Clinical Notes
+            renderClinicalNotes(item);
+
+            // Render EHR Data
+            renderEhrData(item);
+
+            // Render Orders
+            renderOrders(item);
+        }
+
+        function renderClinicalNotes(item) {
+            elements.notesEmpty.style.display = 'none';
+
+            // Generate note sections based on workflow
+            const sections = generateNoteSections(item.workflow, item.extractedData);
+
+            elements.notesSections.innerHTML = sections.map(section => `
+                <div class="note-section">
+                    <div class="note-section-header">
+                        <i class="ph ph-${section.icon}"></i>
+                        ${section.title}
+                    </div>
+                    <div class="note-section-content" contenteditable="true" data-section="${section.key}">
+                        ${section.content}
+                    </div>
+                </div>
+            `).join('');
+
+            // Show transcript
+            elements.transcriptPanel.style.display = 'block';
+            elements.transcriptText.textContent = item.transcript;
+        }
+
+        function generateNoteSections(workflow, data) {
+            const sections = [];
+
+            // Chief Complaint / HPI
+            const chiefComplaints = data.conditions.filter(c => c.name);
+            sections.push({
+                key: 'chiefComplaint',
+                title: 'Chief Complaint',
+                icon: 'chat-circle-text',
+                content: chiefComplaints.length > 0
+                    ? chiefComplaints.map(c => c.name).join(', ')
+                    : 'No chief complaint documented'
+            });
+
+            // History of Present Illness
+            sections.push({
+                key: 'hpi',
+                title: 'History of Present Illness',
+                icon: 'clipboard-text',
+                content: 'Patient presents with ' + (chiefComplaints.length > 0
+                    ? chiefComplaints.map(c => c.name.toLowerCase()).join(', ')
+                    : 'symptoms as described')
+            });
+
+            // Vitals
+            if (data.vitals.length > 0) {
+                sections.push({
+                    key: 'vitals',
+                    title: 'Vital Signs',
+                    icon: 'heartbeat',
+                    content: data.vitals.map(v => `${v.name}: ${v.value} ${v.unit}`).join('\n')
+                });
+            }
+
+            // Medications
+            if (data.medications.length > 0) {
+                sections.push({
+                    key: 'medications',
+                    title: 'Current Medications',
+                    icon: 'pill',
+                    content: data.medications.map(m => `${m.name}${m.dosage ? ' - ' + m.dosage : ''}`).join('\n')
+                });
+            }
+
+            // Allergies
+            if (data.allergies.length > 0) {
+                sections.push({
+                    key: 'allergies',
+                    title: 'Allergies',
+                    icon: 'warning',
+                    content: data.allergies.map(a => `${a.substance}${a.reaction ? ' - ' + a.reaction : ''}`).join('\n')
+                });
+            }
+
+            // Assessment
+            sections.push({
+                key: 'assessment',
+                title: 'Assessment',
+                icon: 'stethoscope',
+                content: data.conditions.length > 0
+                    ? data.conditions.map((c, i) => `${i + 1}. ${c.name}${c.code ? ` (${c.code})` : ''}`).join('\n')
+                    : 'Assessment pending'
+            });
+
+            // Plan
+            const planItems = [];
+            if (data.orders.medications.length > 0) {
+                planItems.push('Medications: ' + data.orders.medications.map(m => m.name).join(', '));
+            }
+            if (data.orders.labs.length > 0) {
+                planItems.push('Labs: ' + data.orders.labs.map(l => l.name).join(', '));
+            }
+            if (data.orders.consults.length > 0) {
+                planItems.push('Consults: ' + data.orders.consults.map(c => c.name).join(', '));
+            }
+
+            sections.push({
+                key: 'plan',
+                title: 'Plan',
+                icon: 'list-checks',
+                content: planItems.length > 0 ? planItems.join('\n') : 'Continue current management'
+            });
+
+            return sections;
+        }
+
+        function renderEhrData(item) {
+            elements.ehrEmpty.style.display = 'none';
+            const data = item.extractedData;
+
+            const categories = [
+                { key: 'vitals', title: 'Vital Signs', icon: 'heartbeat', items: data.vitals },
+                { key: 'conditions', title: 'Conditions', icon: 'stethoscope', items: data.conditions },
+                { key: 'medications', title: 'Medications', icon: 'pill', items: data.medications },
+                { key: 'allergies', title: 'Allergies', icon: 'warning', items: data.allergies },
+                { key: 'labResults', title: 'Lab Results', icon: 'test-tube', items: data.labResults },
+                { key: 'procedures', title: 'Procedures', icon: 'scissors', items: data.procedures },
+                { key: 'familyHistory', title: 'Family History', icon: 'users', items: data.familyHistory }
+            ].filter(cat => cat.items.length > 0);
+
+            elements.ehrCategories.innerHTML = categories.map(cat => `
+                <div class="ehr-category">
+                    <div class="ehr-category-header">
+                        <i class="ph ph-${cat.icon}"></i>
+                        ${cat.title}
+                        <span class="ehr-category-count">${cat.items.length}</span>
+                    </div>
+                    <div class="ehr-items">
+                        ${cat.items.map(item => renderEhrItem(cat.key, item)).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderEhrItem(category, item) {
+            let details = '';
+            let code = '';
+
+            switch (category) {
+                case 'vitals':
+                    details = `${item.value} ${item.unit}`;
+                    code = item.code || '';
+                    break;
+                case 'conditions':
+                    details = item.status || '';
+                    code = item.code || '';
+                    break;
+                case 'medications':
+                    details = item.dosage || '';
+                    code = item.code || '';
+                    break;
+                case 'allergies':
+                    details = `${item.reaction || ''} (${item.severity})`;
+                    break;
+                case 'labResults':
+                    details = `${item.value} ${item.unit}`;
+                    code = item.code || '';
+                    break;
+                case 'procedures':
+                    details = item.date || item.status || '';
+                    code = item.code || '';
+                    break;
+                case 'familyHistory':
+                    details = item.condition || '';
+                    break;
+            }
+
+            const approvedClass = item.approved === true ? 'approved' : item.approved === false ? 'rejected' : '';
+
+            return `
+                <div class="ehr-item ${approvedClass}" data-category="${category}" data-id="${item.id}">
+                    <div class="ehr-item-content">
+                        <div class="ehr-item-name">${item.name || item.substance || item.relationship}</div>
+                        ${details ? `<div class="ehr-item-detail">${details}</div>` : ''}
+                        ${code ? `<div class="ehr-item-code">${code}</div>` : ''}
+                    </div>
+                    <div class="ehr-item-actions">
+                        <button class="btn-icon" onclick="approveEhrItem('${category}', '${item.id}')" title="Approve">
+                            <i class="ph ph-check"></i>
+                        </button>
+                        <button class="btn-icon" onclick="rejectEhrItem('${category}', '${item.id}')" title="Reject">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOrders(item) {
+            const orders = item.extractedData.orders;
+            const allOrders = [
+                ...orders.medications.map(o => ({ ...o, type: 'medication' })),
+                ...orders.labs.map(o => ({ ...o, type: 'lab' })),
+                ...orders.consults.map(o => ({ ...o, type: 'consult' })),
+                ...orders.procedures.map(o => ({ ...o, type: 'procedure' }))
+            ];
+
+            if (allOrders.length === 0) {
+                elements.ordersEmpty.style.display = 'block';
+                elements.ordersList.innerHTML = '';
+                return;
+            }
+
+            elements.ordersEmpty.style.display = 'none';
+            elements.ordersList.innerHTML = allOrders.map(order => {
+                const approvedClass = order.approved === true ? 'approved' : order.approved === false ? 'rejected' : '';
+
+                return `
+                    <div class="order-card ${approvedClass}" data-type="${order.type}" data-id="${order.id}">
+                        <div class="order-card-header">
+                            <span class="order-type-badge ${order.type}">${order.type.charAt(0).toUpperCase() + order.type.slice(1)}</span>
+                            <strong>${order.name}</strong>
+                        </div>
+                        <div class="order-card-body">
+                            ${order.dosage ? `
+                                <div class="order-detail">
+                                    <span class="order-detail-label">Dosage:</span>
+                                    <span>${order.dosage}</span>
+                                </div>
+                            ` : ''}
+                            ${order.code ? `
+                                <div class="order-detail">
+                                    <span class="order-detail-label">Code:</span>
+                                    <span style="font-family: monospace;">${order.code}</span>
+                                </div>
+                            ` : ''}
+                            <div class="order-detail">
+                                <span class="order-detail-label">Intent:</span>
+                                <span>${order.intent || 'order'}</span>
+                            </div>
+                        </div>
+                        <div class="order-card-actions">
+                            <button class="btn-secondary" onclick="approveOrder('${order.type}', '${order.id}')">
+                                <i class="ph ph-check"></i> Approve
+                            </button>
+                            <button class="btn-secondary" onclick="rejectOrder('${order.type}', '${order.id}')">
+                                <i class="ph ph-x"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function approveEhrItem(category, id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const dataItem = item.extractedData[category]?.find(i => i.id === id);
+            if (dataItem) {
+                dataItem.approved = true;
+                renderEhrData(item);
+            }
+        }
+
+        function rejectEhrItem(category, id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const dataItem = item.extractedData[category]?.find(i => i.id === id);
+            if (dataItem) {
+                dataItem.approved = false;
+                renderEhrData(item);
+            }
+        }
+
+        function approveOrder(type, id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const orderList = item.extractedData.orders[type + 's'];
+            const order = orderList?.find(o => o.id === id);
+            if (order) {
+                order.approved = true;
+                renderOrders(item);
+            }
+        }
+
+        function rejectOrder(type, id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const orderList = item.extractedData.orders[type + 's'];
+            const order = orderList?.find(o => o.id === id);
+            if (order) {
+                order.approved = false;
+                renderOrders(item);
+            }
+        }
+
+        // ============================================================================
+        // Mock EHR
+        // ============================================================================
+        function loadMockEHR() {
+            const stored = localStorage.getItem('mockEHR');
+            if (stored) {
+                state.mockEHR = JSON.parse(stored);
+                renderMockEHR();
+            }
+        }
+
+        function saveMockEHR() {
+            localStorage.setItem('mockEHR', JSON.stringify(state.mockEHR));
+        }
+
+        function submitToMockEHR() {
+            if (state.currentReviewIndex < 0) return;
+
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            // Create a record with only approved items
+            const record = {
+                id: generateId(),
+                submittedAt: new Date().toISOString(),
+                workflow: item.workflowName,
+                transcript: item.transcript,
+                fhirBundle: item.fhirBundle,
+                approvedData: {
+                    conditions: item.extractedData.conditions.filter(c => c.approved === true),
+                    medications: item.extractedData.medications.filter(m => m.approved === true),
+                    allergies: item.extractedData.allergies.filter(a => a.approved === true),
+                    vitals: item.extractedData.vitals.filter(v => v.approved === true),
+                    labResults: item.extractedData.labResults.filter(l => l.approved === true),
+                    orders: {
+                        medications: item.extractedData.orders.medications.filter(o => o.approved === true),
+                        labs: item.extractedData.orders.labs.filter(o => o.approved === true),
+                        consults: item.extractedData.orders.consults.filter(o => o.approved === true),
+                        procedures: item.extractedData.orders.procedures.filter(o => o.approved === true)
+                    }
+                }
+            };
+
+            state.mockEHR.push(record);
+            saveMockEHR();
+
+            // Remove from review pool
+            state.reviewPool.splice(state.currentReviewIndex, 1);
+            state.currentReviewIndex = Math.max(0, state.currentReviewIndex - 1);
+
+            if (state.reviewPool.length === 0) {
+                state.currentReviewIndex = -1;
+            }
+
+            updateReviewPoolUI();
+            renderCurrentReview();
+            renderMockEHR();
+
+            showToast('Submitted to Mock EHR', 'success');
+        }
+
+        function renderMockEHR() {
+            elements.viewEhrBundleBtn.disabled = state.mockEHR.length === 0;
+
+            if (state.mockEHR.length === 0) {
+                elements.mockEhrList.innerHTML = `
+                    <div class="mock-ehr-empty">
+                        <i class="ph ph-hospital"></i>
+                        <p>No records submitted</p>
+                    </div>
+                `;
+                return;
+            }
+
+            elements.mockEhrList.innerHTML = state.mockEHR.map(record => {
+                const time = new Date(record.submittedAt).toLocaleTimeString();
+                const itemCount = Object.values(record.approvedData)
+                    .flat()
+                    .filter(i => i && typeof i === 'object' && !Array.isArray(i)).length +
+                    Object.values(record.approvedData.orders).flat().length;
+
+                return `
+                    <div class="mock-ehr-item" data-id="${record.id}">
+                        <div class="mock-ehr-item-header">
+                            <span class="mock-ehr-item-workflow">${record.workflow}</span>
+                            <span class="mock-ehr-item-time">${time}</span>
+                        </div>
+                        <div class="mock-ehr-item-stats">
+                            ${itemCount} approved items
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function clearMockEHR() {
+            if (confirm('Clear all Mock EHR records?')) {
+                state.mockEHR = [];
+                localStorage.removeItem('mockEHR');
+                renderMockEHR();
+                showToast('Mock EHR cleared', 'success');
+            }
+        }
+
+        function viewEhrBundle() {
+            if (state.mockEHR.length === 0) return;
+
+            const bundles = state.mockEHR.map(r => r.fhirBundle);
+            const json = JSON.stringify(bundles, null, 2);
+
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <html>
+                <head><title>FHIR Bundles</title></head>
+                <body style="margin:0;padding:20px;font-family:monospace;background:#1a1a1a;color:#fff;">
+                    <pre style="white-space:pre-wrap;">${json}</pre>
+                </body>
+                </html>
+            `);
+        }
+
+        // ============================================================================
+        // Event Listeners
+        // ============================================================================
+        function initEventListeners() {
+            // Record button
+            elements.recordBtn.addEventListener('click', () => {
+                if (state.isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+
+            // File upload
+            elements.uploadSection.addEventListener('click', () => {
+                elements.fileInput.click();
+            });
+
+            elements.fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setCurrentAudio(file, file.name);
+                }
+                e.target.value = '';
+            });
+
+            // Drag and drop
+            elements.uploadSection.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                elements.uploadSection.style.borderColor = 'var(--color-primary-blue)';
+            });
+
+            elements.uploadSection.addEventListener('dragleave', () => {
+                elements.uploadSection.style.borderColor = '';
+            });
+
+            elements.uploadSection.addEventListener('drop', (e) => {
+                e.preventDefault();
+                elements.uploadSection.style.borderColor = '';
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('audio/')) {
+                    setCurrentAudio(file, file.name);
+                }
+            });
+
+            // Download audio
+            elements.downloadAudioBtn.addEventListener('click', downloadCurrentAudio);
+
+            // Clear audio
+            elements.clearAudioBtn.addEventListener('click', clearCurrentAudio);
+
+            // Workflow change
+            elements.workflowSelect.addEventListener('change', updateAddToQueueButton);
+
+            // Add to queue
+            elements.addToQueueBtn.addEventListener('click', addToQueue);
+
+            // Parallel toggle
+            elements.parallelToggle.addEventListener('click', () => {
+                state.parallelMode = !state.parallelMode;
+                elements.parallelToggle.classList.toggle('active', state.parallelMode);
+            });
+
+            // Process queue
+            elements.processQueueBtn.addEventListener('click', processQueue);
+
+            // Clear queue
+            elements.clearQueueBtn.addEventListener('click', clearQueue);
+
+            // Review item select
+            elements.reviewItemSelect.addEventListener('change', (e) => {
+                state.currentReviewIndex = parseInt(e.target.value);
+                renderCurrentReview();
+            });
+
+            // Tab switching
+            document.querySelectorAll('.review-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.review-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}Content`).classList.add('active');
+                });
+            });
+
+            // Submit to EHR
+            elements.submitToEhrBtn.addEventListener('click', submitToMockEHR);
+
+            // View bundle
+            elements.viewEhrBundleBtn.addEventListener('click', viewEhrBundle);
+
+            // Clear EHR
+            elements.clearEhrBtn.addEventListener('click', clearMockEHR);
+
+            // Transcript toggle
+            document.getElementById('toggleTranscript').addEventListener('click', () => {
+                const text = elements.transcriptText;
+                const icon = document.querySelector('#toggleTranscript i');
+                if (text.style.display === 'none') {
+                    text.style.display = 'block';
+                    icon.className = 'ph ph-caret-down';
+                } else {
+                    text.style.display = 'none';
+                    icon.className = 'ph ph-caret-right';
+                }
+            });
+
+            // Settings modal
+            elements.settingsBtn.addEventListener('click', openSettingsModal);
+            elements.closeSettingsBtn.addEventListener('click', closeSettingsModal);
+            elements.settingsModal.addEventListener('click', (e) => {
+                if (e.target === elements.settingsModal) {
+                    closeSettingsModal();
+                }
+            });
+
+            // Settings inputs
+            elements.hfTokenInput.addEventListener('input', debounce(async () => {
+                const token = elements.hfTokenInput.value.trim();
+                if (token) {
+                    elements.tokenStatus.className = 'token-status checking';
+                    elements.tokenStatus.innerHTML = '<i class="ph ph-spinner spinning"></i> Validating...';
+                    const result = await validateHfToken(token);
+                    elements.tokenStatus.className = `token-status ${result.valid ? 'valid' : 'invalid'}`;
+                    elements.tokenStatus.innerHTML = `<i class="ph ph-${result.valid ? 'check-circle' : 'x-circle'}"></i> ${result.message}`;
+                } else {
+                    elements.tokenStatus.innerHTML = '';
+                }
+            }, 500));
+
+            elements.saveSettingsBtn.addEventListener('click', async () => {
+                settings.hfToken = elements.hfTokenInput.value.trim();
+                settings.apiUrl = elements.apiUrlInput.value.trim() || DEFAULT_API_URL;
+                settings.transcriptionBackend = elements.transcriptionBackendSelect.value;
+                settings.medgemmaEndpoint = elements.medgemmaEndpointInput.value.trim() || DEFAULT_MEDGEMMA_ENDPOINT;
+                saveSettings();
+                updateSettingsButtonState();
+                closeSettingsModal();
+                showToast('Settings saved', 'success');
+
+                // Reconnect with new settings
+                checkApiHealth().then(ready => {
+                    if (ready) loadWorkflows();
+                });
+
+                // Check endpoint status
+                if (settings.medgemmaEndpoint) {
+                    const result = await checkEndpointStatus(settings.medgemmaEndpoint);
+                    updateEndpointStatusUI(result);
+                }
+            });
+
+            // Endpoint input - check status on blur
+            elements.medgemmaEndpointInput.addEventListener('blur', async () => {
+                const endpoint = elements.medgemmaEndpointInput.value.trim();
+                if (endpoint && settings.hfToken) {
+                    elements.endpointStatus.className = 'endpoint-status checking';
+                    elements.endpointStatus.innerHTML = '<i class="ph ph-spinner spinning"></i> Checking...';
+                    const result = await checkEndpointStatus(endpoint);
+                    elements.endpointStatus.className = `endpoint-status ${result.status}`;
+                    const icon = result.status === 'running' ? 'check-circle' :
+                                result.status === 'paused' ? 'pause-circle' :
+                                result.status === 'error' ? 'x-circle' : 'cloud-slash';
+                    elements.endpointStatus.innerHTML = `<i class="ph ph-${icon}"></i> ${result.message}`;
+                }
+            });
+
+            elements.clearSettingsBtn.addEventListener('click', () => {
+                if (confirm('Clear all settings including HuggingFace token?')) {
+                    clearSettings();
+                    populateSettingsModal();
+                    updateSettingsButtonState();
+                    elements.headerEndpointStatus.style.display = 'none';
+                    showToast('Settings cleared', 'success');
+                }
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function openSettingsModal() {
+            populateSettingsModal();
+            elements.settingsModal.classList.add('visible');
+        }
+
+        function closeSettingsModal() {
+            elements.settingsModal.classList.remove('visible');
+        }
+
+        async function populateSettingsModal() {
+            elements.hfTokenInput.value = settings.hfToken;
+            elements.apiUrlInput.value = settings.apiUrl;
+            elements.transcriptionBackendSelect.value = settings.transcriptionBackend;
+            elements.medgemmaEndpointInput.value = settings.medgemmaEndpoint;
+
+            // Show token status if token exists
+            if (settings.hfToken) {
+                elements.tokenStatus.className = 'token-status valid';
+                elements.tokenStatus.innerHTML = '<i class="ph ph-check-circle"></i> Token configured';
+            } else {
+                elements.tokenStatus.innerHTML = '';
+            }
+
+            // Check endpoint status if configured
+            if (settings.medgemmaEndpoint && settings.hfToken) {
+                elements.endpointStatus.className = 'endpoint-status checking';
+                elements.endpointStatus.innerHTML = '<i class="ph ph-spinner spinning"></i> Checking...';
+                const result = await checkEndpointStatus(settings.medgemmaEndpoint);
+                elements.endpointStatus.className = `endpoint-status ${result.status}`;
+                const icon = result.status === 'running' ? 'check-circle' :
+                            result.status === 'paused' ? 'pause-circle' :
+                            result.status === 'error' ? 'x-circle' : 'cloud-slash';
+                elements.endpointStatus.innerHTML = `<i class="ph ph-${icon}"></i> ${result.message}`;
+            } else if (settings.medgemmaEndpoint) {
+                elements.endpointStatus.className = 'endpoint-status';
+                elements.endpointStatus.innerHTML = '<i class="ph ph-info"></i> Add HF token to check status';
+            } else {
+                elements.endpointStatus.innerHTML = '';
+            }
+        }
+
+        function updateSettingsButtonState() {
+            if (settings.hfToken) {
+                elements.settingsBtn.classList.add('configured');
+                elements.settingsBtn.innerHTML = '<i class="ph ph-gear"></i> Configured';
+            } else {
+                elements.settingsBtn.classList.remove('configured');
+                elements.settingsBtn.innerHTML = '<i class="ph ph-gear"></i> Settings';
+            }
+        }
+
+        // ============================================================================
+        // Initialization
+        // ============================================================================
+        async function init() {
+            initVisualizer();
+            initEventListeners();
+            loadMockEHR();
+            updateSettingsButtonState();
+
+            // Check API and load workflows
+            const apiReady = await checkApiHealth();
+            // Always try to load workflows, even if health check fails
+            await loadWorkflows();
+
+            // Check MedGemma endpoint status
+            if (settings.medgemmaEndpoint && settings.hfToken) {
+                const result = await checkEndpointStatus(settings.medgemmaEndpoint);
+                updateEndpointStatusUI(result);
+            }
+
+            // Show settings prompt if no HF token configured
+            if (!settings.hfToken) {
+                setTimeout(() => {
+                    showToast('Configure HuggingFace token in Settings for full functionality', 'info');
+                }, 1500);
+            }
+
+            // Periodic health checks
+            setInterval(checkApiHealth, 30000);
+
+            // Periodic endpoint status check (every 60 seconds)
+            setInterval(async () => {
+                if (settings.medgemmaEndpoint && settings.hfToken) {
+                    const result = await checkEndpointStatus(settings.medgemmaEndpoint);
+                    updateEndpointStatusUI(result);
+                }
+            }, 60000);
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

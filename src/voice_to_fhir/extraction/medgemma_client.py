@@ -23,6 +23,10 @@ from voice_to_fhir.extraction.extraction_types import (
     Vital,
     LabResult,
     LabOrder,
+    MedicationOrder,
+    ReferralOrder,
+    ProcedureOrder,
+    ImagingOrder,
     Allergy,
     FamilyHistory,
     SocialHistory,
@@ -400,6 +404,38 @@ TRANSCRIPT:
                 loinc=lo.get("loinc"),
             )
             entities.lab_orders.append(lab_order)
+
+        # Parse medication orders (new prescriptions)
+        for mo in data.get("medication_orders", []):
+            med_order = MedicationOrder(
+                name=mo.get("name", ""),
+                dose=mo.get("dose"),
+                frequency=mo.get("frequency"),
+                instructions=mo.get("instructions"),
+            )
+            entities.medication_orders.append(med_order)
+
+        # Parse referral orders (consults)
+        for ro in data.get("referral_orders", []):
+            ref_order = ReferralOrder(
+                specialty=ro.get("specialty", ro.get("name", "")),
+                reason=ro.get("reason"),
+            )
+            entities.referral_orders.append(ref_order)
+
+        # Parse procedure orders
+        for po in data.get("procedure_orders", []):
+            proc_order = ProcedureOrder(
+                name=po.get("name", ""),
+            )
+            entities.procedure_orders.append(proc_order)
+
+        # Parse imaging orders
+        for io in data.get("imaging_orders", []):
+            img_order = ImagingOrder(
+                name=io.get("name", ""),
+            )
+            entities.imaging_orders.append(img_order)
 
         # Parse allergies
         for a in data.get("allergies", []):

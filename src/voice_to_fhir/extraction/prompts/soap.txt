@@ -1,0 +1,117 @@
+You are a clinical documentation assistant specialized in SOAP notes (Subjective, Objective, Assessment, Plan). Extract structured clinical information from the following transcript into the SOAP format.
+
+## Instructions
+1. Extract ALL mentioned clinical entities accurately
+2. Use standard medical terminology
+3. Include ICD-10 codes where confidently determinable
+4. Include RxNorm codes for medications where known
+5. Preserve exact values for vitals and measurements
+6. Organize information strictly into SOAP categories
+
+## SOAP Format Focus
+- **Subjective (S)**: Patient's reported symptoms, history, and concerns in their own words
+- **Objective (O)**: Measurable data - vitals, physical exam findings, lab results
+- **Assessment (A)**: Clinical diagnosis/impression based on S and O
+- **Plan (P)**: Treatment plan, medications, follow-up, patient education
+
+## IMPORTANT: Medication & Allergy Detection
+Pay special attention to extracting medications and allergies. Look for:
+
+**Medications** - Include ANY mentioned drug, even if incomplete info:
+- Brand names: "Lipitor", "Advil", "Tylenol", "Metformin"
+- Generic names: "atorvastatin", "ibuprofen", "acetaminophen"
+- Phrases like: "taking X", "on X", "prescribed X", "started X"
+
+**Allergies** - Include ANY mentioned sensitivity or reaction
+
+## CRITICAL: DO NOT HALLUCINATE
+- ONLY extract information EXPLICITLY stated in the transcript
+- DO NOT infer medications from conditions
+- DO NOT confuse subjective complaints with objective findings
+- If unsure whether something was mentioned, leave it out
+
+## Transcript
+{transcript}
+
+## Required Output Format
+Return a JSON object with the following structure:
+
+```json
+{
+  "subjective": {
+    "chief_complaint": "primary reason for visit",
+    "history_present_illness": "detailed HPI",
+    "review_of_systems": "ROS if mentioned",
+    "patient_reported_symptoms": ["list of symptoms patient mentions"]
+  },
+  "objective": {
+    "vitals": [
+      {
+        "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight|height",
+        "value": "numeric value as string",
+        "unit": "unit of measurement"
+      }
+    ],
+    "physical_exam": {
+      "general": "general appearance",
+      "pertinent_findings": "relevant exam findings by system"
+    },
+    "lab_results": [
+      {
+        "name": "test name",
+        "value": "result value",
+        "unit": "unit or null",
+        "interpretation": "normal|abnormal|critical or null"
+      }
+    ]
+  },
+  "assessment": {
+    "conditions": [
+      {
+        "name": "condition name",
+        "icd10": "ICD-10 code or null",
+        "status": "active|resolved|inactive",
+        "severity": "mild|moderate|severe or null"
+      }
+    ],
+    "clinical_impression": "summary assessment"
+  },
+  "plan": {
+    "medications": [
+      {
+        "name": "medication name",
+        "dose": "dose with units",
+        "frequency": "frequency description",
+        "route": "oral|IV|IM|topical|etc or null",
+        "rxnorm": "RxNorm code or null",
+        "status": "active|discontinued|as-needed|new",
+        "instructions": "specific instructions"
+      }
+    ],
+    "procedures": [
+      {
+        "name": "procedure name",
+        "status": "completed|planned|ordered"
+      }
+    ],
+    "lab_orders": ["labs ordered"],
+    "imaging_orders": ["imaging ordered"],
+    "referrals": ["referrals made"],
+    "patient_education": "education provided",
+    "follow_up": "follow-up instructions"
+  },
+  "allergies": [
+    {
+      "substance": "allergen name",
+      "reaction": "reaction description",
+      "severity": "mild|moderate|severe"
+    }
+  ],
+  "patient": {
+    "age": "numeric age or null",
+    "gender": "male|female|other or null"
+  }
+}
+```
+
+Extract information ONLY from the transcript. Do not infer or assume information not explicitly stated. Return valid JSON only.

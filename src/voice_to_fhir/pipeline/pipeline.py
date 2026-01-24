@@ -78,7 +78,9 @@ class Pipeline:
     def transcriber(self) -> MedASRClient | MedASRLocal:
         """Get or create transcription component."""
         if self._transcriber is None:
-            if self.config.transcription.backend == "local":
+            backend = self.config.transcription.backend
+            if backend == "local-model":
+                # Local model files (requires downloaded models in models/ directory)
                 local_config = MedASRLocalConfig(
                     model_path=self.config.transcription.model_path,
                     device=self.config.transcription.device,
@@ -87,9 +89,22 @@ class Pipeline:
                 )
                 self._transcriber = MedASRLocal(local_config)
             else:
+                # Cloud backends: dedicated, whisper, or local HTTP server
+                # "local" = MedASR server at localhost:3002
+                # "dedicated" = HuggingFace dedicated endpoint
+                # "whisper" = Whisper via HuggingFace API
+                client_backend = backend
+                if backend == "local":
+                    client_backend = "local"  # HTTP server at local_url
+                elif backend not in ["dedicated", "whisper"]:
+                    client_backend = "whisper"  # Default fallback
+
                 cloud_config = MedASRClientConfig(
                     api_key=self.config.hf_token,
                     model_id=self.config.transcription.model_id,
+                    backend=client_backend,
+                    endpoint_url=self.config.transcription.endpoint_url,
+                    local_url=self.config.transcription.local_url,
                 )
                 self._transcriber = MedASRClient(cloud_config)
         return self._transcriber
@@ -98,7 +113,8 @@ class Pipeline:
     def extractor(self) -> MedGemmaClient | MedGemmaLocal:
         """Get or create extraction component."""
         if self._extractor is None:
-            if self.config.extraction.backend == "local":
+            backend = self.config.extraction.backend
+            if backend == "local":
                 local_config = MedGemmaLocalConfig(
                     model_path=self.config.extraction.model_path,
                     device=self.config.extraction.device,
@@ -109,9 +125,13 @@ class Pipeline:
                 )
                 self._extractor = MedGemmaLocal(local_config)
             else:
+                # Cloud backends: dedicated or serverless
                 cloud_config = MedGemmaClientConfig(
                     api_key=self.config.hf_token,
                     model_id=self.config.extraction.model_id,
+                    backend=backend if backend in ["dedicated", "serverless"] else "dedicated",
+                    endpoint_url=self.config.extraction.endpoint_url,
+                    local_url=self.config.extraction.local_url,
                     max_tokens=self.config.extraction.max_tokens,
                     temperature=self.config.extraction.temperature,
                     prompts_dir=self.config.extraction.prompts_dir,

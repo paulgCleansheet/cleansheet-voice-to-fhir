@@ -17,6 +17,10 @@ from voice_to_fhir.extraction.extraction_types import (
     Vital,
     LabResult,
     LabOrder,
+    MedicationOrder,
+    ReferralOrder,
+    ProcedureOrder,
+    ImagingOrder,
     Allergy,
     FamilyHistory,
     SocialHistory,
@@ -87,10 +91,38 @@ class FHIRTransformer:
             )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
-        # Create Observations for lab orders (pending)
+        # Create ServiceRequests for lab orders
         for lab_order in entities.lab_orders:
-            resource = self._create_observation_from_lab_order(
+            resource = self._create_service_request_for_lab(
                 lab_order, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create ServiceRequests for referral orders (consults)
+        for referral in entities.referral_orders:
+            resource = self._create_service_request_for_referral(
+                referral, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create ServiceRequests for procedure orders
+        for proc_order in entities.procedure_orders:
+            resource = self._create_service_request_for_procedure(
+                proc_order, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create ServiceRequests for imaging orders
+        for imaging_order in entities.imaging_orders:
+            resource = self._create_service_request_for_imaging(
+                imaging_order, patient_ref, encounter_ref
+            )
+            bundle["entry"].append(self._wrap_entry(resource, "POST"))
+
+        # Create MedicationRequests for medication orders
+        for med_order in entities.medication_orders:
+            resource = self._create_medication_request_from_order(
+                med_order, patient_ref, encounter_ref
             )
             bundle["entry"].append(self._wrap_entry(resource, "POST"))
 
@@ -456,17 +488,18 @@ class FHIRTransformer:
 
         return resource
 
-    def _create_observation_from_lab_order(
+    def _create_service_request_for_lab(
         self,
         lab_order: LabOrder,
         patient_ref: str | None,
         encounter_ref: str | None,
     ) -> dict[str, Any]:
-        """Create Observation resource from lab order (pending, no value)."""
+        """Create ServiceRequest resource for lab order."""
         resource = {
-            "resourceType": "Observation",
+            "resourceType": "ServiceRequest",
             "id": str(uuid.uuid4()),
-            "status": "registered",  # Ordered but no result yet
+            "status": "active",
+            "intent": "order",
             "category": [
                 {
                     "coding": [
@@ -481,6 +514,7 @@ class FHIRTransformer:
             "code": {
                 "text": lab_order.name,
             },
+            "authoredOn": datetime.now(timezone.utc).isoformat(),
         }
 
         if patient_ref:
@@ -499,7 +533,158 @@ class FHIRTransformer:
                 }
             ]
 
-        # No value for pending orders
+        return resource
+
+    def _create_service_request_for_referral(
+        self,
+        referral: ReferralOrder,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create ServiceRequest resource for referral/consult."""
+        resource = {
+            "resourceType": "ServiceRequest",
+            "id": str(uuid.uuid4()),
+            "status": "active",
+            "intent": "order",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "consultation",
+                            "display": "Consultation",
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": referral.specialty,
+            },
+            "authoredOn": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        if referral.reason:
+            resource["reasonCode"] = [{"text": referral.reason}]
+
+        return resource
+
+    def _create_service_request_for_procedure(
+        self,
+        proc_order: ProcedureOrder,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create ServiceRequest resource for procedure order."""
+        resource = {
+            "resourceType": "ServiceRequest",
+            "id": str(uuid.uuid4()),
+            "status": "active",
+            "intent": "order",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "procedure",
+                            "display": "Procedure",
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": proc_order.name,
+            },
+            "authoredOn": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        return resource
+
+    def _create_service_request_for_imaging(
+        self,
+        imaging_order: ImagingOrder,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create ServiceRequest resource for imaging order."""
+        resource = {
+            "resourceType": "ServiceRequest",
+            "id": str(uuid.uuid4()),
+            "status": "active",
+            "intent": "order",
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "imaging",
+                            "display": "Imaging",
+                        }
+                    ]
+                }
+            ],
+            "code": {
+                "text": imaging_order.name,
+            },
+            "authoredOn": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        return resource
+
+    def _create_medication_request_from_order(
+        self,
+        med_order: MedicationOrder,
+        patient_ref: str | None,
+        encounter_ref: str | None,
+    ) -> dict[str, Any]:
+        """Create MedicationRequest from medication order."""
+        resource = {
+            "resourceType": "MedicationRequest",
+            "id": str(uuid.uuid4()),
+            "status": "active",
+            "intent": "order",
+            "medicationCodeableConcept": {
+                "text": med_order.name,
+            },
+            "authoredOn": datetime.now(timezone.utc).isoformat(),
+        }
+
+        if patient_ref:
+            resource["subject"] = {"reference": patient_ref}
+
+        if encounter_ref:
+            resource["encounter"] = {"reference": encounter_ref}
+
+        # Add dosage instruction if available
+        dosage_parts = []
+        if med_order.dose:
+            dosage_parts.append(med_order.dose)
+        if med_order.frequency:
+            dosage_parts.append(med_order.frequency)
+        if med_order.instructions:
+            dosage_parts.append(med_order.instructions)
+
+        if dosage_parts:
+            resource["dosageInstruction"] = [{"text": " ".join(dosage_parts)}]
+
         return resource
 
     def _create_allergy_intolerance(
