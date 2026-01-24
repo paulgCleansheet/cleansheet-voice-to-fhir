@@ -36,6 +36,8 @@ End-to-end clinical documentation demo that converts voice recordings to structu
 
 ### Processing Queue
 - **Queue Management**: Add multiple items and process them together
+- **Click to Navigate**: Click any completed (green checkmark) item to view its review
+- **Selection Indicator**: Blue border highlights the currently selected item
 - **Parallel Mode**: Toggle between sequential and parallel processing (up to 3 concurrent)
 - **Metrics Display**: Shows timing breakdown (transcription, extraction, FHIR transform)
 - **Error Handling**: Retry failed items or remove from queue
@@ -57,12 +59,32 @@ Three-tab interface for reviewing extracted data:
 - Extracted orders: Medications, Labs, Consults, Procedures
 - Approve/reject workflow before submission
 
+### Export Features
+- **Bulk Export**: Export all processed items as a single JSON file for analysis
+- **Individual Export**: Export each item as a separate `.actual.json` file for comparison with expected outputs
+- **Export Format**: Includes metadata, patient info, EHR data, orders, and original transcript
+
 ### Mock EHR
 - Stores approved submissions locally (localStorage)
 - View FHIR bundles as JSON
 - Clear all records
 
-## API Endpoints Used
+## Backend Features
+
+### Post-Processing Pipeline
+After MedGemma extraction, the backend applies automatic enhancement:
+
+**Transcript Marker Extraction:**
+- Extracts chief complaint from `[CHIEF COMPLAINT]`, `CC:`, or "presents with" patterns
+- Parses `[FAMILY HISTORY]` for relationship + condition pairs
+- Extracts tobacco, alcohol, occupation from `[SOCIAL HISTORY]` section
+
+**Validation & Filtering:**
+- Removes placeholder values ("null", "not mentioned", "unknown", etc.)
+- Filters invalid vitals and allergies
+- Removes non-medication items from medication orders
+
+### API Endpoints Used
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|

@@ -14,19 +14,21 @@ This pipeline transforms clinical voice recordings into structured FHIR R4 resou
 - **MedGemma** - Medical vision-language model for structured entity extraction
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Voice     │───▶│   MedASR    │───▶│  MedGemma   │───▶│  FHIR R4    │
-│   Input     │    │ Transcribe  │    │  Structure  │    │   Bundle    │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Voice     │───▶│   MedASR    │───▶│  MedGemma   │───▶│    Post-    │───▶│  FHIR R4    │
+│   Input     │    │ Transcribe  │    │  Structure  │    │  Processor  │    │   Bundle    │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
 ## Features
 
 - **Edge Deployment** - Run locally on NVIDIA Jetson, Intel NUC, or Raspberry Pi
 - **Cloud Hybrid** - Automatic fallback to HuggingFace Inference API
-- **Clinical Workflows** - Pre-built prompts for intake, charting, emergency, ICU
+- **Clinical Workflows** - Pre-built prompts for intake, charting, emergency, ICU, and specialty workflows
+- **Post-Processing** - Automatic extraction from transcript markers and validation filtering
 - **FHIR R4 Output** - Standard format compatible with any FHIR-compliant EHR
 - **Real-time Streaming** - Sub-second latency on supported hardware
+- **Web Demo** - Full-featured browser UI for recording, processing, and clinician review
 
 ## Quick Start
 
@@ -97,6 +99,28 @@ voice-to-fhir batch ./recordings/ ./fhir_output/ --pattern "*.wav"
 voice-to-fhir devices
 ```
 
+### Web Demo
+
+A full-featured browser interface for end-to-end clinical documentation:
+
+```bash
+# Start backend servers
+python launch_servers.py
+
+# Open demo in browser
+start demo/index.html  # Windows
+open demo/index.html   # macOS
+```
+
+Features:
+- Voice recording and file upload
+- Processing queue with parallel mode
+- Clinician review with editable notes
+- Structured EHR data approval workflow
+- Export to JSON for analysis
+
+See [demo/README.md](demo/README.md) for full documentation.
+
 ### Run Examples
 
 ```bash
@@ -163,6 +187,34 @@ Different workflows extract different information from the same input:
 python examples/workflow_comparison.py
 ```
 
+## Post-Processing
+
+After MedGemma extraction, an automatic post-processing step enhances the results:
+
+### Transcript Marker Extraction
+
+Many clinical transcripts use bracketed section markers. The post-processor extracts data from these when MedGemma misses them:
+
+| Marker | Extracted Data |
+|--------|----------------|
+| `[CHIEF COMPLAINT]` | Chief complaint text |
+| `[FAMILY HISTORY]` | Family member + condition pairs |
+| `[SOCIAL HISTORY]` | Tobacco, alcohol, occupation, drugs |
+| `CC:` | Chief complaint (alternative format) |
+
+Also recognizes natural language patterns like "presents with", "mother has diabetes", "former smoker quit 10 years ago".
+
+### Validation & Filtering
+
+Automatically removes invalid or placeholder data:
+
+- **Placeholder values**: "null", "not mentioned", "unknown", "n/a", etc.
+- **Invalid vitals**: Vitals with placeholder values instead of measurements
+- **Invalid allergies**: Allergies with "null" or "unknown" as the substance
+- **Non-medications**: Items like "await pathology results" in medication orders
+
+This ensures cleaner data for clinician review and downstream systems.
+
 ## FHIR Output
 
 The pipeline generates standard FHIR R4 resources:
@@ -211,10 +263,15 @@ cleansheet-voice-to-fhir/
 │   ├── capture/              # Audio capture and VAD
 │   ├── transcription/        # MedASR integration
 │   ├── extraction/           # MedGemma structured extraction
-│   │   └── prompts/          # Workflow-specific prompts
+│   │   ├── prompts/          # Workflow-specific prompts
+│   │   ├── medgemma_client.py  # MedGemma API client
+│   │   └── post_processor.py   # Transcript marker extraction & validation
 │   ├── fhir/                 # FHIR R4 transformation
 │   ├── pipeline/             # End-to-end orchestration
 │   └── cli.py                # Command-line interface
+├── demo/                     # Web demo UI
+│   ├── index.html            # Full-featured browser interface
+│   └── README.md             # Demo documentation
 ├── configs/                  # Configuration templates
 │   ├── cloud.yaml            # HuggingFace API backend
 │   ├── local.yaml            # Local GPU inference
