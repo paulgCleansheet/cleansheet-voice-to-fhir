@@ -215,6 +215,34 @@ Automatically removes invalid or placeholder data:
 
 This ensures cleaner data for clinician review and downstream systems.
 
+### ICD-10 Code Enrichment
+
+Conditions are automatically enriched with verified ICD-10-CM codes using a local lookup database:
+
+```
+Extracted Condition     →  ICD-10-CM Code
+─────────────────────────────────────────
+hypertension            →  I10 (Essential hypertension)
+type 2 diabetes         →  E11.9 (Type 2 diabetes mellitus)
+acute coronary syndrome →  I24.9 (Acute ischemic heart disease)
+chest pain              →  R07.9 (Chest pain, unspecified)
+```
+
+**Why a lookup database instead of LLM-generated codes?**
+
+LLM-generated ICD-10 codes are unreliable for billing and compliance:
+- Models hallucinate plausible-looking but invalid codes
+- No verification against official ICD-10-CM code sets
+- Inconsistent coding for the same condition
+
+The lookup approach provides:
+- **500+ verified codes** covering common conditions
+- **Synonym matching** ("heart attack" → "myocardial infarction" → I21.9)
+- **Fuzzy matching** (85% threshold) for minor spelling variations
+- **Confidence scores** indicating match quality
+
+Codes are sourced from the official CMS ICD-10-CM code set.
+
 ## FHIR Output
 
 The pipeline generates standard FHIR R4 resources:

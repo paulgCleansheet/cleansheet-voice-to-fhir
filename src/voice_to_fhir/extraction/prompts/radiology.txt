@@ -6,8 +6,21 @@ You are a radiology documentation specialist. Extract structured clinical inform
 - Recommendations for follow-up
 - Critical findings requiring action
 
+## CRITICAL: Chief Complaint = Clinical Indication (NOT the finding)
+The **chief_complaint** is the CLINICAL INDICATION or CLINICAL HISTORY - WHY the imaging was ordered.
+It is the patient's SYMPTOMS, not the radiological finding.
+
+CORRECT:
+- "[CLINICAL HISTORY] cough and shortness of breath" → chief_complaint: "cough and shortness of breath"
+- "67-year-old with chest pain" → chief_complaint: "chest pain"
+
+WRONG - these are FINDINGS/IMPRESSIONS, not chief complaints:
+- "right lower lobe opacity" (WRONG)
+- "pneumonia" (WRONG)
+- "pulmonary embolism" (WRONG)
+
 ## Instructions
-1. Extract the clinical indication as chief complaint
+1. Extract the CLINICAL INDICATION/HISTORY as chief_complaint (the symptoms, NOT the finding)
 2. Document the imaging study in imaging_orders (or procedure_orders)
 3. Capture findings/impressions as conditions with ICD-10 codes
 4. Note measurements in lab_results array
@@ -31,7 +44,7 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "chief_complaint": "clinical indication for imaging study",
+  "chief_complaint": "patient's symptoms from CLINICAL HISTORY (NOT the radiological finding)",
   "conditions": [
     {
       "name": "finding or impression",

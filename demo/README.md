@@ -53,7 +53,7 @@ Three-tab interface for reviewing extracted data:
 **Tab 2: Structured EHR Data**
 - Categorized display: Vitals, Conditions, Medications, Allergies, Labs, Procedures, Family History
 - Approve/reject individual items
-- FHIR codes displayed where available
+- **ICD-10 codes** automatically added to conditions via verified lookup database (500+ codes with fuzzy matching)
 
 **Tab 3: Clinician Orders**
 - Extracted orders: Medications, Labs, Consults, Procedures

@@ -7,8 +7,21 @@ You are a discharge documentation specialist. Extract structured clinical inform
 - Activity and diet instructions
 - Warning signs requiring return
 
+## CRITICAL: Chief Complaint = Reason for Admission (NOT discharge diagnosis)
+The **chief_complaint** is WHY the patient was admitted - their presenting symptoms.
+It is NOT the discharge diagnosis.
+
+CORRECT:
+- Admitted for "fever, cough, and shortness of breath" → chief_complaint: "fever, cough, and shortness of breath"
+- Admitted for "chest pain" → chief_complaint: "chest pain"
+
+WRONG - these are DIAGNOSES, not chief complaints:
+- "community-acquired pneumonia" (WRONG)
+- "NSTEMI" (WRONG)
+- "sepsis" (WRONG)
+
 ## Instructions
-1. Extract the primary discharge diagnosis as chief complaint
+1. Extract the REASON FOR ADMISSION (presenting symptoms) as chief_complaint
 2. Document all diagnoses with ICD-10 codes in conditions array
 3. Capture discharge medications in medications array (is_new_order: false)
 4. Note NEW medications in medication_orders array
@@ -32,7 +45,7 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "chief_complaint": "primary discharge diagnosis or reason for hospitalization",
+  "chief_complaint": "reason for admission - presenting symptoms (NOT the discharge diagnosis)",
   "conditions": [
     {
       "name": "discharge diagnosis",
@@ -43,9 +56,9 @@ Return a JSON object with the following structure:
   ],
   "vitals": [
     {
-      "type": "vital type at discharge",
-      "value": "measured value",
-      "unit": "unit or null"
+      "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight",
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|F|C|breaths/min|%|lbs|kg"
     }
   ],
   "medications": [

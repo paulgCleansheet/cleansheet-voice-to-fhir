@@ -10,15 +10,25 @@ You are a clinical documentation assistant. Extract structured clinical informat
 7. Capture severity and status information
 
 ## CRITICAL: Chief Complaint vs Conditions
-The **chief_complaint** is the PRIMARY REASON the patient is being seen TODAY - NOT their medical conditions.
-- "annual physical exam" → chief_complaint: "annual physical exam" or "routine health maintenance"
-- "presenting for follow-up" → chief_complaint: "follow-up visit"
-- "chest pain for 2 days" → chief_complaint: "chest pain"
-- "routine health maintenance" → chief_complaint: "routine health maintenance"
+The **chief_complaint** is the PRESENTING SYMPTOM or REASON FOR VISIT - NOT the diagnosis.
+It is what the patient complains of, not what you diagnose them with.
 
-**Conditions** are diagnoses/problems the patient HAS (hypertension, diabetes, etc.)
-- DO NOT put conditions in chief_complaint
-- DO NOT put the chief complaint in conditions
+CORRECT chief complaints (symptoms/reasons):
+- "sore throat and fever" (correct)
+- "chest pain for 2 days" (correct)
+- "cough and shortness of breath" (correct)
+- "annual physical exam" (correct)
+- "diabetes management follow-up" (correct)
+
+WRONG - these are DIAGNOSES, not chief complaints:
+- "streptococcal pharyngitis" (WRONG) (this is a diagnosis)
+- "pneumonia" (WRONG) (this is a diagnosis)
+- "acute coronary syndrome" (WRONG) (this is a diagnosis)
+- "type 2 diabetes mellitus" (WRONG) (this is a diagnosis)
+
+**Conditions** are diagnoses/problems identified by the clinician.
+- DO NOT put diagnoses in chief_complaint
+- DO NOT put symptoms in conditions (unless also formally diagnosed)
 
 ## IMPORTANT: Medication & Allergy Detection
 Pay special attention to extracting medications and allergies. Look for:
@@ -116,8 +126,8 @@ Return a JSON object with the following structure:
   "vitals": [
     {
       "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight|height",
-      "value": "numeric value as string",
-      "unit": "unit of measurement"
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|F|C|breaths/min|%|lbs|kg"
     }
   ],
   "procedures": [
@@ -182,7 +192,7 @@ Return a JSON object with the following structure:
     "age": "numeric age or null",
     "gender": "male|female|other or null"
   },
-  "chief_complaint": "primary reason for visit or null",
+  "chief_complaint": "presenting symptom or reason for visit - NOT the diagnosis",
   "assessment": "clinical assessment summary or null",
   "plan": "treatment plan summary or null"
 }

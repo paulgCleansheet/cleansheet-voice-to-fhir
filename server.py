@@ -192,6 +192,7 @@ class ProcessingResponse(BaseModel):
     success: bool
     transcript: Optional[str] = None
     fhir_bundle: Optional[dict] = None
+    entities: Optional[dict] = None  # Extracted entities (chief_complaint, family_history, social_history, etc.)
     error: Optional[str] = None
     workflow: str = "general"
     metrics: Optional[PipelineMetrics] = None
@@ -368,11 +369,40 @@ async def process_audio(
             metrics.extraction_ms = round((time.time() - extraction_start) * 1000, 1)
             print(f"[TIMING] Extraction: {metrics.extraction_ms}ms")
 
+            # Step 3.5: Post-processing - extract from markers, filter placeholders
+            print(f"[Post-process] Applying transcript marker extraction and validation...")
+            entities = post_process(entities, transcript_text)
+
             # Step 4: FHIR transformation
             fhir_start = time.time()
             bundle = pipeline.transformer.transform(entities)
             metrics.fhir_transform_ms = round((time.time() - fhir_start) * 1000, 1)
             print(f"[TIMING] FHIR transform: {metrics.fhir_transform_ms}ms")
+
+            # Build entities dict for response (includes family_history, social_history, etc.)
+            chief = entities.chief_complaint
+            entities_dict = {
+                "chief_complaint": chief.name if chief else None,
+                "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
+                "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route} for m in entities.medications],
+                "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
+                "vitals": [{"type": v.type, "value": v.value, "unit": v.unit} for v in entities.vitals],
+                "lab_results": [{"name": l.name, "value": l.value, "unit": l.unit, "interpretation": l.interpretation} for l in entities.lab_results],
+                "family_history": [{"relationship": fh.relationship, "condition": fh.condition, "age_of_onset": fh.age_of_onset, "deceased": fh.deceased} for fh in entities.family_history],
+                "social_history": {
+                    "tobacco": entities.social_history.tobacco,
+                    "alcohol": entities.social_history.alcohol,
+                    "drugs": entities.social_history.drugs,
+                    "occupation": entities.social_history.occupation,
+                    "living_situation": entities.social_history.living_situation,
+                } if entities.social_history else None,
+                "patient": {
+                    "name": entities.patient.name if entities.patient else None,
+                    "age": getattr(entities.patient, 'age', None) if entities.patient else None,
+                    "gender": entities.patient.gender if entities.patient else None,
+                    "date_of_birth": getattr(entities.patient, 'date_of_birth', None) if entities.patient else None,
+                } if entities.patient else None,
+            }
 
         except Exception as e:
             # If pipeline fails (e.g., no HF_TOKEN), return mock data for demo
@@ -394,6 +424,7 @@ async def process_audio(
             success=True,
             transcript=transcript_text,
             fhir_bundle=bundle,
+            entities=entities_dict,
             workflow=workflow,
             metrics=metrics,
         )

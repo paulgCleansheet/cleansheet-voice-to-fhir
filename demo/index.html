@@ -565,6 +565,68 @@
             gap: var(--spacing-sm);
         }
 
+        .note-section-header .section-title {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .field-rerecord-btn {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: var(--color-bg-light);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            opacity: 0.6;
+        }
+
+        .field-rerecord-btn:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            opacity: 1;
+        }
+
+        .field-rerecord-btn.recording {
+            background: var(--color-error);
+            color: white;
+            opacity: 1;
+            animation: pulse-record 1s infinite;
+        }
+
+        .field-rerecord-btn.transcribing {
+            background: var(--color-warning);
+            color: white;
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        .field-rerecord-btn.transcribing i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse-record {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .note-section-content.recording-active {
+            border-color: var(--color-error);
+            background: #fff5f5;
+        }
+
+        .note-section-content.transcribing {
+            border-color: var(--color-warning);
+            background: #fffbeb;
+        }
+
         .note-section-content {
             padding: var(--spacing-sm);
             background: var(--color-bg-light);
@@ -592,12 +654,33 @@
         .transcript-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: var(--spacing-sm);
             margin-bottom: var(--spacing-sm);
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             opacity: 0.8;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .transcript-header .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .transcript-panel.collapsed .transcript-header .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .transcript-panel.collapsed .transcript-text {
+            display: none;
+        }
+
+        .transcript-header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
         }
 
         .transcript-text {
@@ -605,6 +688,30 @@
             line-height: 1.6;
             max-height: 150px;
             overflow-y: auto;
+        }
+
+        .transcript-text .section-marker {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 4px 2px;
+        }
+
+        .transcript-text .clinical-term {
+            color: #90caf9;
+            font-weight: 500;
+        }
+
+        .transcript-text .measurement {
+            color: #a5d6a7;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 500;
         }
 
         /* EHR Data Tab */
@@ -682,6 +789,277 @@
         .ehr-item.rejected {
             background: var(--color-error-bg);
             opacity: 0.6;
+        }
+
+        .ehr-item-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .ehr-measurement {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .ehr-unit {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .ehr-icd10-code {
+            display: inline-block;
+            background: var(--color-primary-blue);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .ehr-status-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .ehr-status-badge.active {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .ehr-status-badge.resolved {
+            background: var(--color-bg-light);
+            color: var(--color-text-secondary);
+        }
+
+        .ehr-status-badge.chronic {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .ehr-severity-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .ehr-severity-badge.mild {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .ehr-severity-badge.moderate {
+            background: #ffecb3;
+            color: #ff6f00;
+        }
+
+        .ehr-severity-badge.severe {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .ehr-interpretation-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .ehr-interpretation-badge.normal {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .ehr-interpretation-badge.abnormal,
+        .ehr-interpretation-badge.high,
+        .ehr-interpretation-badge.low {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .ehr-interpretation-badge.critical {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .ehr-age-onset {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        /* Data Action Bar */
+        .data-action-bar {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) 0;
+            margin-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-action-bar .btn-secondary {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+        }
+
+        /* Add EHR Item Modal */
+        .input-method-toggle {
+            display: flex;
+            gap: var(--spacing-xs);
+            background: var(--color-bg-light);
+            padding: 4px;
+            border-radius: var(--radius-md);
+        }
+
+        .input-method-btn {
+            flex: 1;
+            padding: var(--spacing-sm);
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+            transition: all 0.15s ease;
+        }
+
+        .input-method-btn:hover {
+            color: var(--color-text);
+        }
+
+        .input-method-btn.active {
+            background: var(--color-white);
+            color: var(--color-primary-blue);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .add-ehr-voice-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-sm);
+        }
+
+        .voice-input-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .voice-input-status i {
+            font-size: 1.25rem;
+        }
+
+        .record-btn-small {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--color-primary-blue);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.15s ease;
+        }
+
+        .record-btn-small:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .record-btn-small.recording {
+            background: var(--color-error);
+            animation: pulse-record 1s infinite;
+        }
+
+        .record-btn-small.transcribing {
+            background: var(--color-warning);
+            pointer-events: none;
+        }
+
+        .record-btn-small.transcribing i {
+            animation: spin 1s linear infinite;
+        }
+
+        .voice-input-result {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+        }
+
+        .voice-result-text {
+            flex: 1;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--color-text);
+        }
+
+        .add-ehr-text-input {
+            margin-top: var(--spacing-sm);
+        }
+
+        .add-ehr-text-input .form-group {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .add-ehr-text-input label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .add-ehr-text-input input,
+        .add-ehr-text-input select {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+        }
+
+        .add-ehr-text-input input:focus,
+        .add-ehr-text-input select:focus {
+            outline: none;
+            border-color: var(--color-primary-blue);
+        }
+
+        .form-row {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .form-row .form-group {
+            flex: 1;
         }
 
         /* Orders Tab */
@@ -1008,6 +1386,695 @@
             border-top: 1px solid var(--color-border);
         }
 
+        /* About Modal / Slideshow Styles */
+        .about-modal {
+            max-width: 640px;
+            max-height: 90vh;
+        }
+
+        .slideshow-container {
+            min-height: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-accent-blue));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        .slide-icon.final {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .slide h3 {
+            text-align: center;
+            font-size: 1.25rem;
+            margin: 0 0 var(--spacing-xs);
+            color: var(--color-text);
+        }
+
+        .slide-subtitle {
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            margin: 0 0 var(--spacing-md);
+        }
+
+        .slide-content {
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .slide-content p {
+            margin: 0 0 var(--spacing-md);
+            color: var(--color-text-secondary);
+        }
+
+        .slide-content strong {
+            color: var(--color-text);
+        }
+
+        .slide-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .slide-features li {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .slide-features li i {
+            color: var(--color-primary-blue);
+            font-size: 1.25rem;
+        }
+
+        /* Philosophy Grid */
+        .philosophy-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .philosophy-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .philosophy-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .philosophy-icon.ai {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+        }
+
+        .philosophy-icon.deterministic {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .philosophy-icon.human {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .philosophy-item span {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+        }
+
+        .benefit-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            gap: 4px;
+        }
+
+        .benefit-card i {
+            font-size: 1.5rem;
+            color: var(--color-primary-blue);
+        }
+
+        .benefit-card strong {
+            font-size: 0.75rem;
+        }
+
+        .benefit-card span {
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Deployment Options */
+        .deployment-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .deployment-option {
+            text-align: center;
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .deployment-option i {
+            font-size: 1.5rem;
+            color: var(--color-primary-blue);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .deployment-option strong {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .deployment-option ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+        }
+
+        .deployment-option li {
+            padding: 2px 0;
+        }
+
+        /* Enhancement Pipeline */
+        .enhancement-pipeline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--color-primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .step-content strong {
+            display: block;
+            font-size: 0.8rem;
+        }
+
+        .step-content span {
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+        }
+
+        .slide-note {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            color: var(--color-success);
+            margin: 0;
+        }
+
+        /* Review Capabilities */
+        .review-capabilities {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .review-capabilities .capability:last-child {
+            grid-column: span 2;
+            justify-content: center;
+        }
+
+        .capability {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .capability i {
+            font-size: 1.25rem;
+            color: var(--color-primary-blue);
+        }
+
+        .capability strong {
+            font-size: 0.8rem;
+        }
+
+        .capability span {
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+            display: block;
+        }
+
+        /* FHIR Resources */
+        .fhir-resources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            justify-content: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .resource-badge {
+            padding: 4px 10px;
+            background: var(--color-highlight);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Final Slide */
+        .final-slide {
+            text-align: center;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--color-primary-blue);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+
+        .contact-link i {
+            font-size: 1.25rem;
+        }
+
+        .kaggle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: linear-gradient(135deg, #20beff, #0066cc);
+            color: white;
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+        }
+
+        .kaggle-badge i {
+            font-size: 1.25rem;
+        }
+
+        /* Slideshow Navigation */
+        .slideshow-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) 0;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .slide-nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--color-border);
+            background: white;
+            color: var(--color-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.15s ease;
+        }
+
+        .slide-nav-btn:hover:not(:disabled) {
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+            color: white;
+        }
+
+        .slide-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .slide-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-border);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .slide-dot:hover {
+            background: var(--color-text-secondary);
+        }
+
+        .slide-dot.active {
+            background: var(--color-primary-blue);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .slide-counter {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            margin-right: auto;
+        }
+
+        /* API Guide Modal Styles */
+        .api-guide-modal {
+            max-width: 700px;
+            max-height: 90vh;
+        }
+
+        .api-slideshow {
+            min-height: 460px;
+        }
+
+        .api-slide {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .api-slide.active {
+            display: block;
+        }
+
+        .api-overview-grid {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+        }
+
+        .api-stat {
+            text-align: center;
+        }
+
+        .api-stat .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary-blue);
+        }
+
+        .api-stat .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .api-base-url {
+            text-align: center;
+            padding: var(--spacing-sm);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+        }
+
+        .api-base-url code {
+            font-size: 0.8rem;
+            color: var(--color-text);
+        }
+
+        .api-endpoints-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .api-endpoint {
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .http-method {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .http-method.get {
+            background: #10b981;
+            color: white;
+        }
+
+        .http-method.post {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .endpoint-header code {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .api-endpoint > p {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin: 0 0 var(--spacing-xs);
+        }
+
+        .endpoint-response {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .endpoint-response pre {
+            background: var(--color-bg);
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: var(--spacing-xs);
+            overflow-x: auto;
+        }
+
+        .endpoint-params {
+            font-size: 0.75rem;
+        }
+
+        .endpoint-params strong {
+            display: block;
+            color: var(--color-text);
+            margin-top: var(--spacing-xs);
+        }
+
+        .endpoint-params ul {
+            margin: var(--spacing-xs) 0 0 var(--spacing-md);
+            padding: 0;
+        }
+
+        .endpoint-params li {
+            color: var(--color-text-secondary);
+            margin-bottom: 2px;
+        }
+
+        .endpoint-params code {
+            background: var(--color-bg);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+        }
+
+        .endpoint-params pre {
+            background: var(--color-bg);
+            padding: var(--spacing-xs);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            margin: var(--spacing-xs) 0;
+            overflow-x: auto;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 4px;
+        }
+
+        .severity-badge.critical {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .severity-badge.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .severity-badge.info {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .api-response-example {
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+        }
+
+        .api-response-example pre {
+            font-size: 0.65rem;
+            line-height: 1.4;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .quickstart-steps {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            text-align: left;
+        }
+
+        .quickstart-step {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+            background: var(--color-bg-light);
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+        }
+
+        .quickstart-step .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .quickstart-step strong {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--color-text);
+            margin-bottom: 2px;
+        }
+
+        .quickstart-step code {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+            background: var(--color-bg);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .quickstart-note {
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: #e0f2fe;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            color: #0369a1;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-xs);
+            text-align: left;
+        }
+
+        .quickstart-note i {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .quickstart-note code {
+            background: rgba(255,255,255,0.5);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+        }
+
         .setting-group {
             margin-bottom: var(--spacing-md);
         }
@@ -1156,6 +2223,14 @@
                 <i class="ph ph-cloud"></i>
                 <span id="headerEndpointText">MedGemma</span>
             </div>
+            <button class="settings-btn" id="aboutBtn">
+                <i class="ph ph-info"></i>
+                About
+            </button>
+            <button class="settings-btn" id="apiGuideBtn">
+                <i class="ph ph-code"></i>
+                API
+            </button>
             <button class="settings-btn" id="settingsBtn">
                 <i class="ph ph-gear"></i>
                 Settings
@@ -1222,6 +2297,696 @@
                 </button>
                 <button class="btn-primary" id="saveSettingsBtn">
                     <i class="ph ph-check"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal (Slideshow) -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal about-modal">
+            <div class="modal-header">
+                <h2><i class="ph ph-info"></i> About Voice-to-FHIR</h2>
+                <button class="btn-icon" onclick="closeAboutModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body slideshow-container">
+                <!-- Slide 1: Overview -->
+                <div class="slide active" data-slide="1">
+                    <div class="slide-icon">
+                        <i class="ph ph-flow-arrow"></i>
+                    </div>
+                    <h3>Asynchronous AI-Assisted Charting</h3>
+                    <p class="slide-subtitle">With Close Human Oversight</p>
+                    <div class="slide-content">
+                        <p>Voice-to-FHIR is designed for the <strong>real clinical workflow</strong> - where accuracy matters more than automation, and clinician judgment is paramount.</p>
+                        <ul class="slide-features">
+                            <li><i class="ph ph-microphone"></i> Voice-first input for natural documentation</li>
+                            <li><i class="ph ph-brain"></i> AI-powered structuring and coding</li>
+                            <li><i class="ph ph-user-check"></i> Human review at every step</li>
+                            <li><i class="ph ph-plugs-connected"></i> FHIR R4 interoperability</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Philosophy -->
+                <div class="slide" data-slide="2">
+                    <div class="slide-icon">
+                        <i class="ph ph-scales"></i>
+                    </div>
+                    <h3>Best Tool for Each Task</h3>
+                    <p class="slide-subtitle">Pragmatic, Not Dogmatic</p>
+                    <div class="slide-content">
+                        <p>We choose the <strong>best method available</strong> for each step - not dogmatically aligning to AI or deterministic approaches.</p>
+                        <div class="philosophy-grid">
+                            <div class="philosophy-item">
+                                <div class="philosophy-icon ai">AI</div>
+                                <span>Where AI excels: transcription, entity extraction, clinical reasoning</span>
+                            </div>
+                            <div class="philosophy-item">
+                                <div class="philosophy-icon deterministic">D</div>
+                                <span>Where deterministic wins: code lookups, validation, formatting</span>
+                            </div>
+                            <div class="philosophy-item">
+                                <div class="philosophy-icon human">H</div>
+                                <span>Where humans are essential: review, correction, clinical judgment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: MedASR -->
+                <div class="slide" data-slide="3">
+                    <div class="slide-icon">
+                        <i class="ph ph-waveform"></i>
+                    </div>
+                    <h3>MedASR: Local Speech Recognition</h3>
+                    <p class="slide-subtitle">Privacy-First, Low-Latency Transcription</p>
+                    <div class="slide-content">
+                        <p>The workflow begins with <strong>highly reliable MedASR</strong>, running locally to protect sensitive data.</p>
+                        <div class="benefits-grid">
+                            <div class="benefit-card">
+                                <i class="ph ph-shield-check"></i>
+                                <strong>Privacy Protected</strong>
+                                <span>Voice biometrics stay local - never transmitted</span>
+                            </div>
+                            <div class="benefit-card">
+                                <i class="ph ph-lightning"></i>
+                                <strong>Low Latency</strong>
+                                <span>Real-time transcription without network delays</span>
+                            </div>
+                            <div class="benefit-card">
+                                <i class="ph ph-wifi-slash"></i>
+                                <strong>Always Available</strong>
+                                <span>Works offline, no internet dependency</span>
+                            </div>
+                            <div class="benefit-card">
+                                <i class="ph ph-stethoscope"></i>
+                                <strong>Medical Tuned</strong>
+                                <span>58-82% better accuracy than general ASR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: MedGemma -->
+                <div class="slide" data-slide="4">
+                    <div class="slide-icon">
+                        <i class="ph ph-brain"></i>
+                    </div>
+                    <h3>MedGemma: Clinical Entity Extraction</h3>
+                    <p class="slide-subtitle">Flexible Deployment for Your Needs</p>
+                    <div class="slide-content">
+                        <p>MedGemma structures clinical information, deployable <strong>on-prem or cloud</strong> based on your requirements.</p>
+                        <div class="deployment-options">
+                            <div class="deployment-option">
+                                <i class="ph ph-buildings"></i>
+                                <strong>On-Premises</strong>
+                                <ul>
+                                    <li>Maximum privacy</li>
+                                    <li>Data sovereignty</li>
+                                    <li>Predictable costs</li>
+                                </ul>
+                            </div>
+                            <div class="deployment-option">
+                                <i class="ph ph-cloud"></i>
+                                <strong>Cloud</strong>
+                                <ul>
+                                    <li>Elastic scaling</li>
+                                    <li>High availability</li>
+                                    <li>Lower upfront cost</li>
+                                </ul>
+                            </div>
+                            <div class="deployment-option">
+                                <i class="ph ph-git-merge"></i>
+                                <strong>Hybrid</strong>
+                                <ul>
+                                    <li>Best of both</li>
+                                    <li>Failover capability</li>
+                                    <li>Flexible routing</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 5: Deterministic Enhancement -->
+                <div class="slide" data-slide="5">
+                    <div class="slide-icon">
+                        <i class="ph ph-code"></i>
+                    </div>
+                    <h3>Deterministic Enhancement</h3>
+                    <p class="slide-subtitle">Proven, Low-Cost, Local Methods</p>
+                    <div class="slide-content">
+                        <p>AI outputs are enhanced by <strong>proven deterministic methods</strong> for coding accuracy and validation.</p>
+                        <div class="enhancement-pipeline">
+                            <div class="pipeline-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <strong>ICD-10 Lookup</strong>
+                                    <span>Fuzzy matching against verified code database</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <strong>Transcript Markers</strong>
+                                    <span>Extract from [SUBJECTIVE], [ASSESSMENT], [PLAN] sections</span>
+                                </div>
+                            </div>
+                            <div class="pipeline-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <strong>Validation</strong>
+                                    <span>Filter placeholders, normalize values, verify formats</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="slide-note"><i class="ph ph-check-circle"></i> Fast, reliable, no API costs, works offline</p>
+                    </div>
+                </div>
+
+                <!-- Slide 6: Clinician Review -->
+                <div class="slide" data-slide="6">
+                    <div class="slide-icon">
+                        <i class="ph ph-user-check"></i>
+                    </div>
+                    <h3>Clinician Review & Correction</h3>
+                    <p class="slide-subtitle">Tactical Control at Every Step</p>
+                    <div class="slide-content">
+                        <p>Clinicians have <strong>full control</strong> to correct, enhance, and validate all extracted data.</p>
+                        <div class="review-capabilities">
+                            <div class="capability">
+                                <i class="ph ph-microphone"></i>
+                                <strong>Re-record</strong>
+                                <span>Voice-correct any field with MedASR</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ph ph-x-circle"></i>
+                                <strong>Reject</strong>
+                                <span>Remove incorrect extractions</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ph ph-pencil"></i>
+                                <strong>Edit</strong>
+                                <span>Inline editing of any content</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ph ph-plus-circle"></i>
+                                <strong>Add</strong>
+                                <span>Manually add missed items via voice or keyboard</span>
+                            </div>
+                            <div class="capability">
+                                <i class="ph ph-checks"></i>
+                                <strong>Approve</strong>
+                                <span>Explicit approval before submission</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 7: FHIR Output -->
+                <div class="slide" data-slide="7">
+                    <div class="slide-icon">
+                        <i class="ph ph-plugs-connected"></i>
+                    </div>
+                    <h3>FHIR R4 Interoperability</h3>
+                    <p class="slide-subtitle">Ready for Any EHR System</p>
+                    <div class="slide-content">
+                        <p>All data is bundled into <strong>FHIR R4 format</strong> for seamless integration with modern healthcare systems.</p>
+                        <div class="fhir-resources">
+                            <div class="resource-badge">Patient</div>
+                            <div class="resource-badge">Condition</div>
+                            <div class="resource-badge">Observation</div>
+                            <div class="resource-badge">MedicationRequest</div>
+                            <div class="resource-badge">AllergyIntolerance</div>
+                            <div class="resource-badge">Procedure</div>
+                            <div class="resource-badge">ServiceRequest</div>
+                            <div class="resource-badge">FamilyMemberHistory</div>
+                        </div>
+                        <p class="slide-note"><i class="ph ph-globe"></i> Compatible with Epic, Cerner, athenahealth, and other FHIR-enabled systems</p>
+                    </div>
+                </div>
+
+                <!-- Slide 8: Questions -->
+                <div class="slide" data-slide="8">
+                    <div class="slide-icon final">
+                        <i class="ph ph-question"></i>
+                    </div>
+                    <h3>Questions?</h3>
+                    <div class="slide-content final-slide">
+                        <p>Voice-to-FHIR is part of the <strong>Cleansheet Medical</strong> platform - a novel EHR interface delivering modern AI to the clinical edge.</p>
+                        <div class="contact-info">
+                            <a href="https://cleansheet.info" target="_blank" class="contact-link">
+                                <i class="ph ph-globe"></i>
+                                cleansheet.info
+                            </a>
+                            <a href="https://github.com/CleansheetLLC" target="_blank" class="contact-link">
+                                <i class="ph ph-github-logo"></i>
+                                GitHub
+                            </a>
+                        </div>
+                        <div class="kaggle-badge">
+                            <i class="ph ph-trophy"></i>
+                            <span>Built for the <strong>MedGemma Impact Challenge</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slideshow Navigation -->
+            <div class="slideshow-nav">
+                <button class="slide-nav-btn" id="prevSlideBtn" onclick="prevSlide()">
+                    <i class="ph ph-caret-left"></i>
+                </button>
+                <div class="slide-dots" id="slideDots">
+                    <!-- Dots generated dynamically -->
+                </div>
+                <button class="slide-nav-btn" id="nextSlideBtn" onclick="nextSlide()">
+                    <i class="ph ph-caret-right"></i>
+                </button>
+            </div>
+
+            <div class="modal-footer">
+                <div class="slide-counter">
+                    <span id="currentSlideNum">1</span> / <span id="totalSlideNum">8</span>
+                </div>
+                <button class="btn-primary" onclick="closeAboutModal()">
+                    <i class="ph ph-check"></i> Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Guide Modal (Slideshow) -->
+    <div class="modal-overlay" id="apiGuideModal">
+        <div class="modal api-guide-modal">
+            <div class="modal-header">
+                <h2><i class="ph ph-code"></i> API Reference</h2>
+                <button class="btn-icon" onclick="closeApiGuideModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body slideshow-container api-slideshow">
+                <!-- Slide 1: Overview -->
+                <div class="api-slide active" data-api-slide="1">
+                    <div class="slide-icon">
+                        <i class="ph ph-plugs-connected"></i>
+                    </div>
+                    <h3>Voice-to-FHIR REST API</h3>
+                    <p class="slide-subtitle">FastAPI Server for Clinical Documentation</p>
+                    <div class="slide-content">
+                        <p>The Voice-to-FHIR API provides REST endpoints for processing clinical voice recordings into structured FHIR R4 bundles.</p>
+                        <div class="api-overview-grid">
+                            <div class="api-stat">
+                                <span class="stat-number">5</span>
+                                <span class="stat-label">Endpoints</span>
+                            </div>
+                            <div class="api-stat">
+                                <span class="stat-number">15</span>
+                                <span class="stat-label">Workflows</span>
+                            </div>
+                            <div class="api-stat">
+                                <span class="stat-number">FHIR R4</span>
+                                <span class="stat-label">Output Format</span>
+                            </div>
+                        </div>
+                        <div class="api-base-url">
+                            <code>Base URL: http://localhost:8001/api/v1</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Health & Workflows -->
+                <div class="api-slide" data-api-slide="2">
+                    <h3>Health & Workflows</h3>
+                    <p class="slide-subtitle">System Status and Available Workflows</p>
+                    <div class="slide-content api-endpoints-list">
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method get">GET</span>
+                                <code>/health</code>
+                            </div>
+                            <p>Check API server status and pipeline readiness.</p>
+                            <div class="endpoint-response">
+                                <strong>Response:</strong>
+                                <pre>{"status": "ok", "version": "0.1.0", "pipeline_ready": true}</pre>
+                            </div>
+                        </div>
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method get">GET</span>
+                                <code>/workflows</code>
+                            </div>
+                            <p>List available clinical workflows for extraction.</p>
+                            <div class="endpoint-response">
+                                <strong>Workflows:</strong> general, soap, hp, emergency, intake, followup, procedure, discharge, radiology, lab_review, respiratory, icu, cardiology, pediatrics, neurology
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Process Audio -->
+                <div class="api-slide" data-api-slide="3">
+                    <h3>Process Audio</h3>
+                    <p class="slide-subtitle">Full Pipeline: Audio → Transcript → FHIR</p>
+                    <div class="slide-content">
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method post">POST</span>
+                                <code>/process-audio</code>
+                            </div>
+                            <p>Process an audio file through the complete voice-to-FHIR pipeline.</p>
+                            <div class="endpoint-params">
+                                <strong>Form Data:</strong>
+                                <ul>
+                                    <li><code>file</code> - Audio file (WAV, MP3, WEBM)</li>
+                                    <li><code>workflow</code> - Clinical workflow (default: "general")</li>
+                                </ul>
+                                <strong>Headers:</strong>
+                                <ul>
+                                    <li><code>X-HF-Token</code> - HuggingFace API token</li>
+                                    <li><code>X-MedASR-Endpoint</code> - Custom MedASR URL</li>
+                                    <li><code>X-MedGemma-Endpoint</code> - Custom MedGemma URL</li>
+                                    <li><code>X-Transcription-Backend</code> - whisper | dedicated | local</li>
+                                    <li><code>X-Extraction-Backend</code> - dedicated | local | serverless</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: Process Chunk -->
+                <div class="api-slide" data-api-slide="4">
+                    <h3>Process Chunk</h3>
+                    <p class="slide-subtitle">Streaming Mode: VAD-Based Audio Chunks</p>
+                    <div class="slide-content">
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method post">POST</span>
+                                <code>/process-chunk</code>
+                            </div>
+                            <p>Process a single audio chunk from streaming recording with voice activity detection.</p>
+                            <div class="endpoint-params">
+                                <strong>Form Data:</strong>
+                                <ul>
+                                    <li><code>file</code> - Audio chunk</li>
+                                    <li><code>chunk_id</code> - Unique chunk identifier</li>
+                                    <li><code>context</code> - Previous transcript for continuity</li>
+                                    <li><code>workflow</code> - Clinical workflow</li>
+                                    <li><code>is_final</code> - True if last chunk</li>
+                                </ul>
+                                <strong>Special Header:</strong>
+                                <ul>
+                                    <li><code>X-Skip-Extraction: true</code> - Transcription only (no entity extraction)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 5: Process Transcript -->
+                <div class="api-slide" data-api-slide="5">
+                    <h3>Process Transcript</h3>
+                    <p class="slide-subtitle">Skip ASR: Text → Extraction → FHIR</p>
+                    <div class="slide-content">
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method post">POST</span>
+                                <code>/process-transcript</code>
+                            </div>
+                            <p>Process pre-transcribed text directly. Useful for testing extraction without audio.</p>
+                            <div class="endpoint-params">
+                                <strong>JSON Body:</strong>
+                                <pre>{
+  "transcript": "Clinical note text...",
+  "workflow": "general"
+}</pre>
+                                <strong>Headers:</strong>
+                                <ul>
+                                    <li><code>X-HF-Token</code> - HuggingFace API token</li>
+                                    <li><code>X-MedGemma-Endpoint</code> - Custom MedGemma URL</li>
+                                    <li><code>X-Extraction-Backend</code> - dedicated | local | serverless</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 6: Analyze Patient -->
+                <div class="api-slide" data-api-slide="6">
+                    <h3>Analyze Patient</h3>
+                    <p class="slide-subtitle">Clinical Decision Support Recommendations</p>
+                    <div class="slide-content">
+                        <div class="api-endpoint">
+                            <div class="endpoint-header">
+                                <span class="http-method post">POST</span>
+                                <code>/analyze-patient</code>
+                            </div>
+                            <p>Analyze patient data to generate clinical decision support recommendations.</p>
+                            <div class="endpoint-params">
+                                <strong>JSON Body:</strong> FHIR R4 Bundle with patient data
+                                <strong>Returns:</strong>
+                                <ul>
+                                    <li>Drug interaction warnings</li>
+                                    <li>Contraindication alerts</li>
+                                    <li>Missing data notifications</li>
+                                    <li>Guideline-based recommendations</li>
+                                </ul>
+                            </div>
+                            <div class="endpoint-response">
+                                <strong>Severity Levels:</strong>
+                                <span class="severity-badge critical">critical</span>
+                                <span class="severity-badge warning">warning</span>
+                                <span class="severity-badge info">info</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 7: Response Format -->
+                <div class="api-slide" data-api-slide="7">
+                    <h3>Response Format</h3>
+                    <p class="slide-subtitle">Structured Output with Metrics</p>
+                    <div class="slide-content">
+                        <div class="api-response-example">
+                            <pre>{
+  "success": true,
+  "transcript": "Patient presents with...",
+  "entities": {
+    "chief_complaint": "chest pain",
+    "conditions": [...],
+    "medications": [...],
+    "vitals": [...],
+    "allergies": [...]
+  },
+  "fhir_bundle": { /* FHIR R4 Bundle */ },
+  "metrics": {
+    "conversion_ms": 150,
+    "transcription_ms": 2340,
+    "extraction_ms": 1850,
+    "fhir_transform_ms": 45,
+    "total_ms": 4385
+  }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 8: Quick Start -->
+                <div class="api-slide" data-api-slide="8">
+                    <div class="slide-icon final">
+                        <i class="ph ph-rocket-launch"></i>
+                    </div>
+                    <h3>Quick Start</h3>
+                    <div class="slide-content final-slide">
+                        <div class="quickstart-steps">
+                            <div class="quickstart-step">
+                                <span class="step-num">1</span>
+                                <div>
+                                    <strong>Install dependencies</strong>
+                                    <code>pip install fastapi uvicorn python-multipart</code>
+                                </div>
+                            </div>
+                            <div class="quickstart-step">
+                                <span class="step-num">2</span>
+                                <div>
+                                    <strong>Set HuggingFace token</strong>
+                                    <code>export HF_TOKEN=hf_xxx...</code>
+                                </div>
+                            </div>
+                            <div class="quickstart-step">
+                                <span class="step-num">3</span>
+                                <div>
+                                    <strong>Configure MedGemma endpoint</strong>
+                                    <code>export MEDGEMMA_ENDPOINT_URL=https://your-endpoint.aws.endpoints.huggingface.cloud</code>
+                                </div>
+                            </div>
+                            <div class="quickstart-step">
+                                <span class="step-num">4</span>
+                                <div>
+                                    <strong>Start the server</strong>
+                                    <code>uvicorn server:app --port 8001</code>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="quickstart-note">
+                            <i class="ph ph-info"></i>
+                            Create a HuggingFace Inference Endpoint for <code>google/medgemma-4b-it</code> or use <code>X-MedGemma-Endpoint</code> header per-request. Docs: <code>/docs</code>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slideshow Navigation -->
+            <div class="slideshow-nav">
+                <button class="slide-nav-btn" id="prevApiSlideBtn" onclick="prevApiSlide()">
+                    <i class="ph ph-caret-left"></i>
+                </button>
+                <div class="slide-dots" id="apiSlideDots">
+                    <!-- Dots generated dynamically -->
+                </div>
+                <button class="slide-nav-btn" id="nextApiSlideBtn" onclick="nextApiSlide()">
+                    <i class="ph ph-caret-right"></i>
+                </button>
+            </div>
+
+            <div class="modal-footer">
+                <div class="slide-counter">
+                    <span id="currentApiSlideNum">1</span> / <span id="totalApiSlideNum">8</span>
+                </div>
+                <button class="btn-primary" onclick="closeApiGuideModal()">
+                    <i class="ph ph-check"></i> Got It
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add EHR Item Modal -->
+    <div class="modal-overlay" id="addEhrItemModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-plus-circle"></i> Add EHR Item</h2>
+                <button class="btn-icon" onclick="closeAddEhrItemModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">Item Type</label>
+                    <select class="form-select" id="addEhrItemType" style="width: 100%;">
+                        <option value="conditions">Condition / Diagnosis</option>
+                        <option value="medications">Medication</option>
+                        <option value="allergies">Allergy</option>
+                        <option value="vitals">Vital Sign</option>
+                        <option value="labResults">Lab Result</option>
+                        <option value="procedures">Procedure</option>
+                        <option value="familyHistory">Family History</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Input Method</label>
+                    <div class="input-method-toggle">
+                        <button class="input-method-btn active" data-method="voice" onclick="setAddEhrInputMethod('voice')">
+                            <i class="ph ph-microphone"></i> Voice
+                        </button>
+                        <button class="input-method-btn" data-method="text" onclick="setAddEhrInputMethod('text')">
+                            <i class="ph ph-keyboard"></i> Type
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Input -->
+                <div class="add-ehr-voice-input" id="addEhrVoiceInput">
+                    <div class="voice-input-status" id="addEhrVoiceStatus">
+                        <i class="ph ph-microphone"></i>
+                        <span>Click to start recording</span>
+                    </div>
+                    <button class="record-btn-small" id="addEhrRecordBtn" onclick="toggleAddEhrRecording()">
+                        <i class="ph ph-microphone"></i>
+                    </button>
+                    <div class="voice-input-result" id="addEhrVoiceResult" style="display: none;">
+                        <div class="voice-result-text" id="addEhrVoiceText"></div>
+                        <button class="btn-icon" onclick="clearAddEhrVoiceResult()" title="Clear">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Input Fields (dynamic based on type) -->
+                <div class="add-ehr-text-input" id="addEhrTextInput" style="display: none;">
+                    <!-- Fields populated dynamically based on item type -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAddEhrItemModal()">Cancel</button>
+                <button class="btn-primary" id="addEhrItemSubmitBtn" onclick="submitAddEhrItem()">
+                    <i class="ph ph-plus"></i> Add Item
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div class="modal-overlay" id="addOrderModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-prescription"></i> Add Order</h2>
+                <button class="btn-icon" onclick="closeAddOrderModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">Order Type</label>
+                    <select class="form-select" id="addOrderType" style="width: 100%;">
+                        <option value="medications">Medication Order</option>
+                        <option value="labs">Lab Order</option>
+                        <option value="consults">Consult / Referral</option>
+                        <option value="procedures">Procedure Order</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Input Method</label>
+                    <div class="input-method-toggle">
+                        <button class="input-method-btn active" data-method="voice" onclick="setAddOrderInputMethod('voice')">
+                            <i class="ph ph-microphone"></i> Voice
+                        </button>
+                        <button class="input-method-btn" data-method="text" onclick="setAddOrderInputMethod('text')">
+                            <i class="ph ph-keyboard"></i> Type
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Input -->
+                <div class="add-ehr-voice-input" id="addOrderVoiceInput">
+                    <div class="voice-input-status" id="addOrderVoiceStatus">
+                        <i class="ph ph-microphone"></i>
+                        <span>Click to start recording</span>
+                    </div>
+                    <button class="record-btn-small" id="addOrderRecordBtn" onclick="toggleAddOrderRecording()">
+                        <i class="ph ph-microphone"></i>
+                    </button>
+                    <div class="voice-input-result" id="addOrderVoiceResult" style="display: none;">
+                        <div class="voice-result-text" id="addOrderVoiceText"></div>
+                        <button class="btn-icon" onclick="clearAddOrderVoiceResult()" title="Clear">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Input Fields (dynamic based on type) -->
+                <div class="add-ehr-text-input" id="addOrderTextInput" style="display: none;">
+                    <!-- Fields populated dynamically based on order type -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAddOrderModal()">Cancel</button>
+                <button class="btn-primary" id="addOrderSubmitBtn" onclick="submitAddOrder()">
+                    <i class="ph ph-plus"></i> Add Order
                 </button>
             </div>
         </div>
@@ -1377,14 +3142,14 @@
                     <p>Process audio to generate clinical notes</p>
                 </div>
                 <div class="transcript-panel" id="transcriptPanel" style="display: none;">
-                    <div class="transcript-header">
+                    <div class="transcript-header" onclick="toggleTranscriptPanel('transcriptPanel')">
+                        <i class="ph ph-caret-down toggle-icon"></i>
                         <span>Original Transcript</span>
-                        <button class="btn-icon" id="playTranscriptAudio" title="Play original audio" style="margin-left: var(--spacing-xs); opacity: 0.6;">
-                            <i class="ph ph-speaker-high"></i>
-                        </button>
-                        <button class="btn-icon" id="toggleTranscript" title="Toggle" style="margin-left: auto;">
-                            <i class="ph ph-caret-down"></i>
-                        </button>
+                        <div class="transcript-header-actions" onclick="event.stopPropagation()">
+                            <button class="btn-icon" id="playTranscriptAudio" title="Play original audio" style="opacity: 0.6;">
+                                <i class="ph ph-speaker-high"></i>
+                            </button>
+                        </div>
                     </div>
                     <audio id="transcriptAudioPlayer" style="display: none;"></audio>
                     <div class="transcript-text" id="transcriptText"></div>
@@ -1398,6 +3163,27 @@
                     <i class="ph ph-database"></i>
                     <p>Process audio to extract structured EHR data</p>
                 </div>
+                <div class="transcript-panel" id="ehrTranscriptPanel" style="display: none;">
+                    <div class="transcript-header" onclick="toggleTranscriptPanel('ehrTranscriptPanel')">
+                        <i class="ph ph-caret-down toggle-icon"></i>
+                        <span>Original Transcript</span>
+                        <div class="transcript-header-actions" onclick="event.stopPropagation()">
+                            <button class="btn-icon" id="playEhrTranscriptAudio" title="Play original audio" style="opacity: 0.6;">
+                                <i class="ph ph-speaker-high"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <audio id="ehrTranscriptAudioPlayer" style="display: none;"></audio>
+                    <div class="transcript-text" id="ehrTranscriptText"></div>
+                </div>
+                <div class="data-action-bar" id="ehrActionBar" style="display: none;">
+                    <button class="btn-secondary" onclick="approveAllEhrItems()">
+                        <i class="ph ph-checks"></i> Approve All
+                    </button>
+                    <button class="btn-secondary" onclick="openAddEhrItemModal()">
+                        <i class="ph ph-plus"></i> Add Item
+                    </button>
+                </div>
                 <div id="ehrCategories"></div>
             </div>
 
@@ -1406,6 +3192,27 @@
                 <div class="empty-state" id="ordersEmpty">
                     <i class="ph ph-prescription"></i>
                     <p>Process audio to extract clinician orders</p>
+                </div>
+                <div class="transcript-panel" id="ordersTranscriptPanel" style="display: none;">
+                    <div class="transcript-header" onclick="toggleTranscriptPanel('ordersTranscriptPanel')">
+                        <i class="ph ph-caret-down toggle-icon"></i>
+                        <span>Original Transcript</span>
+                        <div class="transcript-header-actions" onclick="event.stopPropagation()">
+                            <button class="btn-icon" id="playOrdersTranscriptAudio" title="Play original audio" style="opacity: 0.6;">
+                                <i class="ph ph-speaker-high"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <audio id="ordersTranscriptAudioPlayer" style="display: none;"></audio>
+                    <div class="transcript-text" id="ordersTranscriptText"></div>
+                </div>
+                <div class="data-action-bar" id="ordersActionBar" style="display: none;">
+                    <button class="btn-secondary" onclick="approveAllOrders()">
+                        <i class="ph ph-checks"></i> Approve All
+                    </button>
+                    <button class="btn-secondary" onclick="openAddOrderModal()">
+                        <i class="ph ph-plus"></i> Add Order
+                    </button>
                 </div>
                 <div id="ordersList"></div>
             </div>
@@ -1549,9 +3356,13 @@
             ehrContent: document.getElementById('ehrContent'),
             ehrEmpty: document.getElementById('ehrEmpty'),
             ehrCategories: document.getElementById('ehrCategories'),
+            ehrTranscriptPanel: document.getElementById('ehrTranscriptPanel'),
+            ehrTranscriptText: document.getElementById('ehrTranscriptText'),
             ordersContent: document.getElementById('ordersContent'),
             ordersEmpty: document.getElementById('ordersEmpty'),
             ordersList: document.getElementById('ordersList'),
+            ordersTranscriptPanel: document.getElementById('ordersTranscriptPanel'),
+            ordersTranscriptText: document.getElementById('ordersTranscriptText'),
             submitToEhrBtn: document.getElementById('submitToEhrBtn'),
             mockEhrList: document.getElementById('mockEhrList'),
             mockEhrEmpty: document.getElementById('mockEhrEmpty'),
@@ -1590,6 +3401,62 @@
         function formatMs(ms) {
             if (ms < 1000) return `${ms.toFixed(0)}ms`;
             return `${(ms / 1000).toFixed(1)}s`;
+        }
+
+        /**
+         * Toggle transcript panel collapsed/expanded state
+         */
+        function toggleTranscriptPanel(panelId) {
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.classList.toggle('collapsed');
+            }
+        }
+
+        /**
+         * Format transcript text with highlighted clinical markers and measurements
+         * for better readability across all tabs.
+         */
+        function formatTranscript(text) {
+            if (!text) return '';
+
+            // Escape HTML first
+            let formatted = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Highlight section markers like [SUBJECTIVE], [OBJECTIVE], [ASSESSMENT], [PLAN]
+            formatted = formatted.replace(
+                /\[(SUBJECTIVE|OBJECTIVE|ASSESSMENT|PLAN|CHIEF COMPLAINT|CLINICAL HISTORY|HISTORY OF PRESENT ILLNESS|HPI|ROS|REVIEW OF SYSTEMS|PHYSICAL EXAM|EXAM|VITAL SIGNS|VITALS|LABS|MEDICATIONS|ALLERGIES|FAMILY HISTORY|SOCIAL HISTORY|FINDINGS?|IMPRESSION|COMPARISON|HOSPITAL COURSE|DISCHARGE DIAGNOSIS|ADMISSION DIAGNOSIS|DISCHARGE MEDICATIONS)\]/gi,
+                '<span class="section-marker">[$1]</span>'
+            );
+
+            // Highlight measurements (numbers with units)
+            formatted = formatted.replace(
+                /(\d+\.?\d*)\s*(mg|mcg|mL|L|g|kg|lbs?|pounds?|mmHg|bpm|%|°?[FC]|breaths?\/min|pack-years?|years?|months?|days?|weeks?|hours?|minutes?)/gi,
+                '<span class="measurement">$1 $2</span>'
+            );
+
+            // Highlight blood pressure format
+            formatted = formatted.replace(
+                /(\d{2,3})\s*\/\s*(\d{2,3})(?=\s|,|\.|\]|$)/g,
+                '<span class="measurement">$1/$2</span>'
+            );
+
+            // Highlight common clinical terms
+            const clinicalTerms = [
+                'denies', 'reports', 'presents with', 'admitted with', 'admitted for',
+                'positive', 'negative', 'normal', 'abnormal', 'elevated', 'decreased',
+                'improved', 'stable', 'worsening', 'resolved', 'chronic', 'acute',
+                'bilateral', 'unilateral', 'mild', 'moderate', 'severe'
+            ];
+            clinicalTerms.forEach(term => {
+                const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+                formatted = formatted.replace(regex, '<span class="clinical-term">$1</span>');
+            });
+
+            return formatted;
         }
 
         function showToast(message, type = 'info') {
@@ -1855,6 +3722,152 @@
                 const bars = elements.audioVisualizer.querySelectorAll('.visualizer-bar');
                 bars.forEach(bar => bar.style.height = '4px');
             }
+        }
+
+        // ============================================================================
+        // Field-Level Re-Recording (Voice correction for individual note sections)
+        // ============================================================================
+        const fieldRecordingState = {
+            activeField: null,
+            mediaRecorder: null,
+            audioChunks: [],
+            stream: null
+        };
+
+        async function toggleFieldRecording(fieldKey, button) {
+            if (fieldRecordingState.activeField === fieldKey) {
+                // Stop recording
+                await stopFieldRecording(fieldKey, button);
+            } else if (fieldRecordingState.activeField) {
+                // Another field is recording - stop it first
+                const activeBtn = document.querySelector(`.field-rerecord-btn[data-field="${fieldRecordingState.activeField}"]`);
+                await stopFieldRecording(fieldRecordingState.activeField, activeBtn);
+                // Start new recording
+                await startFieldRecording(fieldKey, button);
+            } else {
+                // Start new recording
+                await startFieldRecording(fieldKey, button);
+            }
+        }
+
+        async function startFieldRecording(fieldKey, button) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                fieldRecordingState.stream = stream;
+                fieldRecordingState.activeField = fieldKey;
+                fieldRecordingState.audioChunks = [];
+
+                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                fieldRecordingState.mediaRecorder = mediaRecorder;
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        fieldRecordingState.audioChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.start(100);
+
+                // Update UI
+                button.classList.add('recording');
+                button.innerHTML = '<i class="ph ph-stop"></i>';
+                button.title = 'Stop recording';
+
+                const contentEl = document.querySelector(`.note-section-content[data-section="${fieldKey}"]`);
+                if (contentEl) {
+                    contentEl.classList.add('recording-active');
+                }
+
+                showToast(`Recording ${fieldKey.replace(/([A-Z])/g, ' $1').trim()}...`, 'info');
+
+            } catch (error) {
+                console.error('Failed to start field recording:', error);
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        async function stopFieldRecording(fieldKey, button) {
+            if (!fieldRecordingState.mediaRecorder) return;
+
+            return new Promise((resolve) => {
+                fieldRecordingState.mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(fieldRecordingState.audioChunks, { type: 'audio/webm' });
+
+                    // Cleanup
+                    if (fieldRecordingState.stream) {
+                        fieldRecordingState.stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    // Update UI to transcribing state
+                    button.classList.remove('recording');
+                    button.classList.add('transcribing');
+                    button.innerHTML = '<i class="ph ph-spinner"></i>';
+                    button.title = 'Transcribing...';
+
+                    const contentEl = document.querySelector(`.note-section-content[data-section="${fieldKey}"]`);
+                    if (contentEl) {
+                        contentEl.classList.remove('recording-active');
+                        contentEl.classList.add('transcribing');
+                    }
+
+                    // Send to MedASR for transcription
+                    try {
+                        const transcript = await transcribeFieldAudio(audioBlob, fieldKey);
+                        if (transcript && contentEl) {
+                            // Update the field content with the transcript
+                            contentEl.textContent = transcript;
+                            showToast('Field updated', 'success');
+                        }
+                    } catch (error) {
+                        console.error('Field transcription failed:', error);
+                        showToast(`Transcription failed: ${error.message}`, 'error');
+                    }
+
+                    // Reset UI
+                    button.classList.remove('transcribing');
+                    button.innerHTML = '<i class="ph ph-microphone"></i>';
+                    button.title = 'Re-record this field';
+
+                    if (contentEl) {
+                        contentEl.classList.remove('transcribing');
+                    }
+
+                    // Reset state
+                    fieldRecordingState.activeField = null;
+                    fieldRecordingState.mediaRecorder = null;
+                    fieldRecordingState.audioChunks = [];
+                    fieldRecordingState.stream = null;
+
+                    resolve();
+                };
+
+                fieldRecordingState.mediaRecorder.stop();
+            });
+        }
+
+        async function transcribeFieldAudio(audioBlob, fieldKey) {
+            const formData = new FormData();
+            formData.append('file', audioBlob, 'field-recording.webm');
+            formData.append('chunk_id', `field-${fieldKey}-${Date.now()}`);
+            formData.append('workflow', 'general');
+            formData.append('is_final', 'true');
+
+            const headers = getApiHeaders();
+            headers['X-Skip-Extraction'] = 'true';  // Transcription only
+
+            const response = await fetch(`${getApiUrl()}/api/v1/process-chunk`, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Transcription failed');
+            }
+
+            const result = await response.json();
+            return result.transcript || '';
         }
 
         function setCurrentAudio(blob, filename) {
@@ -2198,11 +4211,21 @@
             // Start with FHIR bundle extraction for detailed resource data
             const fhirData = extractDataFromBundle(item.result.fhir_bundle);
 
-            // Merge with entities dict from server (has chief_complaint, family_history, social_history)
+            // Merge with entities dict from server (has chief_complaint, family_history, social_history, ICD-10 codes)
             const entities = item.result.entities || {};
             const extractedData = {
                 ...fhirData,
                 chiefComplaint: entities.chief_complaint || null,
+                // Use entities.conditions for ICD-10 codes (FHIR bundle has SNOMED)
+                conditions: (entities.conditions || []).map((c, i) => ({
+                    id: `cond-${i}`,
+                    name: c.name,
+                    icd10: c.icd10 || null,
+                    status: c.status || 'active',
+                    severity: c.severity || null,
+                    isChiefComplaint: c.is_chief_complaint || false,
+                    approved: null
+                })),
                 // Use entities data for family/social history if available (more complete than FHIR extraction)
                 familyHistory: (entities.family_history || []).map((fh, i) => ({
                     id: `fh-${i}`,
@@ -2426,8 +4449,12 @@
                 elements.transcriptPanel.style.display = 'none';
                 elements.ehrEmpty.style.display = 'block';
                 elements.ehrCategories.innerHTML = '';
+                elements.ehrTranscriptPanel.style.display = 'none';
+                document.getElementById('ehrActionBar').style.display = 'none';
                 elements.ordersEmpty.style.display = 'block';
                 elements.ordersList.innerHTML = '';
+                elements.ordersTranscriptPanel.style.display = 'none';
+                document.getElementById('ordersActionBar').style.display = 'none';
                 return;
             }
 
@@ -2450,10 +4477,15 @@
             const sections = generateNoteSections(item.workflow, item.extractedData);
 
             elements.notesSections.innerHTML = sections.map(section => `
-                <div class="note-section">
+                <div class="note-section" data-section-key="${section.key}">
                     <div class="note-section-header">
-                        <i class="ph ph-${section.icon}"></i>
-                        ${section.title}
+                        <span class="section-title">
+                            <i class="ph ph-${section.icon}"></i>
+                            ${section.title}
+                        </span>
+                        <button class="field-rerecord-btn" data-field="${section.key}" title="Re-record this field">
+                            <i class="ph ph-microphone"></i>
+                        </button>
                     </div>
                     <div class="note-section-content" contenteditable="true" data-section="${section.key}">
                         ${section.content}
@@ -2461,9 +4493,18 @@
                 </div>
             `).join('');
 
-            // Show transcript
+            // Attach event listeners for field re-record buttons
+            elements.notesSections.querySelectorAll('.field-rerecord-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const fieldKey = btn.dataset.field;
+                    toggleFieldRecording(fieldKey, btn);
+                });
+            });
+
+            // Show transcript with formatting
             elements.transcriptPanel.style.display = 'block';
-            elements.transcriptText.textContent = item.transcript;
+            elements.transcriptText.innerHTML = formatTranscript(item.transcript);
 
             // Set up audio playback for the original recording
             const audioPlayer = document.getElementById('transcriptAudioPlayer');
@@ -2569,6 +4610,26 @@
             elements.ehrEmpty.style.display = 'none';
             const data = item.extractedData;
 
+            // Show transcript panel with formatting
+            elements.ehrTranscriptPanel.style.display = 'block';
+            elements.ehrTranscriptText.innerHTML = formatTranscript(item.transcript);
+
+            // Show action bar
+            document.getElementById('ehrActionBar').style.display = 'flex';
+
+            // Set up audio playback
+            const audioPlayer = document.getElementById('ehrTranscriptAudioPlayer');
+            const playBtn = document.getElementById('playEhrTranscriptAudio');
+            if (audioPlayer && item.audioBlob) {
+                if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(audioPlayer.src);
+                }
+                audioPlayer.src = URL.createObjectURL(item.audioBlob);
+                playBtn.style.display = '';
+            } else if (playBtn) {
+                playBtn.style.display = 'none';
+            }
+
             const categories = [
                 { key: 'vitals', title: 'Vital Signs', icon: 'heartbeat', items: data.vitals },
                 { key: 'conditions', title: 'Conditions', icon: 'stethoscope', items: data.conditions },
@@ -2596,25 +4657,40 @@
         function renderEhrItem(category, item) {
             let details = '';
             let code = '';
+            let badge = '';
 
             switch (category) {
                 case 'vitals':
-                    details = `${item.value} ${item.unit}`;
+                    // Format vitals with monospace values
+                    const vitalValue = item.value || '';
+                    const vitalUnit = item.unit || '';
+                    details = `<span class="ehr-measurement">${vitalValue}</span> <span class="ehr-unit">${vitalUnit}</span>`;
                     code = item.code || '';
                     break;
                 case 'conditions':
-                    details = item.status || '';
-                    code = item.code || '';
+                    // Show status as a badge
+                    const status = item.status || 'active';
+                    badge = `<span class="ehr-status-badge ${status}">${status}</span>`;
+                    code = item.icd10 ? `<span class="ehr-icd10-code">${item.icd10}</span>` : '';
                     break;
                 case 'medications':
-                    details = item.dosage || '';
+                    details = item.dosage ? `<span class="ehr-measurement">${item.dosage}</span>` : '';
                     code = item.code || '';
                     break;
                 case 'allergies':
-                    details = `${item.reaction || ''} (${item.severity})`;
+                    const reaction = item.reaction || 'Unknown reaction';
+                    const severity = item.severity || 'unknown';
+                    badge = `<span class="ehr-severity-badge ${severity}">${severity}</span>`;
+                    details = reaction;
                     break;
                 case 'labResults':
-                    details = `${item.value} ${item.unit}`;
+                    const labValue = item.value || '';
+                    const labUnit = item.unit || '';
+                    const interpretation = item.interpretation;
+                    details = `<span class="ehr-measurement">${labValue}</span> <span class="ehr-unit">${labUnit}</span>`;
+                    if (interpretation) {
+                        badge = `<span class="ehr-interpretation-badge ${interpretation}">${interpretation}</span>`;
+                    }
                     code = item.code || '';
                     break;
                 case 'procedures':
@@ -2623,15 +4699,22 @@
                     break;
                 case 'familyHistory':
                     details = item.condition || '';
+                    if (item.ageOfOnset) {
+                        details += ` <span class="ehr-age-onset">(onset: ${item.ageOfOnset})</span>`;
+                    }
                     break;
             }
 
             const approvedClass = item.approved === true ? 'approved' : item.approved === false ? 'rejected' : '';
+            const itemName = item.name || item.substance || item.relationship || 'Unknown';
 
             return `
                 <div class="ehr-item ${approvedClass}" data-category="${category}" data-id="${item.id}">
                     <div class="ehr-item-content">
-                        <div class="ehr-item-name">${item.name || item.substance || item.relationship}</div>
+                        <div class="ehr-item-header">
+                            <span class="ehr-item-name">${itemName}</span>
+                            ${badge}
+                        </div>
                         ${details ? `<div class="ehr-item-detail">${details}</div>` : ''}
                         ${code ? `<div class="ehr-item-code">${code}</div>` : ''}
                     </div>
@@ -2655,6 +4738,26 @@
                 ...orders.consults.map(o => ({ ...o, type: 'consult' })),
                 ...orders.procedures.map(o => ({ ...o, type: 'procedure' }))
             ];
+
+            // Show transcript panel with formatting
+            elements.ordersTranscriptPanel.style.display = 'block';
+            elements.ordersTranscriptText.innerHTML = formatTranscript(item.transcript);
+
+            // Show action bar if there are orders
+            document.getElementById('ordersActionBar').style.display = allOrders.length > 0 ? 'flex' : 'none';
+
+            // Set up audio playback
+            const audioPlayer = document.getElementById('ordersTranscriptAudioPlayer');
+            const playBtn = document.getElementById('playOrdersTranscriptAudio');
+            if (audioPlayer && item.audioBlob) {
+                if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(audioPlayer.src);
+                }
+                audioPlayer.src = URL.createObjectURL(item.audioBlob);
+                playBtn.style.display = '';
+            } else if (playBtn) {
+                playBtn.style.display = 'none';
+            }
 
             if (allOrders.length === 0) {
                 elements.ordersEmpty.style.display = 'block';
@@ -2750,6 +4853,976 @@
         }
 
         // ============================================================================
+        // Approve All Functions
+        // ============================================================================
+        function approveAllEhrItems() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const categories = ['vitals', 'conditions', 'medications', 'allergies', 'labResults', 'procedures', 'familyHistory'];
+            let count = 0;
+
+            categories.forEach(cat => {
+                const items = item.extractedData[cat];
+                if (items && Array.isArray(items)) {
+                    items.forEach(dataItem => {
+                        if (dataItem.approved !== true) {
+                            dataItem.approved = true;
+                            count++;
+                        }
+                    });
+                }
+            });
+
+            renderEhrData(item);
+            showToast(`Approved ${count} EHR items`, 'success');
+        }
+
+        function approveAllOrders() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const orderTypes = ['medications', 'labs', 'consults', 'procedures'];
+            let count = 0;
+
+            orderTypes.forEach(type => {
+                const orders = item.extractedData.orders[type];
+                if (orders && Array.isArray(orders)) {
+                    orders.forEach(order => {
+                        if (order.approved !== true) {
+                            order.approved = true;
+                            count++;
+                        }
+                    });
+                }
+            });
+
+            renderOrders(item);
+            showToast(`Approved ${count} orders`, 'success');
+        }
+
+        // ============================================================================
+        // Add EHR Item Modal
+        // ============================================================================
+        const addEhrState = {
+            inputMethod: 'voice',
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            stream: null,
+            transcribedText: ''
+        };
+
+        function openAddEhrItemModal() {
+            const modal = document.getElementById('addEhrItemModal');
+            modal.classList.add('visible');
+            updateAddEhrTextFields();
+        }
+
+        function closeAddEhrItemModal() {
+            const modal = document.getElementById('addEhrItemModal');
+            modal.classList.remove('visible');
+
+            // Reset state
+            if (addEhrState.isRecording) {
+                stopAddEhrRecording();
+            }
+            addEhrState.transcribedText = '';
+            document.getElementById('addEhrVoiceResult').style.display = 'none';
+            document.getElementById('addEhrVoiceText').textContent = '';
+
+            // Reset button state
+            const recordBtn = document.getElementById('addEhrRecordBtn');
+            recordBtn.classList.remove('recording', 'transcribing');
+            recordBtn.innerHTML = '<i class="ph ph-microphone"></i>';
+
+            const status = document.getElementById('addEhrVoiceStatus');
+            status.innerHTML = '<i class="ph ph-microphone"></i><span>Click to start recording</span>';
+        }
+
+        function setAddEhrInputMethod(method) {
+            addEhrState.inputMethod = method;
+
+            // Update toggle buttons
+            document.querySelectorAll('.input-method-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === method);
+            });
+
+            // Show/hide input sections
+            document.getElementById('addEhrVoiceInput').style.display = method === 'voice' ? 'flex' : 'none';
+            document.getElementById('addEhrTextInput').style.display = method === 'text' ? 'block' : 'none';
+
+            if (method === 'text') {
+                updateAddEhrTextFields();
+            }
+        }
+
+        function updateAddEhrTextFields() {
+            const type = document.getElementById('addEhrItemType').value;
+            const container = document.getElementById('addEhrTextInput');
+
+            const fieldConfigs = {
+                conditions: [
+                    { name: 'name', label: 'Condition Name', type: 'text', required: true },
+                    { name: 'icd10', label: 'ICD-10 Code', type: 'text', placeholder: 'e.g., E11.9' },
+                    { name: 'status', label: 'Status', type: 'select', options: ['active', 'resolved', 'chronic'] }
+                ],
+                medications: [
+                    { name: 'name', label: 'Medication Name', type: 'text', required: true },
+                    { name: 'dosage', label: 'Dosage', type: 'text', placeholder: 'e.g., 500mg twice daily' },
+                    { name: 'route', label: 'Route', type: 'select', options: ['oral', 'IV', 'IM', 'topical', 'inhaled', 'sublingual'] }
+                ],
+                allergies: [
+                    { name: 'substance', label: 'Allergen', type: 'text', required: true },
+                    { name: 'reaction', label: 'Reaction', type: 'text', placeholder: 'e.g., rash, anaphylaxis' },
+                    { name: 'severity', label: 'Severity', type: 'select', options: ['mild', 'moderate', 'severe'] }
+                ],
+                vitals: [
+                    { name: 'name', label: 'Vital Sign', type: 'select', options: ['Blood Pressure', 'Heart Rate', 'Temperature', 'Respiratory Rate', 'O2 Saturation', 'Weight'] },
+                    { name: 'value', label: 'Value', type: 'text', required: true, placeholder: 'e.g., 120/80' },
+                    { name: 'unit', label: 'Unit', type: 'text', placeholder: 'e.g., mmHg, bpm' }
+                ],
+                labResults: [
+                    { name: 'name', label: 'Lab Test', type: 'text', required: true },
+                    { name: 'value', label: 'Result', type: 'text', required: true },
+                    { name: 'unit', label: 'Unit', type: 'text' },
+                    { name: 'interpretation', label: 'Interpretation', type: 'select', options: ['normal', 'abnormal', 'high', 'low', 'critical'] }
+                ],
+                procedures: [
+                    { name: 'name', label: 'Procedure Name', type: 'text', required: true },
+                    { name: 'status', label: 'Status', type: 'select', options: ['completed', 'planned', 'in-progress'] }
+                ],
+                familyHistory: [
+                    { name: 'relationship', label: 'Relationship', type: 'select', options: ['mother', 'father', 'sibling', 'grandmother', 'grandfather', 'aunt', 'uncle'] },
+                    { name: 'condition', label: 'Condition', type: 'text', required: true },
+                    { name: 'ageOfOnset', label: 'Age of Onset', type: 'text', placeholder: 'e.g., 55' }
+                ]
+            };
+
+            const fields = fieldConfigs[type] || [];
+            container.innerHTML = fields.map(field => {
+                if (field.type === 'select') {
+                    return `
+                        <div class="form-group">
+                            <label>${field.label}${field.required ? ' *' : ''}</label>
+                            <select id="addEhr_${field.name}" ${field.required ? 'required' : ''}>
+                                <option value="">Select...</option>
+                                ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="form-group">
+                            <label>${field.label}${field.required ? ' *' : ''}</label>
+                            <input type="text" id="addEhr_${field.name}"
+                                   placeholder="${field.placeholder || ''}"
+                                   ${field.required ? 'required' : ''}>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        async function toggleAddEhrRecording() {
+            if (addEhrState.isRecording) {
+                await stopAddEhrRecording();
+            } else {
+                await startAddEhrRecording();
+            }
+        }
+
+        async function startAddEhrRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                addEhrState.stream = stream;
+                addEhrState.audioChunks = [];
+                addEhrState.isRecording = true;
+
+                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                addEhrState.mediaRecorder = mediaRecorder;
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        addEhrState.audioChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.start(100);
+
+                // Update UI
+                const recordBtn = document.getElementById('addEhrRecordBtn');
+                recordBtn.classList.add('recording');
+                recordBtn.innerHTML = '<i class="ph ph-stop"></i>';
+
+                const status = document.getElementById('addEhrVoiceStatus');
+                status.innerHTML = '<i class="ph ph-record" style="color: var(--color-error);"></i><span>Recording... Click to stop</span>';
+
+                // Hide previous result
+                document.getElementById('addEhrVoiceResult').style.display = 'none';
+
+            } catch (error) {
+                console.error('Failed to start recording:', error);
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        async function stopAddEhrRecording() {
+            if (!addEhrState.mediaRecorder) return;
+
+            return new Promise((resolve) => {
+                addEhrState.mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(addEhrState.audioChunks, { type: 'audio/webm' });
+
+                    // Cleanup stream
+                    if (addEhrState.stream) {
+                        addEhrState.stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    addEhrState.isRecording = false;
+
+                    // Update UI to transcribing
+                    const recordBtn = document.getElementById('addEhrRecordBtn');
+                    recordBtn.classList.remove('recording');
+                    recordBtn.classList.add('transcribing');
+                    recordBtn.innerHTML = '<i class="ph ph-spinner"></i>';
+
+                    const status = document.getElementById('addEhrVoiceStatus');
+                    status.innerHTML = '<i class="ph ph-spinner spinning"></i><span>Transcribing...</span>';
+
+                    // Send to MedASR
+                    try {
+                        const transcript = await transcribeFieldAudio(audioBlob, 'add-ehr-item');
+                        addEhrState.transcribedText = transcript;
+
+                        // Show result
+                        document.getElementById('addEhrVoiceText').textContent = transcript;
+                        document.getElementById('addEhrVoiceResult').style.display = 'flex';
+
+                        status.innerHTML = '<i class="ph ph-check-circle" style="color: var(--color-success);"></i><span>Transcription complete</span>';
+                    } catch (error) {
+                        console.error('Transcription failed:', error);
+                        showToast(`Transcription failed: ${error.message}`, 'error');
+                        status.innerHTML = '<i class="ph ph-x-circle" style="color: var(--color-error);"></i><span>Transcription failed</span>';
+                    }
+
+                    // Reset button
+                    recordBtn.classList.remove('transcribing');
+                    recordBtn.innerHTML = '<i class="ph ph-microphone"></i>';
+
+                    resolve();
+                };
+
+                addEhrState.mediaRecorder.stop();
+            });
+        }
+
+        function clearAddEhrVoiceResult() {
+            addEhrState.transcribedText = '';
+            document.getElementById('addEhrVoiceResult').style.display = 'none';
+            document.getElementById('addEhrVoiceText').textContent = '';
+
+            const status = document.getElementById('addEhrVoiceStatus');
+            status.innerHTML = '<i class="ph ph-microphone"></i><span>Click to start recording</span>';
+        }
+
+        function submitAddEhrItem() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) {
+                showToast('No review item selected', 'error');
+                return;
+            }
+
+            const type = document.getElementById('addEhrItemType').value;
+            let newItem = null;
+
+            if (addEhrState.inputMethod === 'voice') {
+                // Use transcribed text to create item
+                const text = addEhrState.transcribedText.trim();
+                if (!text) {
+                    showToast('Please record something first', 'error');
+                    return;
+                }
+
+                // Create item from voice input (simple parsing)
+                newItem = createItemFromVoice(type, text);
+            } else {
+                // Create item from form fields
+                newItem = createItemFromForm(type);
+            }
+
+            if (!newItem) {
+                showToast('Please fill in the required fields', 'error');
+                return;
+            }
+
+            // Generate unique ID
+            newItem.id = `${type.slice(0, 4)}-${Date.now()}`;
+            newItem.approved = true;  // Auto-approve manually added items
+
+            // Add to the appropriate array
+            if (!item.extractedData[type]) {
+                item.extractedData[type] = [];
+            }
+            item.extractedData[type].push(newItem);
+
+            // Re-render and close modal
+            renderEhrData(item);
+            closeAddEhrItemModal();
+            showToast(`Added ${type.replace(/([A-Z])/g, ' $1').toLowerCase().trim()}`, 'success');
+        }
+
+        function createItemFromVoice(type, text) {
+            // Simple item creation from voice text
+            // In a full implementation, this could use MedGemma for extraction
+            const baseItem = { name: text };
+
+            switch (type) {
+                case 'conditions':
+                    return { name: text, status: 'active', icd10: null, severity: null };
+                case 'medications':
+                    return { name: text, dosage: null, route: 'oral' };
+                case 'allergies':
+                    return { substance: text, reaction: null, severity: 'unknown' };
+                case 'vitals':
+                    // Try to parse "BP 120/80" or "temperature 98.6"
+                    const vitalMatch = text.match(/^(blood pressure|bp|heart rate|hr|temp|temperature|weight|o2|spo2|resp)\s*[:\s]*(.+)$/i);
+                    if (vitalMatch) {
+                        const vitalTypes = {
+                            'blood pressure': 'blood_pressure', 'bp': 'blood_pressure',
+                            'heart rate': 'heart_rate', 'hr': 'heart_rate',
+                            'temp': 'temperature', 'temperature': 'temperature',
+                            'weight': 'weight', 'o2': 'oxygen_saturation', 'spo2': 'oxygen_saturation',
+                            'resp': 'respiratory_rate'
+                        };
+                        return {
+                            name: vitalTypes[vitalMatch[1].toLowerCase()] || vitalMatch[1],
+                            type: vitalTypes[vitalMatch[1].toLowerCase()] || vitalMatch[1],
+                            value: vitalMatch[2].trim(),
+                            unit: null
+                        };
+                    }
+                    return { name: text, type: 'other', value: text, unit: null };
+                case 'labResults':
+                    return { name: text, value: '', unit: null, interpretation: null };
+                case 'procedures':
+                    return { name: text, status: 'completed' };
+                case 'familyHistory':
+                    return { relationship: 'unknown', condition: text, ageOfOnset: null };
+                default:
+                    return { name: text };
+            }
+        }
+
+        function createItemFromForm(type) {
+            const getValue = (fieldName) => {
+                const el = document.getElementById(`addEhr_${fieldName}`);
+                return el ? el.value.trim() : '';
+            };
+
+            switch (type) {
+                case 'conditions':
+                    const condName = getValue('name');
+                    if (!condName) return null;
+                    return {
+                        name: condName,
+                        icd10: getValue('icd10') || null,
+                        status: getValue('status') || 'active',
+                        severity: null
+                    };
+                case 'medications':
+                    const medName = getValue('name');
+                    if (!medName) return null;
+                    return {
+                        name: medName,
+                        dosage: getValue('dosage') || null,
+                        route: getValue('route') || 'oral'
+                    };
+                case 'allergies':
+                    const allergen = getValue('substance');
+                    if (!allergen) return null;
+                    return {
+                        substance: allergen,
+                        reaction: getValue('reaction') || null,
+                        severity: getValue('severity') || 'unknown'
+                    };
+                case 'vitals':
+                    const vitalName = getValue('name');
+                    const vitalValue = getValue('value');
+                    if (!vitalValue) return null;
+                    const typeMap = {
+                        'Blood Pressure': 'blood_pressure',
+                        'Heart Rate': 'heart_rate',
+                        'Temperature': 'temperature',
+                        'Respiratory Rate': 'respiratory_rate',
+                        'O2 Saturation': 'oxygen_saturation',
+                        'Weight': 'weight'
+                    };
+                    return {
+                        name: vitalName || 'Vital',
+                        type: typeMap[vitalName] || vitalName?.toLowerCase().replace(/\s+/g, '_'),
+                        value: vitalValue,
+                        unit: getValue('unit') || null
+                    };
+                case 'labResults':
+                    const labName = getValue('name');
+                    const labValue = getValue('value');
+                    if (!labName || !labValue) return null;
+                    return {
+                        name: labName,
+                        value: labValue,
+                        unit: getValue('unit') || null,
+                        interpretation: getValue('interpretation') || null
+                    };
+                case 'procedures':
+                    const procName = getValue('name');
+                    if (!procName) return null;
+                    return {
+                        name: procName,
+                        status: getValue('status') || 'completed'
+                    };
+                case 'familyHistory':
+                    const condition = getValue('condition');
+                    if (!condition) return null;
+                    return {
+                        relationship: getValue('relationship') || 'unknown',
+                        condition: condition,
+                        ageOfOnset: getValue('ageOfOnset') || null
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        // ============================================================================
+        // Add Order Modal
+        // ============================================================================
+        const addOrderState = {
+            inputMethod: 'voice',
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            stream: null,
+            transcribedText: ''
+        };
+
+        function openAddOrderModal() {
+            const modal = document.getElementById('addOrderModal');
+            modal.classList.add('visible');
+            updateAddOrderTextFields();
+        }
+
+        function closeAddOrderModal() {
+            const modal = document.getElementById('addOrderModal');
+            modal.classList.remove('visible');
+
+            // Reset state
+            if (addOrderState.isRecording) {
+                stopAddOrderRecording();
+            }
+            addOrderState.transcribedText = '';
+            document.getElementById('addOrderVoiceResult').style.display = 'none';
+            document.getElementById('addOrderVoiceText').textContent = '';
+
+            // Reset button state
+            const recordBtn = document.getElementById('addOrderRecordBtn');
+            recordBtn.classList.remove('recording', 'transcribing');
+            recordBtn.innerHTML = '<i class="ph ph-microphone"></i>';
+
+            const status = document.getElementById('addOrderVoiceStatus');
+            status.innerHTML = '<i class="ph ph-microphone"></i><span>Click to start recording</span>';
+        }
+
+        function setAddOrderInputMethod(method) {
+            addOrderState.inputMethod = method;
+
+            // Update toggle buttons in the order modal
+            document.querySelectorAll('#addOrderModal .input-method-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === method);
+            });
+
+            // Show/hide input sections
+            document.getElementById('addOrderVoiceInput').style.display = method === 'voice' ? 'flex' : 'none';
+            document.getElementById('addOrderTextInput').style.display = method === 'text' ? 'block' : 'none';
+
+            if (method === 'text') {
+                updateAddOrderTextFields();
+            }
+        }
+
+        function updateAddOrderTextFields() {
+            const type = document.getElementById('addOrderType').value;
+            const container = document.getElementById('addOrderTextInput');
+
+            const fieldConfigs = {
+                medications: [
+                    { name: 'name', label: 'Medication Name', type: 'text', required: true, placeholder: 'e.g., Amoxicillin' },
+                    { name: 'dosage', label: 'Dosage', type: 'text', placeholder: 'e.g., 500mg three times daily' },
+                    { name: 'route', label: 'Route', type: 'select', options: ['oral', 'IV', 'IM', 'topical', 'inhaled', 'sublingual', 'rectal'] },
+                    { name: 'duration', label: 'Duration', type: 'text', placeholder: 'e.g., 10 days' },
+                    { name: 'instructions', label: 'Instructions', type: 'text', placeholder: 'e.g., Take with food' }
+                ],
+                labs: [
+                    { name: 'name', label: 'Lab Test', type: 'text', required: true, placeholder: 'e.g., CBC, BMP, Lipid Panel' },
+                    { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'stat'] },
+                    { name: 'instructions', label: 'Special Instructions', type: 'text', placeholder: 'e.g., Fasting required' }
+                ],
+                consults: [
+                    { name: 'name', label: 'Specialty / Service', type: 'text', required: true, placeholder: 'e.g., Cardiology, Physical Therapy' },
+                    { name: 'reason', label: 'Reason for Consult', type: 'text', placeholder: 'e.g., Evaluation of chest pain' },
+                    { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'emergent'] }
+                ],
+                procedures: [
+                    { name: 'name', label: 'Procedure Name', type: 'text', required: true, placeholder: 'e.g., Chest X-ray, ECG, MRI' },
+                    { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'stat'] },
+                    { name: 'instructions', label: 'Special Instructions', type: 'text', placeholder: 'e.g., With contrast' }
+                ]
+            };
+
+            const fields = fieldConfigs[type] || [];
+            container.innerHTML = fields.map(field => {
+                if (field.type === 'select') {
+                    return `
+                        <div class="form-group">
+                            <label>${field.label}${field.required ? ' *' : ''}</label>
+                            <select id="addOrder_${field.name}" ${field.required ? 'required' : ''}>
+                                <option value="">Select...</option>
+                                ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="form-group">
+                            <label>${field.label}${field.required ? ' *' : ''}</label>
+                            <input type="text" id="addOrder_${field.name}"
+                                   placeholder="${field.placeholder || ''}"
+                                   ${field.required ? 'required' : ''}>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        async function toggleAddOrderRecording() {
+            if (addOrderState.isRecording) {
+                await stopAddOrderRecording();
+            } else {
+                await startAddOrderRecording();
+            }
+        }
+
+        async function startAddOrderRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                addOrderState.stream = stream;
+                addOrderState.audioChunks = [];
+                addOrderState.isRecording = true;
+
+                const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                addOrderState.mediaRecorder = mediaRecorder;
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        addOrderState.audioChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.start(100);
+
+                // Update UI
+                const recordBtn = document.getElementById('addOrderRecordBtn');
+                recordBtn.classList.add('recording');
+                recordBtn.innerHTML = '<i class="ph ph-stop"></i>';
+
+                const status = document.getElementById('addOrderVoiceStatus');
+                status.innerHTML = '<i class="ph ph-record" style="color: var(--color-error);"></i><span>Recording... Click to stop</span>';
+
+                // Hide previous result
+                document.getElementById('addOrderVoiceResult').style.display = 'none';
+
+            } catch (error) {
+                console.error('Failed to start recording:', error);
+                showToast('Microphone access denied', 'error');
+            }
+        }
+
+        async function stopAddOrderRecording() {
+            if (!addOrderState.mediaRecorder) return;
+
+            return new Promise((resolve) => {
+                addOrderState.mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(addOrderState.audioChunks, { type: 'audio/webm' });
+
+                    // Cleanup stream
+                    if (addOrderState.stream) {
+                        addOrderState.stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    addOrderState.isRecording = false;
+
+                    // Update UI to transcribing
+                    const recordBtn = document.getElementById('addOrderRecordBtn');
+                    recordBtn.classList.remove('recording');
+                    recordBtn.classList.add('transcribing');
+                    recordBtn.innerHTML = '<i class="ph ph-spinner"></i>';
+
+                    const status = document.getElementById('addOrderVoiceStatus');
+                    status.innerHTML = '<i class="ph ph-spinner spinning"></i><span>Transcribing...</span>';
+
+                    // Send to MedASR
+                    try {
+                        const transcript = await transcribeFieldAudio(audioBlob, 'add-order');
+                        addOrderState.transcribedText = transcript;
+
+                        // Show result
+                        document.getElementById('addOrderVoiceText').textContent = transcript;
+                        document.getElementById('addOrderVoiceResult').style.display = 'flex';
+
+                        status.innerHTML = '<i class="ph ph-check-circle" style="color: var(--color-success);"></i><span>Transcription complete</span>';
+                    } catch (error) {
+                        console.error('Transcription failed:', error);
+                        showToast(`Transcription failed: ${error.message}`, 'error');
+                        status.innerHTML = '<i class="ph ph-x-circle" style="color: var(--color-error);"></i><span>Transcription failed</span>';
+                    }
+
+                    // Reset button
+                    recordBtn.classList.remove('transcribing');
+                    recordBtn.innerHTML = '<i class="ph ph-microphone"></i>';
+
+                    resolve();
+                };
+
+                addOrderState.mediaRecorder.stop();
+            });
+        }
+
+        function clearAddOrderVoiceResult() {
+            addOrderState.transcribedText = '';
+            document.getElementById('addOrderVoiceResult').style.display = 'none';
+            document.getElementById('addOrderVoiceText').textContent = '';
+
+            const status = document.getElementById('addOrderVoiceStatus');
+            status.innerHTML = '<i class="ph ph-microphone"></i><span>Click to start recording</span>';
+        }
+
+        function submitAddOrder() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) {
+                showToast('No review item selected', 'error');
+                return;
+            }
+
+            const type = document.getElementById('addOrderType').value;
+            let newOrder = null;
+
+            if (addOrderState.inputMethod === 'voice') {
+                // Use transcribed text to create order
+                const text = addOrderState.transcribedText.trim();
+                if (!text) {
+                    showToast('Please record something first', 'error');
+                    return;
+                }
+
+                // Create order from voice input
+                newOrder = createOrderFromVoice(type, text);
+            } else {
+                // Create order from form fields
+                newOrder = createOrderFromForm(type);
+            }
+
+            if (!newOrder) {
+                showToast('Please fill in the required fields', 'error');
+                return;
+            }
+
+            // Generate unique ID
+            newOrder.id = `ord-${type.slice(0, 3)}-${Date.now()}`;
+            newOrder.approved = true;  // Auto-approve manually added orders
+
+            // Add to the appropriate orders array
+            if (!item.extractedData.orders[type]) {
+                item.extractedData.orders[type] = [];
+            }
+            item.extractedData.orders[type].push(newOrder);
+
+            // Re-render and close modal
+            renderOrders(item);
+            closeAddOrderModal();
+
+            const typeLabels = {
+                medications: 'medication order',
+                labs: 'lab order',
+                consults: 'consult',
+                procedures: 'procedure order'
+            };
+            showToast(`Added ${typeLabels[type] || 'order'}`, 'success');
+        }
+
+        function createOrderFromVoice(type, text) {
+            // Simple order creation from voice text
+            switch (type) {
+                case 'medications':
+                    // Try to parse dosage from text like "Amoxicillin 500mg three times daily"
+                    const medMatch = text.match(/^([a-zA-Z\-]+)\s*(\d+\s*m?g)?(.*)$/i);
+                    if (medMatch) {
+                        return {
+                            name: medMatch[1],
+                            dosage: ((medMatch[2] || '') + (medMatch[3] || '')).trim() || null,
+                            route: 'oral',
+                            duration: null,
+                            instructions: null
+                        };
+                    }
+                    return { name: text, dosage: null, route: 'oral', duration: null, instructions: null };
+
+                case 'labs':
+                    return { name: text, priority: 'routine', instructions: null };
+
+                case 'consults':
+                    // Try to parse "cardiology for chest pain"
+                    const consultMatch = text.match(/^(.+?)\s+(?:for|to evaluate|regarding)\s+(.+)$/i);
+                    if (consultMatch) {
+                        return {
+                            name: consultMatch[1].trim(),
+                            reason: consultMatch[2].trim(),
+                            priority: 'routine'
+                        };
+                    }
+                    return { name: text, reason: null, priority: 'routine' };
+
+                case 'procedures':
+                    return { name: text, priority: 'routine', instructions: null };
+
+                default:
+                    return { name: text };
+            }
+        }
+
+        function createOrderFromForm(type) {
+            const getValue = (fieldName) => {
+                const el = document.getElementById(`addOrder_${fieldName}`);
+                return el ? el.value.trim() : '';
+            };
+
+            const name = getValue('name');
+            if (!name) return null;
+
+            switch (type) {
+                case 'medications':
+                    return {
+                        name: name,
+                        dosage: getValue('dosage') || null,
+                        route: getValue('route') || 'oral',
+                        duration: getValue('duration') || null,
+                        instructions: getValue('instructions') || null
+                    };
+
+                case 'labs':
+                    return {
+                        name: name,
+                        priority: getValue('priority') || 'routine',
+                        instructions: getValue('instructions') || null
+                    };
+
+                case 'consults':
+                    return {
+                        name: name,
+                        reason: getValue('reason') || null,
+                        priority: getValue('priority') || 'routine'
+                    };
+
+                case 'procedures':
+                    return {
+                        name: name,
+                        priority: getValue('priority') || 'routine',
+                        instructions: getValue('instructions') || null
+                    };
+
+                default:
+                    return { name: name };
+            }
+        }
+
+        // ============================================================================
+        // About Modal / Slideshow
+        // ============================================================================
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        function openAboutModal() {
+            const modal = document.getElementById('aboutModal');
+            modal.classList.add('visible');
+            currentSlide = 1;
+            updateSlideshow();
+            initSlideDots();
+        }
+
+        function closeAboutModal() {
+            const modal = document.getElementById('aboutModal');
+            modal.classList.remove('visible');
+        }
+
+        function initSlideDots() {
+            const dotsContainer = document.getElementById('slideDots');
+            dotsContainer.innerHTML = '';
+            for (let i = 1; i <= totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = `slide-dot ${i === currentSlide ? 'active' : ''}`;
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateSlideshow() {
+            // Update slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+                if (parseInt(slide.dataset.slide) === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update dots
+            document.querySelectorAll('.slide-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === currentSlide);
+            });
+
+            // Update counter
+            document.getElementById('currentSlideNum').textContent = currentSlide;
+            document.getElementById('totalSlideNum').textContent = totalSlides;
+
+            // Update nav buttons
+            document.getElementById('prevSlideBtn').disabled = currentSlide === 1;
+            document.getElementById('nextSlideBtn').disabled = currentSlide === totalSlides;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideshow();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideshow();
+            }
+        }
+
+        function goToSlide(slideNum) {
+            currentSlide = slideNum;
+            updateSlideshow();
+        }
+
+        // Keyboard navigation for slideshow
+        document.addEventListener('keydown', (e) => {
+            const aboutModal = document.getElementById('aboutModal');
+            const apiGuideModal = document.getElementById('apiGuideModal');
+
+            // About modal navigation
+            if (aboutModal.classList.contains('visible')) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevSlide();
+                } else if (e.key === 'Escape') {
+                    closeAboutModal();
+                }
+                return;
+            }
+
+            // API Guide modal navigation
+            if (apiGuideModal.classList.contains('visible')) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    nextApiSlide();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevApiSlide();
+                } else if (e.key === 'Escape') {
+                    closeApiGuideModal();
+                }
+                return;
+            }
+        });
+
+        // ============================================================================
+        // API Guide Modal / Slideshow
+        // ============================================================================
+        let currentApiSlide = 1;
+        const totalApiSlides = 8;
+
+        function openApiGuideModal() {
+            const modal = document.getElementById('apiGuideModal');
+            modal.classList.add('visible');
+            currentApiSlide = 1;
+            updateApiSlideshow();
+            initApiSlideDots();
+        }
+
+        function closeApiGuideModal() {
+            const modal = document.getElementById('apiGuideModal');
+            modal.classList.remove('visible');
+        }
+
+        function initApiSlideDots() {
+            const dotsContainer = document.getElementById('apiSlideDots');
+            dotsContainer.innerHTML = '';
+            for (let i = 1; i <= totalApiSlides; i++) {
+                const dot = document.createElement('div');
+                dot.className = `slide-dot ${i === currentApiSlide ? 'active' : ''}`;
+                dot.onclick = () => goToApiSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateApiSlideshow() {
+            // Update slides
+            document.querySelectorAll('.api-slide').forEach(slide => {
+                slide.classList.remove('active');
+                if (parseInt(slide.dataset.apiSlide) === currentApiSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update dots
+            document.querySelectorAll('#apiSlideDots .slide-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === currentApiSlide);
+            });
+
+            // Update counter
+            document.getElementById('currentApiSlideNum').textContent = currentApiSlide;
+            document.getElementById('totalApiSlideNum').textContent = totalApiSlides;
+
+            // Update nav buttons
+            document.getElementById('prevApiSlideBtn').disabled = currentApiSlide === 1;
+            document.getElementById('nextApiSlideBtn').disabled = currentApiSlide === totalApiSlides;
+        }
+
+        function nextApiSlide() {
+            if (currentApiSlide < totalApiSlides) {
+                currentApiSlide++;
+                updateApiSlideshow();
+            }
+        }
+
+        function prevApiSlide() {
+            if (currentApiSlide > 1) {
+                currentApiSlide--;
+                updateApiSlideshow();
+            }
+        }
+
+        function goToApiSlide(slideNum) {
+            currentApiSlide = slideNum;
+            updateApiSlideshow();
+        }
+
+        // ============================================================================
         // Mock EHR
         // ============================================================================
         function loadMockEHR() {
@@ -2784,6 +5857,7 @@
                     date_of_birth: data.patient.dateOfBirth || null
                 } : null,
                 ehr_data: {
+                    transcript: item.transcript || null,
                     chief_complaint: data.chiefComplaint || null,
                     conditions: (data.conditions || []).map(c => ({
                         name: c.name,
@@ -2828,6 +5902,7 @@
                     }))
                 },
                 orders: {
+                    transcript: item.transcript || null,
                     medication_orders: (data.orders?.medications || []).map(m => ({
                         name: m.name,
                         dose: m.dose || null,
@@ -2850,8 +5925,7 @@
                     imaging_orders: (data.orders?.imaging || []).map(i => ({
                         name: i.name
                     }))
-                },
-                transcript: item.transcript || null
+                }
             };
         }
 
@@ -3153,19 +6227,6 @@
             // Clear EHR
             elements.clearEhrBtn.addEventListener('click', clearMockEHR);
 
-            // Transcript toggle
-            document.getElementById('toggleTranscript').addEventListener('click', () => {
-                const text = elements.transcriptText;
-                const icon = document.querySelector('#toggleTranscript i');
-                if (text.style.display === 'none') {
-                    text.style.display = 'block';
-                    icon.className = 'ph ph-caret-down';
-                } else {
-                    text.style.display = 'none';
-                    icon.className = 'ph ph-caret-right';
-                }
-            });
-
             // Play original audio button
             const transcriptAudioPlayer = document.getElementById('transcriptAudioPlayer');
             const playTranscriptAudioBtn = document.getElementById('playTranscriptAudio');
@@ -3188,6 +6249,66 @@
                 playTranscriptAudioBtn.style.opacity = '0.6';
             });
 
+            // EHR tab audio player
+            const ehrAudioPlayer = document.getElementById('ehrTranscriptAudioPlayer');
+            const playEhrAudioBtn = document.getElementById('playEhrTranscriptAudio');
+
+            playEhrAudioBtn.addEventListener('click', () => {
+                if (ehrAudioPlayer.paused) {
+                    ehrAudioPlayer.play();
+                    playEhrAudioBtn.querySelector('i').className = 'ph ph-stop-circle';
+                    playEhrAudioBtn.style.opacity = '1';
+                } else {
+                    ehrAudioPlayer.pause();
+                    ehrAudioPlayer.currentTime = 0;
+                    playEhrAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                    playEhrAudioBtn.style.opacity = '0.6';
+                }
+            });
+
+            ehrAudioPlayer.addEventListener('ended', () => {
+                playEhrAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                playEhrAudioBtn.style.opacity = '0.6';
+            });
+
+            // Orders tab audio player
+            const ordersAudioPlayer = document.getElementById('ordersTranscriptAudioPlayer');
+            const playOrdersAudioBtn = document.getElementById('playOrdersTranscriptAudio');
+
+            playOrdersAudioBtn.addEventListener('click', () => {
+                if (ordersAudioPlayer.paused) {
+                    ordersAudioPlayer.play();
+                    playOrdersAudioBtn.querySelector('i').className = 'ph ph-stop-circle';
+                    playOrdersAudioBtn.style.opacity = '1';
+                } else {
+                    ordersAudioPlayer.pause();
+                    ordersAudioPlayer.currentTime = 0;
+                    playOrdersAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                    playOrdersAudioBtn.style.opacity = '0.6';
+                }
+            });
+
+            ordersAudioPlayer.addEventListener('ended', () => {
+                playOrdersAudioBtn.querySelector('i').className = 'ph ph-speaker-high';
+                playOrdersAudioBtn.style.opacity = '0.6';
+            });
+
+            // About modal
+            document.getElementById('aboutBtn').addEventListener('click', openAboutModal);
+            document.getElementById('aboutModal').addEventListener('click', (e) => {
+                if (e.target.id === 'aboutModal') {
+                    closeAboutModal();
+                }
+            });
+
+            // API Guide modal
+            document.getElementById('apiGuideBtn').addEventListener('click', openApiGuideModal);
+            document.getElementById('apiGuideModal').addEventListener('click', (e) => {
+                if (e.target.id === 'apiGuideModal') {
+                    closeApiGuideModal();
+                }
+            });
+
             // Settings modal
             elements.settingsBtn.addEventListener('click', openSettingsModal);
             elements.closeSettingsBtn.addEventListener('click', closeSettingsModal);
@@ -3196,6 +6317,28 @@
                     closeSettingsModal();
                 }
             });
+
+            // Add EHR Item Modal
+            const addEhrModal = document.getElementById('addEhrItemModal');
+            addEhrModal.addEventListener('click', (e) => {
+                if (e.target === addEhrModal) {
+                    closeAddEhrItemModal();
+                }
+            });
+
+            // Item type change listener
+            document.getElementById('addEhrItemType').addEventListener('change', updateAddEhrTextFields);
+
+            // Add Order Modal
+            const addOrderModal = document.getElementById('addOrderModal');
+            addOrderModal.addEventListener('click', (e) => {
+                if (e.target === addOrderModal) {
+                    closeAddOrderModal();
+                }
+            });
+
+            // Order type change listener
+            document.getElementById('addOrderType').addEventListener('change', updateAddOrderTextFields);
 
             // Settings inputs
             elements.hfTokenInput.addEventListener('input', debounce(async () => {

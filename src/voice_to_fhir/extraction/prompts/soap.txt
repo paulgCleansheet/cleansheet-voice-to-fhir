@@ -17,13 +17,23 @@ Map transcript content to SOAP sections:
 - **Plan (P)**: New orders (meds, labs, imaging, referrals), follow-up
 
 ## CRITICAL: Chief Complaint vs Conditions
-The **chief_complaint** is the PRIMARY REASON for the visit (from Subjective).
-- "sore throat and fever" → chief_complaint: "sore throat and fever"
-- "cough for 3 days" → chief_complaint: "cough"
+The **chief_complaint** is the PRESENTING SYMPTOM - what brought the patient in (from Subjective).
+It is NEVER the diagnosis. It is the patient's complaint in their words.
+
+CORRECT examples:
+- Patient with strep throat → chief_complaint: "sore throat and fever" (NOT "streptococcal pharyngitis")
+- Patient with pneumonia → chief_complaint: "cough and shortness of breath" (NOT "pneumonia")
+- Patient with UTI → chief_complaint: "painful urination" (NOT "urinary tract infection")
+- Patient with MI → chief_complaint: "chest pain" (NOT "myocardial infarction")
+
+WRONG - these are DIAGNOSES, not chief complaints:
+- "streptococcal pharyngitis" (WRONG)
+- "community-acquired pneumonia" (WRONG)
+- "type 2 diabetes mellitus" (WRONG)
 
 **Conditions** are diagnoses from the Assessment section.
-- DO NOT put conditions in chief_complaint
-- DO NOT put the chief complaint in conditions
+- DO NOT put diagnoses in chief_complaint
+- DO NOT put symptoms in conditions (unless they are also listed as diagnoses)
 
 ## IMPORTANT: Medication & Allergy Detection
 **Medications** - Include ANY mentioned drug:
@@ -63,7 +73,7 @@ Return a JSON object with the following structure:
 
 ```json
 {
-  "chief_complaint": "primary reason for visit from Subjective",
+  "chief_complaint": "presenting SYMPTOM from Subjective (e.g., 'sore throat and fever') - NEVER a diagnosis",
   "conditions": [
     {
       "name": "diagnosis from Assessment",
@@ -83,9 +93,9 @@ Return a JSON object with the following structure:
   ],
   "vitals": [
     {
-      "type": "vital type from Objective",
-      "value": "measured value",
-      "unit": "unit or null"
+      "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight",
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|F|C|breaths/min|%|lbs|kg"
     }
   ],
   "lab_results": [

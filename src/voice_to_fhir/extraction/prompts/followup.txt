@@ -19,11 +19,20 @@ You are a clinical documentation assistant for follow-up visits. Extract structu
 ## Transcript
 {transcript}
 
+## CRITICAL: Chief Complaint for Follow-up Visits
+The **chief_complaint** is the REASON FOR THE VISIT - typically the condition being managed.
+For follow-up visits, this is usually the condition being followed (e.g., "diabetes management", "hypertension follow-up").
+
+CORRECT:
+- "Follow-up visit for diabetes management" → chief_complaint: "diabetes management follow-up"
+- "Follow-up for hypertension" → chief_complaint: "hypertension follow-up"
+
 ## Required Output Format
 Return a JSON object with the following structure:
 
 ```json
 {
+  "chief_complaint": "reason for follow-up visit (e.g., 'diabetes management follow-up')",
   "visit_context": {
     "reason": "reason for follow-up",
     "interval": "time since last visit or null",
@@ -62,9 +71,9 @@ Return a JSON object with the following structure:
   ],
   "vitals": [
     {
-      "type": "vital sign type",
-      "value": "value",
-      "unit": "unit",
+      "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight",
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|F|C|breaths/min|%|lbs|kg",
       "trend": "improved|stable|worsening or null"
     }
   ],
