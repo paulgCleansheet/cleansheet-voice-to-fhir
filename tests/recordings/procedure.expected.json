@@ -1,0 +1,128 @@
+{
+  "metadata": {
+    "script_file": "procedure.webm",
+    "workflow": "procedure",
+    "description": "Procedure note for screening colonoscopy"
+  },
+  "patient": {
+    "age": 55,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "screening colonoscopy",
+    "procedure": {
+      "name": "Colonoscopy with polypectomy",
+      "cpt": "45385",
+      "indication": "screening colonoscopy"
+    },
+    "conditions": [],
+    "vitals": [],
+    "allergies": [],
+    "medications": [],
+    "family_history": [],
+    "social_history": null,
+    "procedure_details": {
+      "consent": "informed consent obtained",
+      "timeout": "pre-procedure timeout performed",
+      "sedation": "propofol administered by anesthesia",
+      "technique": "scope inserted through anus and advanced to cecum",
+      "landmarks": "cecal landmarks including appendiceal orifice and ileocecal valve identified",
+      "withdrawal_time": "8 minutes",
+      "complications": "none, no bleeding",
+      "patient_tolerance": "tolerated procedure well",
+      "disposition": "transferred to recovery in stable condition",
+      "estimated_blood_loss": "minimal"
+    },
+    "findings": [
+      {
+        "description": "6 millimeter sessile polyp",
+        "location": "ascending colon",
+        "intervention": "removed with cold snare polypectomy",
+        "specimen": "retrieved for pathology"
+      },
+      {
+        "description": "4 millimeter sessile polyp",
+        "location": "sigmoid colon",
+        "intervention": "removed with cold snare polypectomy",
+        "specimen": "retrieved for pathology"
+      },
+      {
+        "description": "mucosa otherwise normal throughout"
+      }
+    ],
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [
+      {
+        "name": "Pathology - colon polyps",
+        "reason": "histologic evaluation of removed polyps"
+      }
+    ],
+    "procedure_orders": [
+      {
+        "name": "Repeat colonoscopy",
+        "timing": "3 to 5 years",
+        "reason": "depending on pathology results"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "patient_instructions": {
+    "diet": "resume normal diet",
+    "driving": "avoid driving for 24 hours",
+    "follow_up": "await pathology results"
+  },
+  "clinical_notes": {
+    "workflow": "procedure",
+    "sections": {
+      "procedure": {
+        "header": "Procedure",
+        "expected_content": "Colonoscopy with polypectomy"
+      },
+      "indication": {
+        "header": "Indication",
+        "expected_content": "Screening colonoscopy"
+      },
+      "consent": {
+        "header": "Consent",
+        "expected_content": "Informed consent obtained"
+      },
+      "timeout": {
+        "header": "Pre-procedure",
+        "expected_content": "Pre-procedure timeout performed confirming correct patient and procedure"
+      },
+      "anesthesia": {
+        "header": "Anesthesia/Sedation",
+        "expected_content": "Propofol administered by anesthesia"
+      },
+      "technique": {
+        "header": "Technique",
+        "expected_content": "Scope inserted through anus and advanced to cecum. Cecal landmarks including appendiceal orifice and ileocecal valve identified. Withdrawal time 8 minutes."
+      },
+      "findings": {
+        "header": "Findings",
+        "expected_content": "1. 6 millimeter sessile polyp in the ascending colon - removed with cold snare polypectomy\n2. 4 millimeter sessile polyp in the sigmoid colon - removed with cold snare polypectomy\n3. Mucosa otherwise normal throughout"
+      },
+      "specimens": {
+        "header": "Specimens",
+        "expected_content": "Both polyps retrieved and sent to pathology"
+      },
+      "complications": {
+        "header": "Complications",
+        "expected_content": "None. No bleeding complications."
+      },
+      "disposition": {
+        "header": "Disposition",
+        "expected_content": "Patient tolerated procedure well and transferred to recovery in stable condition. Estimated blood loss minimal."
+      },
+      "recommendations": {
+        "header": "Recommendations",
+        "expected_content": "1. Await pathology results\n2. Repeat colonoscopy in 3 to 5 years depending on histology\n3. Resume normal diet\n4. Avoid driving for 24 hours"
+      }
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "metadata": {
+    "script_file": "hp.webm",
+    "workflow": "hp",
+    "description": "Annual physical exam / History and Physical"
+  },
+  "patient": {
+    "age": 62,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "routine health maintenance",
+    "conditions": [
+      {
+        "name": "Hypertension",
+        "icd10": "I10",
+        "status": "active",
+        "category": "history",
+        "onset": "5 years ago",
+        "clinical_status": "controlled"
+      },
+      {
+        "name": "Hyperlipidemia",
+        "icd10": "E78.5",
+        "status": "active",
+        "category": "history",
+        "clinical_status": "on statin"
+      },
+      {
+        "name": "Prediabetes",
+        "icd10": "R73.03",
+        "status": "active",
+        "category": "history"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "138/82",
+        "unit": "mmHg",
+        "systolic": 138,
+        "diastolic": 82
+      },
+      {
+        "type": "heart_rate",
+        "value": "72",
+        "unit": "bpm"
+      },
+      {
+        "type": "temperature",
+        "value": "98.2",
+        "unit": "F"
+      },
+      {
+        "type": "respiratory_rate",
+        "value": "16",
+        "unit": "breaths/min"
+      },
+      {
+        "type": "oxygen_saturation",
+        "value": "98",
+        "unit": "%"
+      },
+      {
+        "type": "weight",
+        "value": "185",
+        "unit": "lbs"
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "No known drug allergies",
+        "reaction": null,
+        "severity": null,
+        "type": "NKDA"
+      }
+    ],
+    "medications": [
+      {
+        "name": "Lisinopril",
+        "dose": "10 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      },
+      {
+        "name": "Atorvastatin",
+        "dose": "20 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      }
+    ],
+    "family_history": [
+      {
+        "relationship": "father",
+        "condition": "Myocardial infarction",
+        "age_of_onset": "65"
+      },
+      {
+        "relationship": "mother",
+        "condition": "Type 2 diabetes"
+      }
+    ],
+    "social_history": {
+      "tobacco": "never smoker",
+      "alcohol": "occasional, weekends",
+      "occupation": "retired teacher",
+      "living_situation": "lives with wife"
+    },
+    "review_of_systems": "negative",
+    "physical_exam": {
+      "general": "well-appearing male in no acute distress",
+      "heent": "normal",
+      "cardiovascular": "regular rate and rhythm without murmurs",
+      "respiratory": "lungs clear bilaterally",
+      "abdomen": "soft, non-tender",
+      "extremities": "no edema"
+    },
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [
+      {
+        "name": "Hemoglobin A1c",
+        "loinc": "4548-4",
+        "reason": "prediabetes monitoring"
+      },
+      {
+        "name": "Lipid panel",
+        "loinc": "24331-1",
+        "reason": "hyperlipidemia monitoring"
+      },
+      {
+        "name": "Metabolic panel",
+        "loinc": "24323-8",
+        "reason": "routine health maintenance"
+      }
+    ],
+    "procedure_orders": [
+      {
+        "name": "Dietary counseling",
+        "reason": "prediabetes management"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "follow_up": {
+    "interval": "6 months",
+    "instructions": "continue current medications"
+  },
+  "clinical_notes": {
+    "workflow": "hp",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Routine health maintenance / Annual physical exam"
+      },
+      "history_of_present_illness": {
+        "header": "History of Present Illness",
+        "expected_content": "62-year-old male presenting for annual physical exam. No acute complaints."
+      },
+      "past_medical_history": {
+        "header": "Past Medical History",
+        "expected_content": "1. Hypertension - diagnosed 5 years ago\n2. Hyperlipidemia\n3. Prediabetes"
+      },
+      "medications": {
+        "header": "Current Medications",
+        "expected_content": "1. Lisinopril 10 mg daily\n2. Atorvastatin 20 mg daily"
+      },
+      "allergies": {
+        "header": "Allergies",
+        "expected_content": "No known drug allergies"
+      },
+      "family_history": {
+        "header": "Family History",
+        "expected_content": "Father: myocardial infarction at age 65\nMother: type 2 diabetes"
+      },
+      "social_history": {
+        "header": "Social History",
+        "expected_content": "Never smoker. Occasional alcohol on weekends. Retired teacher. Lives with wife."
+      },
+      "review_of_systems": {
+        "header": "Review of Systems",
+        "expected_content": "Negative"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 138/82 mmHg, HR 72 bpm, Temp 98.2 F, RR 16, SpO2 98%, Weight 185 lbs"
+      },
+      "physical_exam": {
+        "header": "Physical Examination",
+        "expected_content": "General: Well-appearing male in no acute distress\nHEENT: Normal\nCardiovascular: Regular rate and rhythm without murmurs\nLungs: Clear bilaterally\nAbdomen: Soft, non-tender\nExtremities: No edema"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "1. Hypertension - controlled\n2. Hyperlipidemia - on statin\n3. Prediabetes"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Continue current medications\n2. Order hemoglobin A1c\n3. Order lipid panel\n4. Order metabolic panel\n5. Dietary counseling\n6. Follow up in 6 months"
+      }
+    }
+  }
+}

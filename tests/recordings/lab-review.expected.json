@@ -1,0 +1,210 @@
+{
+  "metadata": {
+    "script_file": "lab-review.webm",
+    "workflow": "general",
+    "description": "Lab review for routine metabolic panel - diabetes and CKD management"
+  },
+  "patient": {
+    "age": 64,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "lab review",
+    "conditions": [
+      {
+        "name": "Type 2 diabetes mellitus",
+        "icd10": "E11.9",
+        "status": "active",
+        "category": "history",
+        "clinical_status": "slightly worsening glycemic control"
+      },
+      {
+        "name": "Chronic kidney disease stage 3b",
+        "icd10": "N18.32",
+        "status": "active",
+        "category": "history",
+        "clinical_status": "stable"
+      },
+      {
+        "name": "Dyslipidemia",
+        "icd10": "E78.5",
+        "status": "active",
+        "category": "assessment",
+        "severity": "mild"
+      }
+    ],
+    "vitals": [],
+    "allergies": [],
+    "medications": [
+      {
+        "name": "Metformin",
+        "dose": "1000 mg",
+        "frequency": "twice daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false,
+        "change": "increase from current dose"
+      },
+      {
+        "name": "Statin",
+        "status": "active",
+        "is_new_order": false,
+        "instructions": "continue current"
+      }
+    ],
+    "family_history": [],
+    "social_history": null,
+    "lab_results": [
+      {
+        "name": "Sodium",
+        "value": "138",
+        "unit": "mEq/L",
+        "interpretation": "normal",
+        "loinc": "2951-2"
+      },
+      {
+        "name": "Potassium",
+        "value": "4.2",
+        "unit": "mEq/L",
+        "interpretation": "normal",
+        "loinc": "2823-3"
+      },
+      {
+        "name": "Chloride",
+        "value": "102",
+        "unit": "mEq/L",
+        "interpretation": "normal",
+        "loinc": "2075-0"
+      },
+      {
+        "name": "CO2",
+        "value": "24",
+        "unit": "mEq/L",
+        "interpretation": "normal",
+        "loinc": "2028-9"
+      },
+      {
+        "name": "BUN",
+        "value": "32",
+        "unit": "mg/dL",
+        "interpretation": "elevated",
+        "loinc": "3094-0"
+      },
+      {
+        "name": "Creatinine",
+        "value": "1.6",
+        "unit": "mg/dL",
+        "interpretation": "elevated",
+        "qualifier": "stable from prior",
+        "loinc": "2160-0"
+      },
+      {
+        "name": "GFR",
+        "value": "38",
+        "unit": "mL/min/1.73m2",
+        "interpretation": "decreased",
+        "loinc": "33914-3"
+      },
+      {
+        "name": "Glucose",
+        "value": "142",
+        "unit": "mg/dL",
+        "interpretation": "elevated",
+        "qualifier": "mildly elevated",
+        "loinc": "2345-7"
+      },
+      {
+        "name": "Hemoglobin A1c",
+        "value": "7.2",
+        "unit": "%",
+        "interpretation": "above goal",
+        "prior_value": "6.8",
+        "prior_timing": "three months ago",
+        "loinc": "4548-4"
+      },
+      {
+        "name": "Total cholesterol",
+        "value": "198",
+        "unit": "mg/dL",
+        "interpretation": "borderline",
+        "loinc": "2093-3"
+      },
+      {
+        "name": "LDL",
+        "value": "112",
+        "unit": "mg/dL",
+        "interpretation": "elevated",
+        "loinc": "13457-7"
+      },
+      {
+        "name": "HDL",
+        "value": "52",
+        "unit": "mg/dL",
+        "interpretation": "normal",
+        "loinc": "2085-9"
+      },
+      {
+        "name": "Triglycerides",
+        "value": "170",
+        "unit": "mg/dL",
+        "interpretation": "borderline elevated",
+        "loinc": "2571-8"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Metformin",
+        "dose": "1000 mg",
+        "frequency": "twice daily",
+        "instructions": "increase if tolerated",
+        "reason": "worsening A1c"
+      }
+    ],
+    "referral_orders": [],
+    "lab_orders": [
+      {
+        "name": "Hemoglobin A1c",
+        "timing": "in 3 months",
+        "reason": "recheck after medication adjustment"
+      }
+    ],
+    "procedure_orders": [
+      {
+        "name": "Dietary counseling",
+        "reason": "reinforce dietary modifications for diabetes and CKD"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "follow_up": {
+    "interval": "3 months"
+  },
+  "clinical_notes": {
+    "workflow": "general",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Lab review for routine metabolic panel"
+      },
+      "history": {
+        "header": "History",
+        "expected_content": "64-year-old female with history of type 2 diabetes and chronic kidney disease stage 3"
+      },
+      "lab_results": {
+        "header": "Laboratory Results",
+        "expected_content": "Comprehensive Metabolic Panel:\n- Sodium 138 mEq/L\n- Potassium 4.2 mEq/L\n- Chloride 102 mEq/L\n- CO2 24 mEq/L\n- BUN 32 mg/dL\n- Creatinine 1.6 mg/dL (stable from prior)\n- GFR 38 mL/min\n- Glucose 142 mg/dL (mildly elevated)\n\nHemoglobin A1c: 7.2% (up from 6.8% three months ago)\n\nLipid Panel:\n- Total cholesterol 198 mg/dL\n- LDL 112 mg/dL\n- HDL 52 mg/dL\n- Triglycerides 170 mg/dL"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "1. Diabetes with slightly worsening glycemic control - A1c now above goal\n2. Chronic kidney disease stage 3b - stable\n3. Mild dyslipidemia"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Increase metformin to 1000 mg twice daily if tolerated\n2. Reinforce dietary modifications\n3. Recheck A1c in 3 months\n4. Continue current statin\n5. Follow up in 3 months"
+      }
+    }
+  }
+}

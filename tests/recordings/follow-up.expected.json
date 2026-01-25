@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "script_file": "follow-up.webm",
+    "workflow": "followup",
+    "description": "Diabetes management follow-up visit"
+  },
+  "patient": {
+    "age": null,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "diabetes management follow-up",
+    "conditions": [
+      {
+        "name": "Type 2 diabetes mellitus",
+        "icd10": "E11.9",
+        "status": "active",
+        "category": "assessment",
+        "clinical_status": "well controlled"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "128/78",
+        "unit": "mmHg",
+        "systolic": 128,
+        "diastolic": 78
+      },
+      {
+        "type": "weight",
+        "value": "165",
+        "unit": "lbs",
+        "qualifier": "stable"
+      }
+    ],
+    "allergies": [],
+    "medications": [
+      {
+        "name": "Metformin",
+        "dose": "1000 mg",
+        "frequency": "twice daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      }
+    ],
+    "family_history": [],
+    "social_history": null,
+    "lab_results": [
+      {
+        "name": "Hemoglobin A1c",
+        "value": "6.8",
+        "unit": "%",
+        "status": "completed",
+        "interpretation": "at goal",
+        "timing": "last result"
+      }
+    ],
+    "patient_reported": {
+      "glucose_control": "good, fasting sugars 100-120",
+      "hypoglycemia": "denies any episodes",
+      "compliance": "compliant with metformin and dietary modifications"
+    }
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [
+      {
+        "name": "Hemoglobin A1c",
+        "loinc": "4548-4",
+        "timing": "in 3 months",
+        "reason": "diabetes monitoring"
+      }
+    ],
+    "procedure_orders": [],
+    "imaging_orders": []
+  },
+  "follow_up": {
+    "interval": "3 months",
+    "instructions": "continue metformin 1000 mg twice daily, continue lifestyle modifications"
+  },
+  "clinical_notes": {
+    "workflow": "followup",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Diabetes management follow-up"
+      },
+      "interval_history": {
+        "header": "Interval History",
+        "expected_content": "Patient reports good glucose control with fasting sugars between 100 and 120. She denies any hypoglycemic episodes. She has been compliant with metformin and dietary modifications. Last A1c was 6.8%."
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 128/78 mmHg, Weight 165 lbs (stable)"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Type 2 diabetes mellitus, well controlled"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Continue metformin 1000 mg twice daily\n2. Repeat hemoglobin A1c in 3 months\n3. Continue lifestyle modifications\n4. Follow up in 3 months"
+      }
+    }
+  }
+}

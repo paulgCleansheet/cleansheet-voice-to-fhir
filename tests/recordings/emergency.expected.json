@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "script_file": "emergency.webm",
+    "workflow": "emergency",
+    "description": "Emergency department evaluation for possible ACS"
+  },
+  "patient": {
+    "age": 55,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "shortness of breath and chest pain",
+    "conditions": [
+      {
+        "name": "Hypertension",
+        "icd10": "I10",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Type 2 diabetes mellitus",
+        "icd10": "E11.9",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Possible acute coronary syndrome",
+        "icd10": "I24.9",
+        "status": "active",
+        "category": "assessment"
+      },
+      {
+        "name": "Rule out NSTEMI",
+        "icd10": "I21.4",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "165/95",
+        "unit": "mmHg",
+        "systolic": 165,
+        "diastolic": 95
+      },
+      {
+        "type": "heart_rate",
+        "value": "102",
+        "unit": "bpm"
+      },
+      {
+        "type": "oxygen_saturation",
+        "value": "94",
+        "unit": "%",
+        "qualifier": "on room air"
+      },
+      {
+        "type": "temperature",
+        "value": "98.6",
+        "unit": "F"
+      },
+      {
+        "type": "respiratory_rate",
+        "value": "22",
+        "unit": "breaths/min"
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "Sulfa",
+        "reaction": "rash",
+        "severity": "mild"
+      }
+    ],
+    "medications": [],
+    "family_history": [
+      {
+        "relationship": "mother",
+        "condition": "Stroke",
+        "age_of_onset": "58",
+        "deceased": true,
+        "age_at_death": "83"
+      }
+    ],
+    "social_history": {
+      "tobacco": "former smoker, quit 10 years ago, 20 pack-year history",
+      "alcohol": "social, occasional wine with dinner",
+      "occupation": "accountant",
+      "living_situation": "lives with husband"
+    },
+    "diagnostic_results": [
+      {
+        "name": "EKG",
+        "finding": "sinus tachycardia with ST depression in leads V4-V6",
+        "interpretation": "abnormal"
+      }
+    ],
+    "lab_results": [
+      {
+        "name": "Troponin",
+        "value": null,
+        "status": "pending"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Aspirin",
+        "dose": "325 mg",
+        "route": "oral",
+        "frequency": "once",
+        "instructions": "chewed"
+      },
+      {
+        "name": "Heparin",
+        "dose": "per protocol",
+        "route": "IV drip",
+        "frequency": "continuous",
+        "instructions": "start heparin drip per protocol"
+      }
+    ],
+    "referral_orders": [
+      {
+        "specialty": "Cardiology",
+        "reason": "possible acute coronary syndrome",
+        "urgency": "stat"
+      }
+    ],
+    "lab_orders": [
+      {
+        "name": "Troponin",
+        "frequency": "every 6 hours",
+        "instructions": "serial troponins"
+      }
+    ],
+    "procedure_orders": [
+      {
+        "name": "Continuous telemetry monitoring",
+        "reason": "cardiac monitoring for possible ACS"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "clinical_notes": {
+    "workflow": "emergency",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Shortness of breath and chest pain"
+      },
+      "history_of_present_illness": {
+        "header": "History of Present Illness",
+        "expected_content": "55-year-old female presenting with shortness of breath and chest pain. EKG shows sinus tachycardia with ST depression in leads V4 through V6. Troponin pending."
+      },
+      "past_medical_history": {
+        "header": "Past Medical History",
+        "expected_content": "Hypertension, Type 2 diabetes"
+      },
+      "allergies": {
+        "header": "Allergies",
+        "expected_content": "Sulfa - mild reaction (rash)"
+      },
+      "family_history": {
+        "header": "Family History",
+        "expected_content": "Mother with stroke, onset at age 58, deceased at age 83"
+      },
+      "social_history": {
+        "header": "Social History",
+        "expected_content": "Former smoker, quit 10 years ago, 20 pack-year history. Drinks socially, occasional wine with dinner. Works as an accountant. Lives with husband."
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 165/95 mmHg, HR 102 bpm, SpO2 94% on room air, Temp 98.6 F, RR 22"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Possible acute coronary syndrome, rule out NSTEMI"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Aspirin 325 mg chewed\n2. Start heparin drip per protocol\n3. Cardiology consult\n4. Serial troponins every 6 hours\n5. Continuous telemetry\n6. Patient is full code"
+      }
+    }
+  },
+  "code_status": "full code"
+}

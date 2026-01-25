@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "script_file": "radiology.webm",
+    "workflow": "radiology",
+    "description": "Chest x-ray interpretation - PA and lateral views"
+  },
+  "patient": {
+    "age": 67,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "cough and shortness of breath",
+    "study": {
+      "name": "Chest x-ray",
+      "views": "PA and lateral",
+      "cpt": "71046"
+    },
+    "conditions": [
+      {
+        "name": "Right lower lobe pneumonia",
+        "icd10": "J18.1",
+        "status": "active",
+        "category": "impression",
+        "qualifier": "suspected"
+      }
+    ],
+    "vitals": [],
+    "allergies": [],
+    "medications": [],
+    "family_history": [],
+    "social_history": null,
+    "clinical_history": "67-year-old male with cough and shortness of breath",
+    "comparison": "Prior chest x-ray from 6 months ago",
+    "imaging_findings": {
+      "heart": "normal size",
+      "mediastinum": "contours unremarkable",
+      "lungs": {
+        "right_lower_lobe": "patchy airspace opacity concerning for pneumonia",
+        "other": "otherwise clear"
+      },
+      "pleura": "no pleural effusion identified",
+      "pneumothorax": "none",
+      "bones": "osseous structures appear intact"
+    },
+    "impression": "Right lower lobe airspace opacity, most consistent with pneumonia in the appropriate clinical setting",
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [],
+    "imaging_orders": [
+      {
+        "name": "Follow-up chest x-ray",
+        "timing": "after treatment",
+        "reason": "document resolution of pneumonia"
+      }
+    ]
+  },
+  "recommendations": [
+    "Clinical correlation recommended",
+    "Follow-up imaging after treatment to document resolution"
+  ],
+  "clinical_notes": {
+    "workflow": "radiology",
+    "sections": {
+      "examination": {
+        "header": "Examination",
+        "expected_content": "Chest x-ray, two views, PA and lateral"
+      },
+      "clinical_history": {
+        "header": "Clinical History",
+        "expected_content": "67-year-old male with cough and shortness of breath"
+      },
+      "comparison": {
+        "header": "Comparison",
+        "expected_content": "Prior chest x-ray from 6 months ago"
+      },
+      "findings": {
+        "header": "Findings",
+        "expected_content": "Heart size is normal. Mediastinal contours are unremarkable. There is patchy airspace opacity in the right lower lobe concerning for pneumonia. No pleural effusion identified. Lungs are otherwise clear. No pneumothorax. Osseous structures appear intact."
+      },
+      "impression": {
+        "header": "Impression",
+        "expected_content": "Right lower lobe airspace opacity, most consistent with pneumonia in the appropriate clinical setting"
+      },
+      "recommendations": {
+        "header": "Recommendations",
+        "expected_content": "1. Clinical correlation recommended\n2. Follow-up imaging after treatment to document resolution"
+      }
+    }
+  }
+}

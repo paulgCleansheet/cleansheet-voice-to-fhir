@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "script_file": "soap.webm",
+    "workflow": "soap",
+    "description": "SOAP note for streptococcal pharyngitis"
+  },
+  "patient": {
+    "age": 35,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "sore throat and low-grade fever",
+    "conditions": [
+      {
+        "name": "Streptococcal pharyngitis",
+        "icd10": "J02.0",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "temperature",
+        "value": "100.8",
+        "unit": "F"
+      },
+      {
+        "type": "heart_rate",
+        "value": "88",
+        "unit": "bpm"
+      },
+      {
+        "type": "blood_pressure",
+        "value": "118/74",
+        "unit": "mmHg",
+        "systolic": 118,
+        "diastolic": 74
+      }
+    ],
+    "allergies": [],
+    "medications": [],
+    "family_history": [],
+    "social_history": null,
+    "history_of_present_illness": {
+      "duration": "3 days",
+      "symptoms": ["sore throat", "low-grade fever", "difficulty swallowing", "mild headache"],
+      "negative_symptoms": ["no cough", "no nasal congestion"],
+      "self_treatment": "took ibuprofen with some relief",
+      "exposures": "no sick contacts"
+    },
+    "physical_exam": {
+      "oropharynx": "tonsillar exudates bilaterally",
+      "lymph_nodes": "tender anterior cervical lymphadenopathy"
+    },
+    "lab_results": [
+      {
+        "name": "Rapid strep test",
+        "value": "positive",
+        "interpretation": "positive"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Amoxicillin",
+        "dose": "500 mg",
+        "frequency": "three times daily",
+        "duration": "10 days",
+        "route": "oral"
+      }
+    ],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [],
+    "imaging_orders": []
+  },
+  "patient_instructions": {
+    "return_to_work": "after 24 hours on antibiotics",
+    "supportive_care": true
+  },
+  "clinical_notes": {
+    "workflow": "soap",
+    "sections": {
+      "subjective": {
+        "header": "Subjective",
+        "expected_content": "35-year-old female presents with sore throat and low-grade fever for 3 days. She reports difficulty swallowing and mild headache. No cough or nasal congestion. She took ibuprofen with some relief. No sick contacts."
+      },
+      "objective": {
+        "header": "Objective",
+        "expected_content": "Vital Signs: Temperature 100.8 F, HR 88 bpm, BP 118/74 mmHg\nPhysical Exam: Oropharynx shows tonsillar exudates bilaterally, tender anterior cervical lymphadenopathy\nLabs: Rapid strep test positive"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Streptococcal pharyngitis"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Amoxicillin 500 mg three times daily for 10 days\n2. Supportive care\n3. May return to work after 24 hours on antibiotics"
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "script_file": "respiratory.webm",
+    "workflow": "respiratory",
+    "description": "Respiratory therapy assessment for patient on mechanical ventilation"
+  },
+  "patient": {
+    "age": 71,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "respiratory therapy assessment - ventilator management",
+    "clinical_context": {
+      "post_operative_day": 2,
+      "surgery": "coronary artery bypass graft",
+      "location": "cardiac ICU",
+      "ventilation_status": "intubated"
+    },
+    "conditions": [
+      {
+        "name": "Post-operative status, coronary artery bypass graft",
+        "icd10": "Z95.1",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Bibasilar atelectasis",
+        "icd10": "J98.11",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [],
+    "ventilator_settings": {
+      "mode": "Assist control volume control",
+      "tidal_volume": "450 mL",
+      "respiratory_rate_set": "14",
+      "fio2": "40%",
+      "peep": "5 cm H2O"
+    },
+    "arterial_blood_gas": {
+      "pH": "7.38",
+      "pCO2": "42",
+      "pO2": "98",
+      "bicarbonate": "24",
+      "oxygen_saturation": "97%",
+      "interpretation": "normal"
+    },
+    "respiratory_assessment": {
+      "spontaneous_rate": "18 breaths per minute",
+      "triggering": "initiating spontaneous breaths over the set rate",
+      "secretions": "scant, thin, and white",
+      "breath_sounds": "diminished at bases with scattered crackles"
+    },
+    "allergies": [],
+    "medications": [],
+    "family_history": [],
+    "social_history": null,
+    "lab_results": [
+      {
+        "name": "pH",
+        "value": "7.38",
+        "interpretation": "normal"
+      },
+      {
+        "name": "pCO2",
+        "value": "42",
+        "unit": "mmHg",
+        "interpretation": "normal"
+      },
+      {
+        "name": "pO2",
+        "value": "98",
+        "unit": "mmHg",
+        "interpretation": "normal"
+      },
+      {
+        "name": "Bicarbonate",
+        "value": "24",
+        "unit": "mEq/L",
+        "interpretation": "normal"
+      },
+      {
+        "name": "Oxygen saturation",
+        "value": "97",
+        "unit": "%",
+        "interpretation": "normal"
+      }
+    ],
+    "diagnostic_results": [
+      {
+        "name": "Chest x-ray",
+        "finding": "low lung volumes with bibasilar atelectasis"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [
+      {
+        "name": "Spontaneous breathing trial",
+        "details": "30-minute SBT on pressure support 8 over 5",
+        "reason": "patient meeting criteria for SBT"
+      },
+      {
+        "name": "Extubation",
+        "details": "with supplemental oxygen via nasal cannula",
+        "condition": "if SBT tolerated"
+      },
+      {
+        "name": "Incentive spirometry",
+        "reason": "continue for atelectasis prevention"
+      },
+      {
+        "name": "Early mobilization",
+        "reason": "pulmonary rehabilitation"
+      },
+      {
+        "name": "Pulmonary toilet",
+        "details": "aggressive",
+        "reason": "secretion management"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "clinical_notes": {
+    "workflow": "respiratory",
+    "sections": {
+      "patient_identification": {
+        "header": "Patient",
+        "expected_content": "71-year-old male, post-operative day 2 from coronary artery bypass graft, currently intubated in the cardiac ICU"
+      },
+      "ventilator_settings": {
+        "header": "Current Ventilator Settings",
+        "expected_content": "Mode: Assist control volume control\nTidal volume: 450 mL\nRespiratory rate: 14\nFiO2: 40%\nPEEP: 5 cm H2O"
+      },
+      "arterial_blood_gas": {
+        "header": "Arterial Blood Gas",
+        "expected_content": "pH 7.38, pCO2 42, pO2 98, Bicarbonate 24, O2 sat 97%"
+      },
+      "respiratory_assessment": {
+        "header": "Respiratory Assessment",
+        "expected_content": "Patient is initiating spontaneous breaths over the set rate at 18 breaths per minute. Secretions are scant, thin, and white. Breath sounds are diminished at bases with scattered crackles."
+      },
+      "imaging": {
+        "header": "Imaging",
+        "expected_content": "Chest x-ray shows low lung volumes with bibasilar atelectasis"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Patient meeting criteria for spontaneous breathing trial"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Proceed with 30-minute SBT on pressure support 8 over 5\n2. If tolerated, recommend extubation with supplemental oxygen via nasal cannula\n3. Continue incentive spirometry\n4. Early mobilization\n5. Aggressive pulmonary toilet"
+      }
+    }
+  }
+}

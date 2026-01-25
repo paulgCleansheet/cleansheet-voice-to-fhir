@@ -1,0 +1,184 @@
+{
+  "metadata": {
+    "script_file": "pediatrics.webm",
+    "workflow": "pediatrics",
+    "description": "Well child visit - 4 year old male"
+  },
+  "patient": {
+    "age": 4,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "well child visit",
+    "conditions": [
+      {
+        "name": "History of recurrent ear infections",
+        "icd10": "H66.90",
+        "status": "resolved",
+        "category": "history"
+      },
+      {
+        "name": "Status post bilateral myringotomy tubes",
+        "icd10": "Z96.29",
+        "status": "resolved",
+        "category": "history",
+        "details": "placed at age 2, extruded spontaneously at age 3"
+      },
+      {
+        "name": "Healthy child",
+        "icd10": "Z00.129",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "weight",
+        "value": "38",
+        "unit": "lbs",
+        "percentile": "50th"
+      },
+      {
+        "type": "height",
+        "value": "40",
+        "unit": "inches",
+        "percentile": "45th"
+      },
+      {
+        "type": "blood_pressure",
+        "value": "92/58",
+        "unit": "mmHg",
+        "systolic": 92,
+        "diastolic": 58
+      },
+      {
+        "type": "heart_rate",
+        "value": "96",
+        "unit": "bpm"
+      },
+      {
+        "type": "respiratory_rate",
+        "value": "20",
+        "unit": "breaths/min"
+      }
+    ],
+    "developmental_milestones": {
+      "status": "appropriate for age",
+      "language": "speaks in complete sentences",
+      "fine_motor": "can draw a circle and cross",
+      "gross_motor": "hops on one foot",
+      "social": "plays cooperatively with other children"
+    },
+    "allergies": [
+      {
+        "substance": "Cats",
+        "type": "environmental",
+        "reaction": null,
+        "severity": null
+      },
+      {
+        "substance": "No known drug allergies",
+        "type": "NKDA"
+      }
+    ],
+    "medications": [],
+    "immunization_status": "up to date",
+    "family_history": [],
+    "social_history": null,
+    "parent_concerns": "none - mom reports he is doing well, eating and sleeping normally",
+    "physical_exam": {
+      "general": "alert, interactive child in no distress",
+      "heent": {
+        "ears": "tympanic membranes clear bilaterally with small perforations from prior tubes",
+        "oropharynx": "clear"
+      },
+      "cardiovascular": "regular",
+      "respiratory": "lungs clear",
+      "abdomen": "soft",
+      "development": "developmentally appropriate for age"
+    },
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [],
+    "imaging_orders": []
+  },
+  "immunizations_due": [
+    {
+      "vaccine": "DTaP",
+      "timing": "at next visit (5-year well child)"
+    },
+    {
+      "vaccine": "IPV",
+      "timing": "at next visit"
+    },
+    {
+      "vaccine": "MMR",
+      "timing": "at next visit"
+    },
+    {
+      "vaccine": "Varicella",
+      "timing": "at next visit"
+    }
+  ],
+  "anticipatory_guidance": [
+    "car seat safety counseling",
+    "kindergarten readiness"
+  ],
+  "follow_up": {
+    "interval": "5-year well child visit"
+  },
+  "clinical_notes": {
+    "workflow": "pediatrics",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Well child visit for 4-year-old male"
+      },
+      "parent_concerns": {
+        "header": "Parent Concerns",
+        "expected_content": "Mom reports he is doing well, eating and sleeping normally, no concerns."
+      },
+      "developmental_assessment": {
+        "header": "Developmental Assessment",
+        "expected_content": "Developmental milestones appropriate for age:\n- Language: speaks in complete sentences\n- Fine motor: can draw a circle and cross\n- Gross motor: hops on one foot\n- Social: plays cooperatively with other children"
+      },
+      "past_medical_history": {
+        "header": "Past Medical History",
+        "expected_content": "Significant for ear infections. Had bilateral myringotomy tubes placed at age 2. Tubes extruded spontaneously at age 3."
+      },
+      "current_medications": {
+        "header": "Current Medications",
+        "expected_content": "None"
+      },
+      "allergies": {
+        "header": "Allergies",
+        "expected_content": "No known drug allergies. Environmental allergy to cats."
+      },
+      "immunizations": {
+        "header": "Immunizations",
+        "expected_content": "Up to date"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "Weight 38 lbs (50th percentile), Height 40 inches (45th percentile), BP 92/58, HR 96, RR 20"
+      },
+      "physical_exam": {
+        "header": "Physical Examination",
+        "expected_content": "General: Alert, interactive child in no distress\nHEENT: Tympanic membranes clear bilaterally with small perforations from prior tubes, oropharynx clear\nHeart: Regular\nLungs: Clear\nAbdomen: Soft\nDevelopment: Appropriate for age"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Healthy 4-year-old male, well child exam"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Continue age-appropriate diet and activity\n2. Car seat safety counseling provided\n3. Anticipatory guidance for kindergarten readiness discussed\n4. Return for 5-year well child visit\n5. Due for DTaP, IPV, MMR, and varicella boosters at next visit"
+      }
+    }
+  }
+}

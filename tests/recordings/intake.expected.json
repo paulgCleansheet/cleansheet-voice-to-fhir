@@ -1,0 +1,270 @@
+{
+  "metadata": {
+    "script_file": "intake.webm",
+    "workflow": "intake",
+    "description": "New patient intake visit - establishing care"
+  },
+  "patient": {
+    "age": 58,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "routine health maintenance and medication refills",
+    "conditions": [
+      {
+        "name": "Type 2 diabetes mellitus",
+        "icd10": "E11.9",
+        "status": "active",
+        "category": "history",
+        "onset": "8 years ago"
+      },
+      {
+        "name": "Hypertension",
+        "icd10": "I10",
+        "status": "active",
+        "category": "history",
+        "onset": "10 years ago"
+      },
+      {
+        "name": "Hyperlipidemia",
+        "icd10": "E78.5",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Osteoarthritis of bilateral knees",
+        "icd10": "M17.0",
+        "status": "active",
+        "category": "history",
+        "severity": "mild"
+      }
+    ],
+    "surgical_history": [
+      {
+        "name": "Appendectomy",
+        "date": "1995",
+        "cpt": "44950"
+      },
+      {
+        "name": "Right knee arthroscopy",
+        "date": "2018",
+        "cpt": "29881"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "134/84",
+        "unit": "mmHg",
+        "systolic": 134,
+        "diastolic": 84
+      },
+      {
+        "type": "heart_rate",
+        "value": "68",
+        "unit": "bpm"
+      },
+      {
+        "type": "weight",
+        "value": "198",
+        "unit": "lbs"
+      },
+      {
+        "type": "height",
+        "value": "70",
+        "unit": "inches",
+        "display": "5 feet 10 inches"
+      },
+      {
+        "type": "bmi",
+        "value": "28.4",
+        "unit": "kg/m2"
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "Penicillin",
+        "reaction": "hives",
+        "severity": "moderate"
+      },
+      {
+        "substance": "Shellfish",
+        "reaction": "throat swelling",
+        "severity": "severe"
+      }
+    ],
+    "medications": [
+      {
+        "name": "Metformin",
+        "dose": "1000 mg",
+        "frequency": "twice daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      },
+      {
+        "name": "Lisinopril",
+        "dose": "20 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      },
+      {
+        "name": "Amlodipine",
+        "dose": "5 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      },
+      {
+        "name": "Atorvastatin",
+        "dose": "40 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      },
+      {
+        "name": "Acetaminophen",
+        "frequency": "as needed",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false,
+        "indication": "knee pain"
+      }
+    ],
+    "family_history": [
+      {
+        "relationship": "mother",
+        "condition": "Breast cancer",
+        "age_of_onset": "62"
+      },
+      {
+        "relationship": "father",
+        "condition": "Myocardial infarction",
+        "age_of_onset": "58",
+        "deceased": true,
+        "age_at_death": "72",
+        "cause_of_death": "stroke"
+      },
+      {
+        "relationship": "brother",
+        "condition": "Type 2 diabetes"
+      }
+    ],
+    "social_history": {
+      "tobacco": "former smoker, quit 15 years ago, 20 pack-year history",
+      "alcohol": "2 beers weekly",
+      "drugs": "denies recreational drug use",
+      "occupation": "financial advisor",
+      "living_situation": "married with 2 adult children",
+      "exercise": "walks 30 minutes daily"
+    },
+    "review_of_systems": {
+      "musculoskeletal": "occasional knee stiffness",
+      "other": "otherwise negative"
+    },
+    "physical_exam": {
+      "general": "well-developed male in no acute distress",
+      "cardiovascular": "regular rate and rhythm",
+      "respiratory": "lungs clear",
+      "abdomen": "soft",
+      "extremities": "mild crepitus bilateral knees without effusion"
+    },
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [],
+    "referral_orders": [],
+    "lab_orders": [
+      {
+        "name": "Hemoglobin A1c",
+        "loinc": "4548-4",
+        "reason": "diabetes monitoring"
+      },
+      {
+        "name": "Comprehensive metabolic panel",
+        "loinc": "24323-8",
+        "reason": "routine health maintenance"
+      },
+      {
+        "name": "Lipid panel",
+        "loinc": "24331-1",
+        "reason": "hyperlipidemia monitoring"
+      },
+      {
+        "name": "Urinalysis",
+        "loinc": "24356-8",
+        "reason": "diabetes screening"
+      }
+    ],
+    "procedure_orders": [
+      {
+        "name": "Colonoscopy",
+        "cpt": "45378",
+        "reason": "age-appropriate screening"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "follow_up": {
+    "interval": "2 weeks",
+    "purpose": "review labs and establish care plan"
+  },
+  "clinical_notes": {
+    "workflow": "intake",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Routine health maintenance and medication refills. New patient establishing care after relocating from California."
+      },
+      "past_medical_history": {
+        "header": "Past Medical History",
+        "expected_content": "1. Type 2 diabetes mellitus - diagnosed 8 years ago\n2. Hypertension - 10 years\n3. Hyperlipidemia\n4. Mild osteoarthritis of bilateral knees"
+      },
+      "past_surgical_history": {
+        "header": "Past Surgical History",
+        "expected_content": "1. Appendectomy (1995)\n2. Right knee arthroscopy (2018)"
+      },
+      "current_medications": {
+        "header": "Current Medications",
+        "expected_content": "1. Metformin 1000 mg twice daily\n2. Lisinopril 20 mg daily\n3. Amlodipine 5 mg daily\n4. Atorvastatin 40 mg daily\n5. Acetaminophen as needed for knee pain"
+      },
+      "allergies": {
+        "header": "Allergies",
+        "expected_content": "1. Penicillin - hives\n2. Shellfish - throat swelling"
+      },
+      "family_history": {
+        "header": "Family History",
+        "expected_content": "Mother: breast cancer at age 62\nFather: myocardial infarction at 58, died at 72 from stroke\nBrother: type 2 diabetes"
+      },
+      "social_history": {
+        "header": "Social History",
+        "expected_content": "Former smoker, quit 15 years ago with 20 pack-year history. Drinks 2 beers weekly. Denies recreational drug use. Works as a financial advisor. Married with 2 adult children. Exercises by walking 30 minutes daily."
+      },
+      "review_of_systems": {
+        "header": "Review of Systems",
+        "expected_content": "Occasional knee stiffness, otherwise negative"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 134/84 mmHg, HR 68 bpm, Weight 198 lbs, Height 5'10\", BMI 28.4"
+      },
+      "physical_exam": {
+        "header": "Physical Examination",
+        "expected_content": "General: Well-developed male in no acute distress\nCardiac: Regular rate and rhythm\nLungs: Clear\nAbdomen: Soft\nExtremities: Mild crepitus bilateral knees without effusion"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "1. Type 2 diabetes mellitus\n2. Hypertension\n3. Hyperlipidemia\n4. Osteoarthritis"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Continue current medications\n2. Order hemoglobin A1c\n3. Order comprehensive metabolic panel\n4. Order lipid panel\n5. Order urinalysis\n6. Schedule colonoscopy for age-appropriate screening\n7. Follow up in 2 weeks to review labs and establish care plan"
+      }
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "script_file": "discharge.webm",
+    "workflow": "discharge",
+    "description": "Hospital discharge summary for community-acquired pneumonia"
+  },
+  "patient": {
+    "age": 72,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "fever, cough, and shortness of breath",
+    "admission_diagnosis": {
+      "name": "Community-acquired pneumonia",
+      "icd10": "J18.9"
+    },
+    "discharge_diagnosis": {
+      "name": "Community-acquired pneumonia, resolved",
+      "icd10": "J18.9",
+      "status": "resolved"
+    },
+    "conditions": [
+      {
+        "name": "Community-acquired pneumonia",
+        "icd10": "J18.9",
+        "status": "resolved",
+        "category": "discharge_diagnosis"
+      }
+    ],
+    "vitals": [],
+    "allergies": [],
+    "medications": [],
+    "family_history": [],
+    "social_history": null,
+    "hospital_course": {
+      "presenting_symptoms": ["fever", "cough", "shortness of breath"],
+      "imaging": "Chest X-ray showed right lower lobe consolidation",
+      "treatment": "Started on ceftriaxone and azithromycin IV",
+      "response": "Improved clinically over 3 days",
+      "oxygen": "requirements weaned"
+    },
+    "lab_results": [],
+    "diagnostic_results": [
+      {
+        "name": "Chest X-ray",
+        "finding": "right lower lobe consolidation",
+        "interpretation": "consistent with pneumonia"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Azithromycin",
+        "dose": "250 mg",
+        "frequency": "daily",
+        "duration": "2 more days",
+        "route": "oral",
+        "type": "discharge_medication"
+      },
+      {
+        "name": "Albuterol inhaler",
+        "frequency": "as needed",
+        "route": "inhaled",
+        "type": "discharge_medication"
+      }
+    ],
+    "referral_orders": [
+      {
+        "specialty": "Primary care",
+        "timing": "1 week",
+        "reason": "post-hospitalization follow-up"
+      }
+    ],
+    "lab_orders": [],
+    "procedure_orders": [],
+    "imaging_orders": []
+  },
+  "discharge_instructions": {
+    "follow_up": "Primary care in 1 week",
+    "return_precautions": [
+      "worsening shortness of breath",
+      "fever",
+      "chest pain"
+    ]
+  },
+  "clinical_notes": {
+    "workflow": "discharge",
+    "sections": {
+      "admission_diagnosis": {
+        "header": "Admission Diagnosis",
+        "expected_content": "Community-acquired pneumonia"
+      },
+      "discharge_diagnosis": {
+        "header": "Discharge Diagnosis",
+        "expected_content": "Community-acquired pneumonia, resolved"
+      },
+      "hospital_course": {
+        "header": "Hospital Course",
+        "expected_content": "72-year-old male admitted with fever, cough, and shortness of breath. Chest X-ray showed right lower lobe consolidation. Started on ceftriaxone and azithromycin IV. Improved clinically over 3 days. Oxygen requirements weaned."
+      },
+      "discharge_medications": {
+        "header": "Discharge Medications",
+        "expected_content": "1. Azithromycin 250 mg daily for 2 more days\n2. Albuterol inhaler as needed"
+      },
+      "follow_up": {
+        "header": "Follow-up",
+        "expected_content": "Primary care in 1 week"
+      },
+      "return_precautions": {
+        "header": "Return Precautions",
+        "expected_content": "Return to emergency department for:\n- Worsening shortness of breath\n- Fever\n- Chest pain"
+      }
+    }
+  }
+}

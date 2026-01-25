@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "script_file": "neurology.webm",
+    "workflow": "neurology",
+    "description": "Neurology consultation for new onset seizure"
+  },
+  "patient": {
+    "age": 28,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "new onset seizure",
+    "conditions": [
+      {
+        "name": "New onset seizure",
+        "icd10": "R56.9",
+        "status": "active",
+        "category": "assessment",
+        "qualifier": "likely provoked by sleep deprivation"
+      },
+      {
+        "name": "Generalized tonic-clonic seizure",
+        "icd10": "G40.301",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "vital_signs",
+        "value": "stable",
+        "interpretation": "stable"
+      }
+    ],
+    "history_of_present_illness": {
+      "presentation": "presented to emergency department after witnessed generalized tonic-clonic seizure",
+      "seizure_duration": "approximately 2 minutes",
+      "post_ictal": "confusion for 15 minutes",
+      "tongue_bite": "no",
+      "incontinence": "no",
+      "precipitating_factors": "sleep deprivation - averaging 4 hours of sleep nightly for the past week due to work stress"
+    },
+    "pertinent_negatives": {
+      "alcohol": "denies",
+      "drugs": "denies recreational drug use",
+      "head_trauma": "no"
+    },
+    "allergies": [],
+    "medications": [],
+    "family_history": [
+      {
+        "relationship": "cousin",
+        "condition": "Epilepsy"
+      }
+    ],
+    "social_history": {
+      "stressors": "work stress",
+      "sleep": "averaging 4 hours nightly for past week"
+    },
+    "neurological_exam": {
+      "mental_status": "alert and oriented",
+      "cranial_nerves": "intact",
+      "motor": "strength 5/5 throughout",
+      "sensory": "intact",
+      "reflexes": "2+ symmetric",
+      "romberg": "negative",
+      "gait": "steady"
+    },
+    "diagnostic_results": [
+      {
+        "name": "MRI brain without contrast",
+        "finding": "no acute abnormality",
+        "interpretation": "normal"
+      },
+      {
+        "name": "EEG",
+        "status": "pending"
+      }
+    ],
+    "lab_results": [
+      {
+        "name": "Comprehensive metabolic panel",
+        "value": "unremarkable",
+        "interpretation": "normal"
+      },
+      {
+        "name": "CBC",
+        "value": "unremarkable",
+        "interpretation": "normal"
+      },
+      {
+        "name": "Toxicology screen",
+        "value": "unremarkable",
+        "interpretation": "negative"
+      }
+    ]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Levetiracetam",
+        "dose": "500 mg",
+        "frequency": "twice daily",
+        "reason": "seizure prophylaxis given presentation severity"
+      }
+    ],
+    "referral_orders": [
+      {
+        "specialty": "Neurology clinic",
+        "timing": "2 weeks",
+        "reason": "follow up with EEG results"
+      }
+    ],
+    "lab_orders": [],
+    "procedure_orders": [
+      {
+        "name": "EEG",
+        "reason": "evaluate for epileptiform activity"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "patient_counseling": {
+    "seizure_precautions": [
+      "No driving for 6 months per state law",
+      "Avoid sleep deprivation",
+      "Avoid excessive alcohol"
+    ],
+    "return_precautions": ["Return to ED if recurrent seizure"]
+  },
+  "clinical_notes": {
+    "workflow": "neurology",
+    "sections": {
+      "reason_for_consultation": {
+        "header": "Reason for Consultation",
+        "expected_content": "New onset seizure"
+      },
+      "history_of_present_illness": {
+        "header": "History of Present Illness",
+        "expected_content": "28-year-old female with no prior seizure history who presented to the emergency department after witnessed generalized tonic-clonic seizure lasting approximately 2 minutes with post-ictal confusion for 15 minutes. No tongue bite or incontinence noted. She reports recent sleep deprivation due to work stress, averaging 4 hours of sleep nightly for the past week. She denies alcohol or recreational drug use. No head trauma."
+      },
+      "family_history": {
+        "header": "Family History",
+        "expected_content": "Cousin with epilepsy"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "Stable"
+      },
+      "neurological_exam": {
+        "header": "Neurological Examination",
+        "expected_content": "Alert and oriented. Cranial nerves intact. Motor strength 5/5 throughout. Sensation intact. Reflexes 2+ symmetric. Negative Romberg. Gait steady."
+      },
+      "diagnostic_studies": {
+        "header": "Diagnostic Studies",
+        "expected_content": "MRI brain without contrast: No acute abnormality\nEEG: Pending\nLabs (CMP, CBC, toxicology screen): Unremarkable"
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "New onset seizure, likely provoked by sleep deprivation"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. EEG to evaluate for epileptiform activity\n2. Counsel on seizure precautions including no driving for 6 months per state law\n3. Avoid sleep deprivation and excessive alcohol\n4. Levetiracetam 500 mg twice daily started as prophylaxis given presentation severity\n5. Follow up in clinic in 2 weeks with EEG results\n6. Return to ED if recurrent seizure"
+      }
+    }
+  }
+}

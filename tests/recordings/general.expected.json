@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "script_file": "general.webm",
+    "workflow": "general",
+    "description": "Office visit for upper respiratory infection"
+  },
+  "patient": {
+    "age": 42,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "upper respiratory infection",
+    "conditions": [
+      {
+        "name": "Seasonal allergies",
+        "icd10": "J30.2",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Acute viral upper respiratory infection",
+        "icd10": "J06.9",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "122/76",
+        "unit": "mmHg",
+        "systolic": 122,
+        "diastolic": 76
+      },
+      {
+        "type": "heart_rate",
+        "value": "74",
+        "unit": "bpm"
+      },
+      {
+        "type": "temperature",
+        "value": "98.4",
+        "unit": "F"
+      },
+      {
+        "type": "respiratory_rate",
+        "value": "14",
+        "unit": "breaths/min"
+      },
+      {
+        "type": "oxygen_saturation",
+        "value": "99",
+        "unit": "%",
+        "qualifier": "on room air"
+      }
+    ],
+    "allergies": [
+      {
+        "substance": "No known drug allergies",
+        "reaction": null,
+        "severity": null,
+        "type": "NKDA"
+      }
+    ],
+    "medications": [
+      {
+        "name": "Cetirizine",
+        "dose": "10 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      }
+    ],
+    "family_history": [],
+    "social_history": null,
+    "history_of_present_illness": {
+      "duration": "4 days",
+      "symptoms": ["nasal congestion", "sore throat", "mild cough"],
+      "negative_symptoms": ["no fever", "no shortness of breath"],
+      "self_treatment": "over-the-counter decongestants with minimal relief"
+    },
+    "physical_exam": {
+      "nasal": "mild nasal mucosal edema",
+      "oropharynx": "clear posterior pharynx without exudates",
+      "respiratory": "lungs clear to auscultation"
+    },
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Pseudoephedrine",
+        "instructions": "may add for congestion",
+        "reason": "nasal congestion"
+      }
+    ],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [],
+    "imaging_orders": []
+  },
+  "patient_instructions": {
+    "return_if": "symptoms worsen or persist beyond 10 days",
+    "supportive_care": true,
+    "fluids": "increase fluids",
+    "continue_medications": "continue antihistamines"
+  },
+  "clinical_notes": {
+    "workflow": "general",
+    "sections": {
+      "chief_complaint": {
+        "header": "Chief Complaint",
+        "expected_content": "Upper respiratory infection"
+      },
+      "history_of_present_illness": {
+        "header": "History of Present Illness",
+        "expected_content": "42-year-old female presents with nasal congestion, sore throat, and mild cough for 4 days. No fever. No shortness of breath. She has tried over-the-counter decongestants with minimal relief."
+      },
+      "past_medical_history": {
+        "header": "Past Medical History",
+        "expected_content": "Seasonal allergies"
+      },
+      "current_medications": {
+        "header": "Current Medications",
+        "expected_content": "Cetirizine 10 mg daily"
+      },
+      "allergies": {
+        "header": "Allergies",
+        "expected_content": "No known drug allergies"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 122/76 mmHg, HR 74 bpm, Temp 98.4 F, RR 14, SpO2 99% on room air"
+      },
+      "physical_exam": {
+        "header": "Physical Examination",
+        "expected_content": "Mild nasal mucosal edema. Clear posterior pharynx without exudates. Lungs clear to auscultation."
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "Acute viral upper respiratory infection"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Supportive care\n2. Increase fluids\n3. Continue antihistamines\n4. May add pseudoephedrine for congestion\n5. Return if symptoms worsen or persist beyond 10 days"
+      }
+    }
+  }
+}

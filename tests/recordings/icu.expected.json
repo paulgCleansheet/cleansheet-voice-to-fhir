@@ -1,0 +1,205 @@
+{
+  "metadata": {
+    "script_file": "icu.webm",
+    "workflow": "icu",
+    "description": "Critical care progress note - septic shock secondary to pyelonephritis"
+  },
+  "patient": {
+    "age": 45,
+    "gender": "female",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "critical care progress note",
+    "clinical_context": {
+      "location": "medical ICU",
+      "icu_day": 3,
+      "admission_diagnosis": "septic shock secondary to pyelonephritis"
+    },
+    "conditions": [
+      {
+        "name": "Septic shock secondary to ESBL pyelonephritis",
+        "icd10": "A41.51",
+        "status": "active",
+        "category": "assessment",
+        "clinical_status": "improving"
+      },
+      {
+        "name": "Acute kidney injury",
+        "icd10": "N17.9",
+        "status": "active",
+        "category": "assessment",
+        "clinical_status": "resolving"
+      },
+      {
+        "name": "ESBL E. coli bacteremia",
+        "icd10": "A41.51",
+        "status": "active",
+        "category": "assessment"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "118/72",
+        "unit": "mmHg",
+        "systolic": 118,
+        "diastolic": 72
+      },
+      {
+        "type": "heart_rate",
+        "value": "88",
+        "unit": "bpm"
+      },
+      {
+        "type": "temperature",
+        "value": "37.8",
+        "unit": "C"
+      },
+      {
+        "type": "respiratory_rate",
+        "value": "16",
+        "unit": "breaths/min"
+      },
+      {
+        "type": "oxygen_saturation",
+        "value": "96",
+        "unit": "%",
+        "qualifier": "on 2 liters nasal cannula"
+      },
+      {
+        "type": "mean_arterial_pressure",
+        "value": ">65",
+        "unit": "mmHg",
+        "qualifier": "without vasopressor support"
+      },
+      {
+        "type": "urine_output",
+        "value": "0.8",
+        "unit": "mL/kg/hour",
+        "interpretation": "adequate"
+      }
+    ],
+    "overnight_events": [
+      "Required vasopressor wean",
+      "Norepinephrine discontinued at 0300",
+      "No acute events"
+    ],
+    "current_status": {
+      "neurologic": "alert and oriented, off sedation",
+      "hemodynamic": "stable off pressors",
+      "respiratory": "2 liters nasal cannula"
+    },
+    "allergies": [],
+    "medications": [
+      {
+        "name": "Meropenem",
+        "status": "active",
+        "is_new_order": false,
+        "day_of_therapy": 3,
+        "indication": "ESBL E. coli bacteremia"
+      },
+      {
+        "name": "Norepinephrine",
+        "status": "discontinued",
+        "is_new_order": false,
+        "discontinued_time": "0300"
+      }
+    ],
+    "family_history": [],
+    "social_history": null,
+    "lab_results": [
+      {
+        "name": "White blood cell count",
+        "value": "12",
+        "unit": "K/uL",
+        "interpretation": "trending down",
+        "prior_value": "18"
+      },
+      {
+        "name": "Lactate",
+        "value": "1.2",
+        "unit": "mmol/L",
+        "interpretation": "normalized"
+      },
+      {
+        "name": "Creatinine",
+        "value": "1.8",
+        "unit": "mg/dL",
+        "interpretation": "improving",
+        "prior_value": "2.4"
+      },
+      {
+        "name": "Procalcitonin",
+        "value": "1.2",
+        "unit": "ng/mL",
+        "interpretation": "trending down",
+        "prior_value": "8"
+      }
+    ],
+    "culture_results": [
+      {
+        "name": "Blood cultures",
+        "result": "no growth at 48 hours"
+      }
+    ],
+    "consultants": ["Infectious disease"]
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Ciprofloxacin",
+        "route": "oral",
+        "instructions": "de-escalate from meropenem when tolerating diet",
+        "duration": "14-day total course",
+        "reason": "ESBL E. coli step-down therapy"
+      }
+    ],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [
+      {
+        "name": "Transfer to floor",
+        "condition": "if stable today"
+      }
+    ],
+    "imaging_orders": []
+  },
+  "clinical_notes": {
+    "workflow": "icu",
+    "sections": {
+      "patient_identification": {
+        "header": "Patient",
+        "expected_content": "45-year-old female admitted to the medical ICU with septic shock secondary to pyelonephritis. ICU day 3."
+      },
+      "overnight_events": {
+        "header": "Overnight Events",
+        "expected_content": "Required vasopressor wean, norepinephrine discontinued at 0300. No acute events."
+      },
+      "current_status": {
+        "header": "Current Status",
+        "expected_content": "Alert and oriented, off sedation. Hemodynamically stable off pressors, mean arterial pressure greater than 65 without support. On 2 liters nasal cannula with oxygen saturation 96%. Urine output adequate at 0.8 mL/kg/hour."
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 118/72 mmHg, HR 88 bpm, Temp 37.8 C, RR 16"
+      },
+      "labs": {
+        "header": "Laboratory Data",
+        "expected_content": "WBC trending down from 18 to 12\nLactate normalized at 1.2\nCreatinine improving from 2.4 to 1.8\nProcalcitonin 1.2, down from 8"
+      },
+      "microbiology": {
+        "header": "Microbiology",
+        "expected_content": "Currently on meropenem day 3 for extended spectrum beta-lactamase E. coli bacteremia. Blood cultures no growth at 48 hours."
+      },
+      "assessment": {
+        "header": "Assessment",
+        "expected_content": "1. Septic shock secondary to ESBL pyelonephritis - improving\n2. Acute kidney injury - resolving"
+      },
+      "plan": {
+        "header": "Plan",
+        "expected_content": "1. Continue antibiotics\n2. De-escalate to oral ciprofloxacin when tolerating diet\n3. Target 14-day total antibiotic course\n4. Transfer to floor today if stable\n5. Infectious disease following"
+      }
+    }
+  }
+}

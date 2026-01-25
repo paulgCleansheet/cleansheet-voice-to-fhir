@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "script_file": "cardiology-consult.webm",
+    "workflow": "cardiology",
+    "description": "Cardiology consultation for chest pain evaluation"
+  },
+  "patient": {
+    "age": 48,
+    "gender": "male",
+    "age_unit": "years"
+  },
+  "ehr_data": {
+    "chief_complaint": "chest pain evaluation",
+    "conditions": [
+      {
+        "name": "Atypical chest pain",
+        "icd10": "R07.9",
+        "status": "active",
+        "category": "assessment"
+      },
+      {
+        "name": "Possible stable angina",
+        "icd10": "I20.9",
+        "status": "active",
+        "category": "assessment"
+      },
+      {
+        "name": "Hyperlipidemia",
+        "icd10": "E78.5",
+        "status": "active",
+        "category": "history"
+      },
+      {
+        "name": "Tobacco use disorder",
+        "icd10": "F17.210",
+        "status": "active",
+        "category": "history"
+      }
+    ],
+    "vitals": [
+      {
+        "type": "blood_pressure",
+        "value": "142/88",
+        "unit": "mmHg",
+        "systolic": 142,
+        "diastolic": 88
+      },
+      {
+        "type": "heart_rate",
+        "value": "78",
+        "unit": "bpm"
+      }
+    ],
+    "allergies": [],
+    "medications": [
+      {
+        "name": "Aspirin",
+        "dose": "81 mg",
+        "frequency": "daily",
+        "route": "oral",
+        "status": "active",
+        "is_new_order": false
+      }
+    ],
+    "family_history": [
+      {
+        "relationship": "unspecified",
+        "condition": "Coronary artery disease"
+      }
+    ],
+    "social_history": {
+      "tobacco": "current smoker, 1 pack per day for 20 years (20 pack-years)"
+    },
+    "diagnostic_results": [
+      {
+        "name": "ECG",
+        "finding": "normal sinus rhythm, no ST changes",
+        "interpretation": "normal"
+      }
+    ],
+    "history_of_present_illness": {
+      "duration": "2 weeks",
+      "character": "pressure-like",
+      "location": "substernal",
+      "radiation": "none",
+      "aggravating_factors": "walking uphill, exertion",
+      "relieving_factors": "rest"
+    },
+    "lab_results": []
+  },
+  "orders": {
+    "medication_orders": [
+      {
+        "name": "Statin",
+        "instructions": "start statin therapy",
+        "reason": "hyperlipidemia, CAD risk factors"
+      }
+    ],
+    "referral_orders": [],
+    "lab_orders": [],
+    "procedure_orders": [
+      {
+        "name": "Smoking cessation counseling",
+        "reason": "aggressive smoking cessation"
+      }
+    ],
+    "imaging_orders": [
+      {
+        "name": "Stress echocardiogram",
+        "reason": "evaluate for coronary artery disease"
+      }
+    ]
+  },
+  "clinical_notes": {
+    "workflow": "cardiology",
+    "sections": {
+      "reason_for_consultation": {
+        "header": "Reason for Consultation",
+        "expected_content": "Chest pain evaluation"
+      },
+      "history_of_present_illness": {
+        "header": "History of Present Illness",
+        "expected_content": "48-year-old male with new onset exertional chest pain for the past 2 weeks. Pain is substernal, pressure-like, occurs with walking uphill, and is relieved with rest. No radiation."
+      },
+      "risk_factors": {
+        "header": "Cardiovascular Risk Factors",
+        "expected_content": "1. Current smoker - 1 pack per day for 20 years\n2. Family history of coronary artery disease\n3. Hyperlipidemia"
+      },
+      "current_medications": {
+        "header": "Current Medications",
+        "expected_content": "Aspirin 81 mg daily"
+      },
+      "vital_signs": {
+        "header": "Vital Signs",
+        "expected_content": "BP 142/88 mmHg, HR 78 bpm"
+      },
+      "diagnostic_studies": {
+        "header": "Diagnostic Studies",
+        "expected_content": "ECG: Normal sinus rhythm, no ST changes"
+      },
+      "impression": {
+        "header": "Impression",
+        "expected_content": "Atypical chest pain, possible stable angina"
+      },
+      "recommendations": {
+        "header": "Recommendations",
+        "expected_content": "1. Stress echocardiogram\n2. Start statin therapy\n3. Aggressive smoking cessation counseling"
+      }
+    }
+  }
+}
