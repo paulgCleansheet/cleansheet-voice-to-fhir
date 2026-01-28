@@ -115,13 +115,94 @@
             background: var(--color-error);
         }
 
-        /* Main Layout */
+        /* Main Layout - 2 Column */
         .main-container {
             display: grid;
-            grid-template-columns: 280px 320px 1fr 300px;
+            grid-template-columns: 360px 1fr;
             gap: var(--spacing-md);
             padding: var(--spacing-md);
             height: calc(100vh - 60px);
+        }
+
+        /* Left Column - Stacked Panels */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .left-column .panel {
+            flex: 0 0 auto;
+        }
+
+        .left-column .input-panel {
+            flex: 0 0 auto;
+        }
+
+        .left-column .queue-panel {
+            flex: 0 0 auto;
+            min-height: 80px;
+            overflow: hidden;
+        }
+
+        .left-column .queue-panel:not(.collapsed) {
+            flex: 1 1 auto;
+            max-height: 55%;
+        }
+
+        /* When EHR is collapsed, queue can take full remaining space */
+        .left-column:has(.ehr-panel.collapsed) .queue-panel:not(.collapsed) {
+            max-height: none;
+        }
+
+        .left-column .ehr-panel {
+            flex: 0 0 auto;
+            min-height: 100px;
+            overflow: hidden;
+        }
+
+        .left-column .ehr-panel:not(.collapsed) {
+            flex: 1 1 auto;
+        }
+
+        /* Collapsible Panels */
+        .panel-header .collapse-toggle {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 2px 4px;
+            display: flex;
+            align-items: center;
+            opacity: 0.6;
+            transition: opacity 0.15s, transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .input-panel .panel-header .collapse-toggle,
+        .ehr-panel .panel-header .collapse-toggle {
+            margin-left: auto;
+        }
+
+        .panel-header .collapse-toggle:hover {
+            opacity: 1;
+        }
+
+        .panel.collapsed .collapse-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .panel.collapsed .panel-body,
+        .panel.collapsed .panel-footer {
+            display: none;
+        }
+
+        .panel.collapsed {
+            flex: 0 0 auto !important;
+            min-height: auto !important;
+            max-height: none !important;
         }
 
         /* Panel Base */
@@ -151,11 +232,46 @@
             overflow-y: auto;
         }
 
-        /* Input Panel */
+        /* Input Panel - Compact */
         .input-panel .panel-body {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+        }
+
+        .input-panel .panel-header {
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
+        /* Workflow Pills */
+        .workflow-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .workflow-pill {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-family: var(--font-ui);
+            background: var(--color-white);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-transform: capitalize;
+        }
+
+        .workflow-pill:hover {
+            border-color: var(--color-primary-blue);
+            background: var(--color-bg-light);
+        }
+
+        .workflow-pill.active {
+            background: var(--color-primary-blue);
+            color: var(--color-white);
+            border-color: var(--color-primary-blue);
         }
 
         .form-group {
@@ -188,28 +304,28 @@
             box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
         }
 
-        /* Record Button */
+        /* Record Button - Compact */
         .record-section {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: var(--spacing-md);
-            padding: var(--spacing-md) 0;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs) 0;
         }
 
         .record-btn {
-            width: 80px;
-            height: 80px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 3px solid var(--color-border);
+            border: 2px solid var(--color-border);
             background: var(--color-white);
             color: var(--color-error);
-            font-size: 2rem;
+            font-size: 1.25rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
 
         .record-btn:hover {
@@ -225,21 +341,22 @@
 
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-            50% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
         }
 
         .record-time {
             font-family: var(--font-ui);
-            font-size: 1.25rem;
+            font-size: 1rem;
             color: var(--color-text-secondary);
+            min-width: 45px;
         }
 
-        /* Audio Visualizer */
+        /* Audio Visualizer - Compact */
         .audio-visualizer {
-            width: 100%;
-            height: 40px;
+            flex: 1;
+            height: 32px;
             background: var(--color-bg-light);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -248,21 +365,25 @@
         }
 
         .visualizer-bar {
-            width: 4px;
-            height: 4px;
+            width: 3px;
+            height: 3px;
             background: var(--color-primary-blue);
             border-radius: 2px;
             transition: height 0.05s ease;
         }
 
-        /* Upload Button */
+        /* Upload Button - Compact */
         .upload-section {
-            border: 2px dashed var(--color-border);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-md);
+            border: 1px dashed var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-sm);
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
         }
 
         .upload-section:hover {
@@ -275,13 +396,12 @@
         }
 
         .upload-icon {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--color-text-secondary);
-            margin-bottom: var(--spacing-xs);
         }
 
         .upload-text {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--color-text-secondary);
         }
 
@@ -375,19 +495,34 @@
             color: var(--color-text);
         }
 
-        /* Queue Panel */
+        /* Queue Panel - Compact */
+        .queue-panel .panel-header {
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
+        .queue-panel .panel-body {
+            padding: var(--spacing-sm);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .queue-panel .panel-footer {
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
         .queue-header-extra {
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: var(--spacing-sm);
             margin-left: auto;
+            font-size: 0.75rem;
         }
 
         .progress-bar-container {
-            width: 100px;
-            height: 6px;
+            width: 60px;
+            height: 4px;
             background: rgba(255,255,255,0.2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
         }
 
@@ -397,22 +532,28 @@
             transition: width 0.3s ease;
         }
 
+        .processing-toggle {
+            font-size: 0.7rem;
+            padding: var(--spacing-xs) 0;
+            margin-bottom: var(--spacing-xs);
+        }
+
         .queue-list {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-sm);
+            gap: var(--spacing-xs);
         }
 
         .queue-item {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm);
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
             background: var(--color-bg-light);
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
             transition: background-color 0.15s, border-color 0.15s;
-            border: 2px solid transparent;
+            border: 1px solid transparent;
         }
 
         .queue-item.done {
@@ -426,16 +567,17 @@
 
         .queue-item.selected {
             background: var(--color-primary-bg, #e0f2fe);
-            border-color: var(--color-primary);
+            border-color: var(--color-primary-blue);
         }
 
         .queue-item-status {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.875rem;
+            flex-shrink: 0;
         }
 
         .queue-item-status.pending { color: var(--color-text-muted); }
@@ -446,6 +588,7 @@
         .queue-item-info {
             flex: 1;
             min-width: 0;
+            line-height: 1.3;
         }
 
         .queue-item-workflow {
@@ -454,13 +597,58 @@
         }
 
         .queue-item-meta {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: var(--color-text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .queue-item-actions {
             display: flex;
+            gap: 2px;
+        }
+
+        .queue-item-actions .btn-icon {
+            padding: 2px;
+            font-size: 0.75rem;
+        }
+
+        /* Mock EHR Panel - Compact */
+        .ehr-panel .panel-header {
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
+        .ehr-panel .panel-body {
+            padding: var(--spacing-sm);
+        }
+
+        .ehr-panel .panel-footer {
+            padding: var(--spacing-xs) var(--spacing-sm);
+        }
+
+        .mock-ehr-list {
+            display: flex;
+            flex-direction: column;
             gap: var(--spacing-xs);
+        }
+
+        .mock-ehr-item {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+        }
+
+        .mock-ehr-empty {
+            text-align: center;
+            padding: var(--spacing-md);
+            color: var(--color-text-muted);
+            font-size: 0.75rem;
+        }
+
+        .mock-ehr-empty i {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-xs);
+            display: block;
         }
 
         .queue-empty {
@@ -947,6 +1135,44 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
+        /* Pill Selector (touch-friendly type selection) */
+        .pill-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .pill-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-border);
+            background: var(--color-white);
+            color: var(--color-text-secondary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: var(--font-ui);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .pill-btn:hover {
+            border-color: var(--color-primary-blue);
+            color: var(--color-text);
+        }
+
+        .pill-btn.active {
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+            color: var(--color-white);
+        }
+
+        .pill-btn i {
+            font-size: 1rem;
+        }
+
         .add-ehr-voice-input {
             display: flex;
             flex-direction: column;
@@ -1386,125 +1612,69 @@
             border-top: 1px solid var(--color-border);
         }
 
-        /* About Modal / Slideshow Styles */
+        /* About Modal / Interactive Pipeline Styles */
         .about-modal {
-            max-width: 640px;
+            max-width: 1000px;
+            width: 90vw;
             max-height: 90vh;
         }
 
-        .slideshow-container {
-            min-height: 420px;
+        .about-modal .modal-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .about-modal .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .pipeline-container {
             position: relative;
-            overflow: hidden;
         }
 
-        .slide {
-            display: none;
-            animation: fadeIn 0.3s ease;
-            padding: var(--spacing-sm) 0;
-        }
-
-        .slide.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .slide-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--color-primary-blue), var(--color-accent-blue));
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            margin: 0 auto var(--spacing-md);
-        }
-
-        .slide-icon.final {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-
-        .slide h3 {
+        /* Philosophy Header */
+        .pipeline-philosophy {
             text-align: center;
-            font-size: 1.25rem;
-            margin: 0 0 var(--spacing-xs);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .pipeline-philosophy h3 {
+            font-size: 1.5rem;
+            margin: 0 0 var(--spacing-sm);
             color: var(--color-text);
         }
 
-        .slide-subtitle {
-            text-align: center;
+        .pipeline-philosophy p {
+            font-size: 1.1rem;
             color: var(--color-text-secondary);
-            font-size: 0.875rem;
             margin: 0 0 var(--spacing-md);
-        }
-
-        .slide-content {
-            font-size: 0.875rem;
             line-height: 1.6;
         }
 
-        .slide-content p {
-            margin: 0 0 var(--spacing-md);
+        .philosophy-legend {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1rem;
             color: var(--color-text-secondary);
         }
 
-        .slide-content strong {
-            color: var(--color-text);
-        }
-
-        .slide-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: var(--spacing-sm);
-        }
-
-        .slide-features li {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            background: var(--color-bg-light);
-            border-radius: var(--radius-md);
-        }
-
-        .slide-features li i {
-            color: var(--color-primary-blue);
-            font-size: 1.25rem;
-        }
-
-        /* Philosophy Grid */
-        .philosophy-grid {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-sm);
-        }
-
-        .philosophy-item {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            background: var(--color-bg-light);
-            border-radius: var(--radius-md);
-        }
-
         .philosophy-icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             flex-shrink: 0;
         }
 
@@ -1523,212 +1693,321 @@
             color: white;
         }
 
-        .philosophy-item span {
-            font-size: 0.8rem;
-            color: var(--color-text-secondary);
-        }
-
-        /* Benefits Grid */
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        /* Pipeline Flow */
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: var(--spacing-sm);
+            padding: var(--spacing-lg) 0;
+            overflow-x: auto;
         }
 
-        .benefit-card {
+        .pipeline-endpoint {
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            padding: var(--spacing-sm);
-            background: var(--color-bg-light);
-            border-radius: var(--radius-md);
-            gap: 4px;
-        }
-
-        .benefit-card i {
-            font-size: 1.5rem;
-            color: var(--color-primary-blue);
-        }
-
-        .benefit-card strong {
-            font-size: 0.75rem;
-        }
-
-        .benefit-card span {
-            font-size: 0.7rem;
+            gap: 6px;
+            padding: var(--spacing-md);
             color: var(--color-text-secondary);
         }
 
-        /* Deployment Options */
-        .deployment-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-sm);
+        .pipeline-endpoint i {
+            font-size: 2rem;
         }
 
-        .deployment-option {
-            text-align: center;
-            padding: var(--spacing-sm);
-            background: var(--color-bg-light);
-            border-radius: var(--radius-md);
+        .pipeline-endpoint span {
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
-        .deployment-option i {
-            font-size: 1.5rem;
+        .pipeline-endpoint.start i {
             color: var(--color-primary-blue);
-            margin-bottom: var(--spacing-xs);
         }
 
-        .deployment-option strong {
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: var(--spacing-xs);
+        .pipeline-endpoint.end i {
+            color: var(--color-success);
         }
 
-        .deployment-option ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.7rem;
-            color: var(--color-text-secondary);
+        .pipeline-arrow {
+            color: var(--color-border);
+            font-size: 1.25rem;
         }
 
-        .deployment-option li {
-            padding: 2px 0;
-        }
-
-        /* Enhancement Pipeline */
-        .enhancement-pipeline {
+        /* Pipeline Nodes */
+        .pipeline-node {
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .pipeline-step {
-            display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm);
+            gap: 6px;
+            padding: var(--spacing-md) var(--spacing-lg);
             background: var(--color-bg-light);
-            border-radius: var(--radius-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
         }
 
-        .step-number {
-            width: 28px;
-            height: 28px;
+        .pipeline-node:hover {
+            border-color: var(--color-primary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .pipeline-node.active {
+            border-color: var(--color-primary-blue);
+            background: white;
+        }
+
+        .node-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            background: var(--color-primary-blue);
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .node-badge.ai {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        }
+
+        .node-badge.deterministic {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .node-badge.human {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .node-icon {
+            font-size: 2rem;
+            color: var(--color-text);
+        }
+
+        .node-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .node-hint {
+            font-size: 0.7rem;
+            color: var(--color-text-secondary);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .pipeline-node:hover .node-hint {
+            opacity: 1;
+        }
+
+        /* Pipeline Popup */
+        .pipeline-popup {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 600px;
+            z-index: 10;
+            animation: popupFadeIn 0.2s ease;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .pipeline-popup.visible {
+            display: flex;
+        }
+
+        @keyframes popupFadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .popup-nav {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: var(--color-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
             flex-shrink: 0;
         }
 
-        .step-content strong {
-            display: block;
-            font-size: 0.8rem;
-        }
-
-        .step-content span {
-            font-size: 0.7rem;
-            color: var(--color-text-secondary);
-        }
-
-        .slide-note {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            font-size: 0.75rem;
-            color: var(--color-success);
-            margin: 0;
-        }
-
-        /* Review Capabilities */
-        .review-capabilities {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-sm);
-        }
-
-        .review-capabilities .capability:last-child {
-            grid-column: span 2;
-            justify-content: center;
-        }
-
-        .capability {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-sm);
-            background: var(--color-bg-light);
-            border-radius: var(--radius-md);
-        }
-
-        .capability i {
-            font-size: 1.25rem;
-            color: var(--color-primary-blue);
-        }
-
-        .capability strong {
-            font-size: 0.8rem;
-        }
-
-        .capability span {
-            font-size: 0.7rem;
-            color: var(--color-text-secondary);
-            display: block;
-        }
-
-        /* FHIR Resources */
-        .fhir-resources {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-xs);
-            justify-content: center;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .resource-badge {
-            padding: 4px 10px;
-            background: var(--color-highlight);
+        .popup-nav:hover:not(:disabled) {
+            background: var(--color-primary-blue);
             color: white;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 500;
+            transform: scale(1.1);
         }
 
-        /* Final Slide */
-        .final-slide {
+        .popup-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .popup-main {
+            flex: 1;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .popup-header h4 {
+            margin: 0;
+            font-size: 1.15rem;
+            color: var(--color-text);
+        }
+
+        .popup-content {
+            padding: var(--spacing-lg);
+            font-size: 0.95rem;
+            max-height: 340px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .popup-content p {
+            margin: 0 0 var(--spacing-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .popup-content strong {
+            color: var(--color-text);
+        }
+
+        .popup-footer {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-top: 1px solid var(--color-border);
             text-align: center;
         }
 
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            gap: var(--spacing-lg);
-            margin: var(--spacing-md) 0;
+        .popup-counter {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
         }
 
-        .contact-link {
+        /* Popup Content Grids */
+        .popup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .popup-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-md);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-md);
+            gap: 6px;
+        }
+
+        .popup-card i {
+            font-size: 1.5rem;
+            color: var(--color-primary-blue);
+        }
+
+        .popup-card strong {
+            font-size: 0.9rem;
+        }
+
+        .popup-card span {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .popup-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .popup-list-item {
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-bg-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .popup-list-item i {
             color: var(--color-primary-blue);
-            text-decoration: none;
-            font-size: 0.875rem;
+            font-size: 1.1rem;
         }
 
-        .contact-link:hover {
-            text-decoration: underline;
+        .popup-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
         }
 
-        .contact-link i {
+        .popup-badge {
+            padding: 4px 10px;
+            background: var(--color-highlight);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* About Footer */
+        .about-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-md);
+        }
+
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 0.95rem;
+            color: var(--color-text-secondary);
+        }
+
+        .footer-info a {
+            color: var(--color-primary-blue);
             font-size: 1.25rem;
+        }
+
+        .footer-info a:hover {
+            color: var(--color-accent-blue);
         }
 
         .kaggle-badge {
@@ -1739,14 +2018,14 @@
             background: linear-gradient(135deg, #20beff, #0066cc);
             color: white;
             border-radius: var(--radius-md);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
         .kaggle-badge i {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
         }
 
-        /* Slideshow Navigation */
+        /* Slideshow Navigation (kept for API guide) */
         .slideshow-nav {
             display: flex;
             align-items: center;
@@ -2191,23 +2470,25 @@
             color: #f87171;
         }
 
-        /* Responsive */
+        /* Responsive - Left column stays fixed, right column squeezes */
         @media (max-width: 1400px) {
             .main-container {
-                grid-template-columns: 260px 280px 1fr 260px;
+                grid-template-columns: 320px 1fr;
             }
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1000px) {
             .main-container {
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
+                grid-template-columns: 300px 1fr;
+                gap: var(--spacing-sm);
+                padding: var(--spacing-sm);
             }
+        }
 
-            .input-panel { grid-column: 1; grid-row: 1; }
-            .queue-panel { grid-column: 2; grid-row: 1; }
-            .review-panel { grid-column: 1 / -1; grid-row: 2; }
-            .ehr-panel { display: none; }
+        @media (max-width: 800px) {
+            .main-container {
+                grid-template-columns: 280px 1fr;
+            }
         }
     </style>
 </head>
@@ -2223,6 +2504,15 @@
                 <i class="ph ph-cloud"></i>
                 <span id="headerEndpointText">MedGemma</span>
             </div>
+            <button class="settings-btn" id="exportBtn" title="Export all data">
+                <i class="ph ph-export"></i>
+                Export
+            </button>
+            <button class="settings-btn" id="importBtn" title="Import saved data">
+                <i class="ph ph-download-simple"></i>
+                Import
+            </button>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
             <button class="settings-btn" id="aboutBtn">
                 <i class="ph ph-info"></i>
                 About
@@ -2302,275 +2592,131 @@
         </div>
     </div>
 
-    <!-- About Modal (Slideshow) -->
+    <!-- About Modal (Interactive Pipeline) -->
     <div class="modal-overlay" id="aboutModal">
         <div class="modal about-modal">
             <div class="modal-header">
-                <h2><i class="ph ph-info"></i> About Voice-to-FHIR</h2>
+                <h2><i class="ph ph-flow-arrow"></i> Voice-to-FHIR Pipeline</h2>
                 <button class="btn-icon" onclick="closeAboutModal()">
                     <i class="ph ph-x"></i>
                 </button>
             </div>
-            <div class="modal-body slideshow-container">
-                <!-- Slide 1: Overview -->
-                <div class="slide active" data-slide="1">
-                    <div class="slide-icon">
-                        <i class="ph ph-flow-arrow"></i>
-                    </div>
-                    <h3>Asynchronous AI-Assisted Charting</h3>
-                    <p class="slide-subtitle">With Close Human Oversight</p>
-                    <div class="slide-content">
-                        <p>Voice-to-FHIR is designed for the <strong>real clinical workflow</strong> - where accuracy matters more than automation, and clinician judgment is paramount.</p>
-                        <ul class="slide-features">
-                            <li><i class="ph ph-microphone"></i> Voice-first input for natural documentation</li>
-                            <li><i class="ph ph-brain"></i> AI-powered structuring and coding</li>
-                            <li><i class="ph ph-user-check"></i> Human review at every step</li>
-                            <li><i class="ph ph-plugs-connected"></i> FHIR R4 interoperability</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Slide 2: Philosophy -->
-                <div class="slide" data-slide="2">
-                    <div class="slide-icon">
-                        <i class="ph ph-scales"></i>
-                    </div>
+            <div class="modal-body pipeline-container">
+                <!-- Philosophy Header -->
+                <div class="pipeline-philosophy">
                     <h3>Best Tool for Each Task</h3>
-                    <p class="slide-subtitle">Pragmatic, Not Dogmatic</p>
-                    <div class="slide-content">
-                        <p>We choose the <strong>best method available</strong> for each step - not dogmatically aligning to AI or deterministic approaches.</p>
-                        <div class="philosophy-grid">
-                            <div class="philosophy-item">
-                                <div class="philosophy-icon ai">AI</div>
-                                <span>Where AI excels: transcription, entity extraction, clinical reasoning</span>
-                            </div>
-                            <div class="philosophy-item">
-                                <div class="philosophy-icon deterministic">D</div>
-                                <span>Where deterministic wins: code lookups, validation, formatting</span>
-                            </div>
-                            <div class="philosophy-item">
-                                <div class="philosophy-icon human">H</div>
-                                <span>Where humans are essential: review, correction, clinical judgment</span>
-                            </div>
+                    <p>We choose the <strong>best method available</strong> for each step - not dogmatically aligning to AI or deterministic approaches.</p>
+                    <div class="philosophy-legend">
+                        <div class="legend-item">
+                            <div class="philosophy-icon ai">AI</div>
+                            <span>AI excels</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="philosophy-icon deterministic">D</div>
+                            <span>Deterministic wins</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="philosophy-icon human">H</div>
+                            <span>Humans essential</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Slide 3: MedASR -->
-                <div class="slide" data-slide="3">
-                    <div class="slide-icon">
-                        <i class="ph ph-waveform"></i>
+                <!-- Interactive Pipeline -->
+                <div class="pipeline-flow">
+                    <!-- Voice Input -->
+                    <div class="pipeline-endpoint start">
+                        <i class="ph ph-microphone"></i>
+                        <span>Voice</span>
                     </div>
-                    <h3>MedASR: Local Speech Recognition</h3>
-                    <p class="slide-subtitle">Privacy-First, Low-Latency Transcription</p>
-                    <div class="slide-content">
-                        <p>The workflow begins with <strong>highly reliable MedASR</strong>, running locally to protect sensitive data.</p>
-                        <div class="benefits-grid">
-                            <div class="benefit-card">
-                                <i class="ph ph-shield-check"></i>
-                                <strong>Privacy Protected</strong>
-                                <span>Voice biometrics stay local - never transmitted</span>
-                            </div>
-                            <div class="benefit-card">
-                                <i class="ph ph-lightning"></i>
-                                <strong>Low Latency</strong>
-                                <span>Real-time transcription without network delays</span>
-                            </div>
-                            <div class="benefit-card">
-                                <i class="ph ph-wifi-slash"></i>
-                                <strong>Always Available</strong>
-                                <span>Works offline, no internet dependency</span>
-                            </div>
-                            <div class="benefit-card">
-                                <i class="ph ph-stethoscope"></i>
-                                <strong>Medical Tuned</strong>
-                                <span>58-82% better accuracy than general ASR</span>
-                            </div>
-                        </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- MedASR Node -->
+                    <div class="pipeline-node" data-node="medasr" onclick="showPipelinePopup('medasr')">
+                        <div class="node-badge ai">AI</div>
+                        <div class="node-icon"><i class="ph ph-waveform"></i></div>
+                        <div class="node-label">MedASR</div>
+                        <div class="node-hint">Click for details</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- MedGemma Node -->
+                    <div class="pipeline-node" data-node="medgemma" onclick="showPipelinePopup('medgemma')">
+                        <div class="node-badge ai">AI</div>
+                        <div class="node-icon"><i class="ph ph-brain"></i></div>
+                        <div class="node-label">MedGemma</div>
+                        <div class="node-hint">Click for details</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- Deterministic Node -->
+                    <div class="pipeline-node" data-node="deterministic" onclick="showPipelinePopup('deterministic')">
+                        <div class="node-badge deterministic">D</div>
+                        <div class="node-icon"><i class="ph ph-code"></i></div>
+                        <div class="node-label">Enhancement</div>
+                        <div class="node-hint">Click for details</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- Clinician Review Node -->
+                    <div class="pipeline-node" data-node="clinician" onclick="showPipelinePopup('clinician')">
+                        <div class="node-badge human">H</div>
+                        <div class="node-icon"><i class="ph ph-user-check"></i></div>
+                        <div class="node-label">Review</div>
+                        <div class="node-hint">Click for details</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- FHIR Node -->
+                    <div class="pipeline-node" data-node="fhir" onclick="showPipelinePopup('fhir')">
+                        <div class="node-badge deterministic">D</div>
+                        <div class="node-icon"><i class="ph ph-plugs-connected"></i></div>
+                        <div class="node-label">FHIR R4</div>
+                        <div class="node-hint">Click for details</div>
+                    </div>
+                    <div class="pipeline-arrow"><i class="ph ph-arrow-right"></i></div>
+
+                    <!-- EHR Output -->
+                    <div class="pipeline-endpoint end">
+                        <i class="ph ph-hospital"></i>
+                        <span>EHR</span>
                     </div>
                 </div>
 
-                <!-- Slide 4: MedGemma -->
-                <div class="slide" data-slide="4">
-                    <div class="slide-icon">
-                        <i class="ph ph-brain"></i>
-                    </div>
-                    <h3>MedGemma: Clinical Entity Extraction</h3>
-                    <p class="slide-subtitle">Flexible Deployment for Your Needs</p>
-                    <div class="slide-content">
-                        <p>MedGemma structures clinical information, deployable <strong>on-prem or cloud</strong> based on your requirements.</p>
-                        <div class="deployment-options">
-                            <div class="deployment-option">
-                                <i class="ph ph-buildings"></i>
-                                <strong>On-Premises</strong>
-                                <ul>
-                                    <li>Maximum privacy</li>
-                                    <li>Data sovereignty</li>
-                                    <li>Predictable costs</li>
-                                </ul>
-                            </div>
-                            <div class="deployment-option">
-                                <i class="ph ph-cloud"></i>
-                                <strong>Cloud</strong>
-                                <ul>
-                                    <li>Elastic scaling</li>
-                                    <li>High availability</li>
-                                    <li>Lower upfront cost</li>
-                                </ul>
-                            </div>
-                            <div class="deployment-option">
-                                <i class="ph ph-git-merge"></i>
-                                <strong>Hybrid</strong>
-                                <ul>
-                                    <li>Best of both</li>
-                                    <li>Failover capability</li>
-                                    <li>Flexible routing</li>
-                                </ul>
-                            </div>
+                <!-- Pipeline Popup (hidden by default) -->
+                <div class="pipeline-popup" id="pipelinePopup">
+                    <button class="popup-nav popup-nav-prev" id="popupPrevBtn" onclick="prevPipelineNode()">
+                        <i class="ph ph-caret-left"></i>
+                    </button>
+                    <div class="popup-main">
+                        <div class="popup-header">
+                            <h4 id="popupTitle">Title</h4>
+                            <button class="btn-icon" onclick="closePipelinePopup()">
+                                <i class="ph ph-x"></i>
+                            </button>
+                        </div>
+                        <div class="popup-content" id="popupContent">
+                            <!-- Content populated dynamically -->
+                        </div>
+                        <div class="popup-footer">
+                            <span class="popup-counter" id="popupCounter">1 / 5</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Slide 5: Deterministic Enhancement -->
-                <div class="slide" data-slide="5">
-                    <div class="slide-icon">
-                        <i class="ph ph-code"></i>
-                    </div>
-                    <h3>Deterministic Enhancement</h3>
-                    <p class="slide-subtitle">Proven, Low-Cost, Local Methods</p>
-                    <div class="slide-content">
-                        <p>AI outputs are enhanced by <strong>proven deterministic methods</strong> for coding accuracy and validation.</p>
-                        <div class="enhancement-pipeline">
-                            <div class="pipeline-step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <strong>ICD-10 Lookup</strong>
-                                    <span>Fuzzy matching against verified code database</span>
-                                </div>
-                            </div>
-                            <div class="pipeline-step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <strong>Transcript Markers</strong>
-                                    <span>Extract from [SUBJECTIVE], [ASSESSMENT], [PLAN] sections</span>
-                                </div>
-                            </div>
-                            <div class="pipeline-step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <strong>Validation</strong>
-                                    <span>Filter placeholders, normalize values, verify formats</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="slide-note"><i class="ph ph-check-circle"></i> Fast, reliable, no API costs, works offline</p>
-                    </div>
-                </div>
-
-                <!-- Slide 6: Clinician Review -->
-                <div class="slide" data-slide="6">
-                    <div class="slide-icon">
-                        <i class="ph ph-user-check"></i>
-                    </div>
-                    <h3>Clinician Review & Correction</h3>
-                    <p class="slide-subtitle">Tactical Control at Every Step</p>
-                    <div class="slide-content">
-                        <p>Clinicians have <strong>full control</strong> to correct, enhance, and validate all extracted data.</p>
-                        <div class="review-capabilities">
-                            <div class="capability">
-                                <i class="ph ph-microphone"></i>
-                                <strong>Re-record</strong>
-                                <span>Voice-correct any field with MedASR</span>
-                            </div>
-                            <div class="capability">
-                                <i class="ph ph-x-circle"></i>
-                                <strong>Reject</strong>
-                                <span>Remove incorrect extractions</span>
-                            </div>
-                            <div class="capability">
-                                <i class="ph ph-pencil"></i>
-                                <strong>Edit</strong>
-                                <span>Inline editing of any content</span>
-                            </div>
-                            <div class="capability">
-                                <i class="ph ph-plus-circle"></i>
-                                <strong>Add</strong>
-                                <span>Manually add missed items via voice or keyboard</span>
-                            </div>
-                            <div class="capability">
-                                <i class="ph ph-checks"></i>
-                                <strong>Approve</strong>
-                                <span>Explicit approval before submission</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slide 7: FHIR Output -->
-                <div class="slide" data-slide="7">
-                    <div class="slide-icon">
-                        <i class="ph ph-plugs-connected"></i>
-                    </div>
-                    <h3>FHIR R4 Interoperability</h3>
-                    <p class="slide-subtitle">Ready for Any EHR System</p>
-                    <div class="slide-content">
-                        <p>All data is bundled into <strong>FHIR R4 format</strong> for seamless integration with modern healthcare systems.</p>
-                        <div class="fhir-resources">
-                            <div class="resource-badge">Patient</div>
-                            <div class="resource-badge">Condition</div>
-                            <div class="resource-badge">Observation</div>
-                            <div class="resource-badge">MedicationRequest</div>
-                            <div class="resource-badge">AllergyIntolerance</div>
-                            <div class="resource-badge">Procedure</div>
-                            <div class="resource-badge">ServiceRequest</div>
-                            <div class="resource-badge">FamilyMemberHistory</div>
-                        </div>
-                        <p class="slide-note"><i class="ph ph-globe"></i> Compatible with Epic, Cerner, athenahealth, and other FHIR-enabled systems</p>
-                    </div>
-                </div>
-
-                <!-- Slide 8: Questions -->
-                <div class="slide" data-slide="8">
-                    <div class="slide-icon final">
-                        <i class="ph ph-question"></i>
-                    </div>
-                    <h3>Questions?</h3>
-                    <div class="slide-content final-slide">
-                        <p>Voice-to-FHIR is part of the <strong>Cleansheet Medical</strong> platform - a novel EHR interface delivering modern AI to the clinical edge.</p>
-                        <div class="contact-info">
-                            <a href="https://cleansheet.info" target="_blank" class="contact-link">
-                                <i class="ph ph-globe"></i>
-                                cleansheet.info
-                            </a>
-                            <a href="https://github.com/CleansheetLLC" target="_blank" class="contact-link">
-                                <i class="ph ph-github-logo"></i>
-                                GitHub
-                            </a>
-                        </div>
-                        <div class="kaggle-badge">
-                            <i class="ph ph-trophy"></i>
-                            <span>Built for the <strong>MedGemma Impact Challenge</strong></span>
-                        </div>
-                    </div>
+                    <button class="popup-nav popup-nav-next" id="popupNextBtn" onclick="nextPipelineNode()">
+                        <i class="ph ph-caret-right"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Slideshow Navigation -->
-            <div class="slideshow-nav">
-                <button class="slide-nav-btn" id="prevSlideBtn" onclick="prevSlide()">
-                    <i class="ph ph-caret-left"></i>
-                </button>
-                <div class="slide-dots" id="slideDots">
-                    <!-- Dots generated dynamically -->
+            <div class="modal-footer about-footer">
+                <div class="footer-info">
+                    <span>Part of <strong>Cleansheet Medical</strong></span>
+                    <a href="https://cleansheet.info" target="_blank"><i class="ph ph-globe"></i></a>
+                    <a href="https://github.com/CleansheetLLC" target="_blank"><i class="ph ph-github-logo"></i></a>
                 </div>
-                <button class="slide-nav-btn" id="nextSlideBtn" onclick="nextSlide()">
-                    <i class="ph ph-caret-right"></i>
-                </button>
-            </div>
-
-            <div class="modal-footer">
-                <div class="slide-counter">
-                    <span id="currentSlideNum">1</span> / <span id="totalSlideNum">8</span>
+                <div class="kaggle-badge">
+                    <i class="ph ph-trophy"></i>
+                    <span>MedGemma Impact Challenge</span>
                 </div>
                 <button class="btn-primary" onclick="closeAboutModal()">
                     <i class="ph ph-check"></i> Got It
@@ -2734,39 +2880,8 @@
                     </div>
                 </div>
 
-                <!-- Slide 6: Analyze Patient -->
+                <!-- Slide 6: Response Format -->
                 <div class="api-slide" data-api-slide="6">
-                    <h3>Analyze Patient</h3>
-                    <p class="slide-subtitle">Clinical Decision Support Recommendations</p>
-                    <div class="slide-content">
-                        <div class="api-endpoint">
-                            <div class="endpoint-header">
-                                <span class="http-method post">POST</span>
-                                <code>/analyze-patient</code>
-                            </div>
-                            <p>Analyze patient data to generate clinical decision support recommendations.</p>
-                            <div class="endpoint-params">
-                                <strong>JSON Body:</strong> FHIR R4 Bundle with patient data
-                                <strong>Returns:</strong>
-                                <ul>
-                                    <li>Drug interaction warnings</li>
-                                    <li>Contraindication alerts</li>
-                                    <li>Missing data notifications</li>
-                                    <li>Guideline-based recommendations</li>
-                                </ul>
-                            </div>
-                            <div class="endpoint-response">
-                                <strong>Severity Levels:</strong>
-                                <span class="severity-badge critical">critical</span>
-                                <span class="severity-badge warning">warning</span>
-                                <span class="severity-badge info">info</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slide 7: Response Format -->
-                <div class="api-slide" data-api-slide="7">
                     <h3>Response Format</h3>
                     <p class="slide-subtitle">Structured Output with Metrics</p>
                     <div class="slide-content">
@@ -2794,8 +2909,8 @@
                     </div>
                 </div>
 
-                <!-- Slide 8: Quick Start -->
-                <div class="api-slide" data-api-slide="8">
+                <!-- Slide 7: Quick Start -->
+                <div class="api-slide" data-api-slide="7">
                     <div class="slide-icon final">
                         <i class="ph ph-rocket-launch"></i>
                     </div>
@@ -2819,12 +2934,19 @@
                             <div class="quickstart-step">
                                 <span class="step-num">3</span>
                                 <div>
+                                    <strong>Configure MedASR endpoint</strong>
+                                    <code>export MEDASR_ENDPOINT_URL=http://localhost:5000/transcribe</code>
+                                </div>
+                            </div>
+                            <div class="quickstart-step">
+                                <span class="step-num">4</span>
+                                <div>
                                     <strong>Configure MedGemma endpoint</strong>
                                     <code>export MEDGEMMA_ENDPOINT_URL=https://your-endpoint.aws.endpoints.huggingface.cloud</code>
                                 </div>
                             </div>
                             <div class="quickstart-step">
-                                <span class="step-num">4</span>
+                                <span class="step-num">5</span>
                                 <div>
                                     <strong>Start the server</strong>
                                     <code>uvicorn server:app --port 8001</code>
@@ -2833,7 +2955,7 @@
                         </div>
                         <p class="quickstart-note">
                             <i class="ph ph-info"></i>
-                            Create a HuggingFace Inference Endpoint for <code>google/medgemma-4b-it</code> or use <code>X-MedGemma-Endpoint</code> header per-request. Docs: <code>/docs</code>
+                            MedASR runs locally for voice biometric privacy. MedGemma requires a HuggingFace Inference Endpoint for <code>google/medgemma-4b-it</code>. Docs: <code>/docs</code>
                         </p>
                     </div>
                 </div>
@@ -2854,7 +2976,7 @@
 
             <div class="modal-footer">
                 <div class="slide-counter">
-                    <span id="currentApiSlideNum">1</span> / <span id="totalApiSlideNum">8</span>
+                    <span id="currentApiSlideNum">1</span> / <span id="totalApiSlideNum">7</span>
                 </div>
                 <button class="btn-primary" onclick="closeApiGuideModal()">
                     <i class="ph ph-check"></i> Got It
@@ -2875,15 +2997,30 @@
             <div class="modal-body">
                 <div class="setting-group">
                     <label class="setting-label">Item Type</label>
-                    <select class="form-select" id="addEhrItemType" style="width: 100%;">
-                        <option value="conditions">Condition / Diagnosis</option>
-                        <option value="medications">Medication</option>
-                        <option value="allergies">Allergy</option>
-                        <option value="vitals">Vital Sign</option>
-                        <option value="labResults">Lab Result</option>
-                        <option value="procedures">Procedure</option>
-                        <option value="familyHistory">Family History</option>
-                    </select>
+                    <div class="pill-selector" id="addEhrItemTypePills">
+                        <button class="pill-btn active" data-value="conditions" onclick="setAddEhrItemType('conditions')">
+                            <i class="ph ph-stethoscope"></i> Condition
+                        </button>
+                        <button class="pill-btn" data-value="medications" onclick="setAddEhrItemType('medications')">
+                            <i class="ph ph-pill"></i> Medication
+                        </button>
+                        <button class="pill-btn" data-value="allergies" onclick="setAddEhrItemType('allergies')">
+                            <i class="ph ph-warning"></i> Allergy
+                        </button>
+                        <button class="pill-btn" data-value="vitals" onclick="setAddEhrItemType('vitals')">
+                            <i class="ph ph-heartbeat"></i> Vital
+                        </button>
+                        <button class="pill-btn" data-value="labResults" onclick="setAddEhrItemType('labResults')">
+                            <i class="ph ph-test-tube"></i> Lab
+                        </button>
+                        <button class="pill-btn" data-value="procedures" onclick="setAddEhrItemType('procedures')">
+                            <i class="ph ph-scissors"></i> Procedure
+                        </button>
+                        <button class="pill-btn" data-value="familyHistory" onclick="setAddEhrItemType('familyHistory')">
+                            <i class="ph ph-users"></i> Family Hx
+                        </button>
+                    </div>
+                    <input type="hidden" id="addEhrItemType" value="conditions">
                 </div>
 
                 <div class="setting-group">
@@ -2929,6 +3066,43 @@
         </div>
     </div>
 
+    <!-- Edit Condition Modal -->
+    <div class="modal-overlay" id="editConditionModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-pencil"></i> Edit Condition</h2>
+                <button class="btn-icon" onclick="closeEditConditionModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editConditionId">
+                <div class="setting-group">
+                    <label class="setting-label">Condition Name</label>
+                    <input type="text" class="form-input" id="editConditionName" placeholder="e.g., Type 2 Diabetes Mellitus">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">ICD-10 Code</label>
+                    <input type="text" class="form-input" id="editConditionIcd10" placeholder="e.g., E11.9">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Status</label>
+                    <select class="form-select" id="editConditionStatus" style="width: 100%;">
+                        <option value="active">Active</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="chronic">Chronic</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeEditConditionModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveConditionEdit()">
+                    <i class="ph ph-check"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Order Modal -->
     <div class="modal-overlay" id="addOrderModal">
         <div class="modal" style="max-width: 500px;">
@@ -2941,12 +3115,21 @@
             <div class="modal-body">
                 <div class="setting-group">
                     <label class="setting-label">Order Type</label>
-                    <select class="form-select" id="addOrderType" style="width: 100%;">
-                        <option value="medications">Medication Order</option>
-                        <option value="labs">Lab Order</option>
-                        <option value="consults">Consult / Referral</option>
-                        <option value="procedures">Procedure Order</option>
-                    </select>
+                    <div class="pill-selector" id="addOrderTypePills">
+                        <button class="pill-btn active" data-value="medications" onclick="setAddOrderType('medications')">
+                            <i class="ph ph-pill"></i> Medication
+                        </button>
+                        <button class="pill-btn" data-value="labs" onclick="setAddOrderType('labs')">
+                            <i class="ph ph-test-tube"></i> Lab
+                        </button>
+                        <button class="pill-btn" data-value="consults" onclick="setAddOrderType('consults')">
+                            <i class="ph ph-user-circle"></i> Consult
+                        </button>
+                        <button class="pill-btn" data-value="procedures" onclick="setAddOrderType('procedures')">
+                            <i class="ph ph-scissors"></i> Procedure
+                        </button>
+                    </div>
+                    <input type="hidden" id="addOrderType" value="medications">
                 </div>
 
                 <div class="setting-group">
@@ -2994,80 +3177,66 @@
 
     <!-- Main Container -->
     <main class="main-container">
+        <!-- Left Column: Input + Queue + Mock EHR -->
+        <div class="left-column">
         <!-- Input Panel -->
         <section class="panel input-panel">
             <div class="panel-header">
                 <i class="ph ph-plus-circle"></i>
                 Input
+                <button class="collapse-toggle" onclick="togglePanel(this)" title="Collapse/Expand">
+                    <i class="ph ph-caret-down"></i>
+                </button>
             </div>
             <div class="panel-body">
-                <!-- Note Type Selector -->
-                <div class="form-group">
-                    <label>Note Type</label>
-                    <select class="form-select" id="workflowSelect">
-                        <option value="">Loading workflows...</option>
+                <!-- Note Type Selector - Compact -->
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: var(--spacing-sm);">
+                    <label style="margin: 0; white-space: nowrap;">Type:</label>
+                    <select class="form-select" id="workflowSelect" style="flex: 1; padding: var(--spacing-xs) var(--spacing-sm); font-size: 0.75rem;">
+                        <option value="">Loading...</option>
                     </select>
                 </div>
 
-                <!-- Record Section -->
+                <!-- Record + Upload Row -->
                 <div class="record-section">
                     <button class="record-btn" id="recordBtn" title="Click to record">
                         <i class="ph ph-microphone"></i>
                     </button>
                     <div class="record-time" id="recordTime">00:00</div>
-                    <div class="audio-visualizer" id="audioVisualizer">
-                        <!-- Bars will be added dynamically -->
-                    </div>
+                    <div class="audio-visualizer" id="audioVisualizer"></div>
                 </div>
 
-                <!-- Divider -->
-                <div style="text-align: center; color: var(--color-text-muted); font-size: 0.75rem;">
-                    or
-                </div>
-
-                <!-- Upload Section -->
+                <!-- Upload Section - Inline -->
                 <div class="upload-section" id="uploadSection">
                     <input type="file" id="fileInput" accept=".wav,.weba,.webm,.mp3,.ogg,.m4a">
-                    <div class="upload-icon">
-                        <i class="ph ph-upload-simple"></i>
-                    </div>
-                    <div class="upload-text">Drop audio file or click to browse</div>
+                    <div class="upload-icon"><i class="ph ph-upload-simple"></i></div>
+                    <div class="upload-text">Drop file or click</div>
                 </div>
 
-                <!-- Audio Preview -->
+                <!-- Audio Preview - Compact -->
                 <div class="audio-preview" id="audioPreview">
                     <div class="audio-filename" id="audioFilename"></div>
-                    <audio controls id="audioPlayer"></audio>
-                    <div style="display: flex; gap: var(--spacing-sm);">
-                        <button class="btn-secondary" id="downloadAudioBtn">
-                            <i class="ph ph-download-simple"></i> Download
-                        </button>
-                        <button class="btn-secondary" id="clearAudioBtn">
-                            <i class="ph ph-x"></i> Clear
-                        </button>
+                    <audio controls id="audioPlayer" style="height: 28px;"></audio>
+                    <div style="display: flex; gap: var(--spacing-xs);">
+                        <button class="btn-secondary" id="downloadAudioBtn"><i class="ph ph-download-simple"></i></button>
+                        <button class="btn-secondary" id="clearAudioBtn"><i class="ph ph-x"></i></button>
                     </div>
                 </div>
 
                 <!-- Add to Queue -->
-                <button class="btn-primary" id="addToQueueBtn" disabled>
-                    <i class="ph ph-plus"></i>
-                    Add to Queue
+                <button class="btn-primary" id="addToQueueBtn" disabled style="padding: var(--spacing-xs) var(--spacing-sm); font-size: 0.75rem;">
+                    <i class="ph ph-plus"></i> Add to Queue
                 </button>
 
-                <!-- Batch Upload Divider -->
-                <div style="text-align: center; color: var(--color-text-muted); font-size: 0.75rem; margin-top: var(--spacing-md);">
-                    or batch upload
-                </div>
-
-                <!-- Batch Upload -->
-                <div class="batch-upload-section">
+                <!-- Batch Upload - Compact -->
+                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                    <span style="font-size: 0.65rem; color: var(--color-text-muted);">or</span>
                     <input type="file" id="batchFileInput" accept=".wav,.weba,.webm,.mp3,.ogg,.m4a" multiple style="display: none;">
-                    <button class="btn-secondary" id="batchUploadBtn" style="width: 100%;">
-                        <i class="ph ph-folder-open"></i>
-                        Select Multiple Files
+                    <button class="btn-secondary" id="batchUploadBtn" style="flex: 1; font-size: 0.7rem;">
+                        <i class="ph ph-folder-open"></i> Batch Upload
                     </button>
-                    <div class="batch-info" id="batchInfo" style="display: none; margin-top: var(--spacing-sm); font-size: 0.75rem; color: var(--color-text-secondary);"></div>
                 </div>
+                <div class="batch-info" id="batchInfo" style="display: none; font-size: 0.65rem; color: var(--color-text-secondary);"></div>
             </div>
         </section>
 
@@ -3075,13 +3244,16 @@
         <section class="panel queue-panel">
             <div class="panel-header">
                 <i class="ph ph-queue"></i>
-                Processing Queue
+                Queue
                 <div class="queue-header-extra">
                     <div class="progress-bar-container">
                         <div class="progress-bar" id="queueProgress" style="width: 0%"></div>
                     </div>
                     <span id="queueCount">0/0</span>
                 </div>
+                <button class="collapse-toggle" onclick="togglePanel(this)" title="Collapse/Expand">
+                    <i class="ph ph-caret-down"></i>
+                </button>
             </div>
             <div class="panel-body">
                 <!-- Processing Toggle -->
@@ -3108,6 +3280,34 @@
                 </button>
             </div>
         </section>
+
+        <!-- Mock EHR Panel -->
+        <section class="panel ehr-panel">
+            <div class="panel-header">
+                <i class="ph ph-hospital"></i>
+                Mock EHR
+                <button class="collapse-toggle" onclick="togglePanel(this)" title="Collapse/Expand">
+                    <i class="ph ph-caret-down"></i>
+                </button>
+            </div>
+            <div class="panel-body">
+                <div class="mock-ehr-list" id="mockEhrList">
+                    <div class="mock-ehr-empty" id="mockEhrEmpty">
+                        <i class="ph ph-hospital"></i>
+                        <p>No records submitted</p>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button class="btn-secondary" id="viewEhrBundleBtn" disabled>
+                    <i class="ph ph-code"></i> View Bundle
+                </button>
+                <button class="btn-secondary" id="clearEhrBtn">
+                    <i class="ph ph-trash"></i> Clear
+                </button>
+            </div>
+        </section>
+        </div><!-- /left-column -->
 
         <!-- Clinician Review Panel -->
         <section class="panel review-panel">
@@ -3141,7 +3341,7 @@
                     <i class="ph ph-note-blank"></i>
                     <p>Process audio to generate clinical notes</p>
                 </div>
-                <div class="transcript-panel" id="transcriptPanel" style="display: none;">
+                <div class="transcript-panel collapsed" id="transcriptPanel" style="display: none;">
                     <div class="transcript-header" onclick="toggleTranscriptPanel('transcriptPanel')">
                         <i class="ph ph-caret-down toggle-icon"></i>
                         <span>Original Transcript</span>
@@ -3163,7 +3363,7 @@
                     <i class="ph ph-database"></i>
                     <p>Process audio to extract structured EHR data</p>
                 </div>
-                <div class="transcript-panel" id="ehrTranscriptPanel" style="display: none;">
+                <div class="transcript-panel collapsed" id="ehrTranscriptPanel" style="display: none;">
                     <div class="transcript-header" onclick="toggleTranscriptPanel('ehrTranscriptPanel')">
                         <i class="ph ph-caret-down toggle-icon"></i>
                         <span>Original Transcript</span>
@@ -3193,7 +3393,7 @@
                     <i class="ph ph-prescription"></i>
                     <p>Process audio to extract clinician orders</p>
                 </div>
-                <div class="transcript-panel" id="ordersTranscriptPanel" style="display: none;">
+                <div class="transcript-panel collapsed" id="ordersTranscriptPanel" style="display: none;">
                     <div class="transcript-header" onclick="toggleTranscriptPanel('ordersTranscriptPanel')">
                         <i class="ph ph-caret-down toggle-icon"></i>
                         <span>Original Transcript</span>
@@ -3229,30 +3429,6 @@
                 <button class="btn-primary" id="submitToEhrBtn" disabled style="flex: 1;">
                     <i class="ph ph-check-circle"></i>
                     Submit Approved to Mock EHR
-                </button>
-            </div>
-        </section>
-
-        <!-- Mock EHR Panel -->
-        <section class="panel ehr-panel">
-            <div class="panel-header">
-                <i class="ph ph-hospital"></i>
-                Mock EHR
-            </div>
-            <div class="panel-body">
-                <div class="mock-ehr-list" id="mockEhrList">
-                    <div class="mock-ehr-empty" id="mockEhrEmpty">
-                        <i class="ph ph-hospital"></i>
-                        <p>No records submitted</p>
-                    </div>
-                </div>
-            </div>
-            <div class="panel-footer">
-                <button class="btn-secondary" id="viewEhrBundleBtn" disabled>
-                    <i class="ph ph-code"></i> View Bundle
-                </button>
-                <button class="btn-secondary" id="clearEhrBtn">
-                    <i class="ph ph-trash"></i> Clear
                 </button>
             </div>
         </section>
@@ -3392,6 +3568,27 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
+        function togglePanel(btn) {
+            const panel = btn.closest('.panel');
+            panel.classList.toggle('collapsed');
+            // Save state to localStorage
+            const panelClass = [...panel.classList].find(c => c.endsWith('-panel'));
+            if (panelClass) {
+                localStorage.setItem(`v2f_${panelClass}_collapsed`, panel.classList.contains('collapsed'));
+            }
+        }
+
+        // Restore collapsed states on load
+        function restoreCollapsedStates() {
+            ['input-panel', 'queue-panel', 'ehr-panel'].forEach(panelClass => {
+                const collapsed = localStorage.getItem(`v2f_${panelClass}_collapsed`) === 'true';
+                if (collapsed) {
+                    const panel = document.querySelector(`.${panelClass}`);
+                    if (panel) panel.classList.add('collapsed');
+                }
+            });
+        }
+
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
@@ -3427,8 +3624,9 @@
                 .replace(/>/g, '&gt;');
 
             // Highlight section markers like [SUBJECTIVE], [OBJECTIVE], [ASSESSMENT], [PLAN]
+            // Pattern matches [MARKER] with optional spaces inside brackets
             formatted = formatted.replace(
-                /\[(SUBJECTIVE|OBJECTIVE|ASSESSMENT|PLAN|CHIEF COMPLAINT|CLINICAL HISTORY|HISTORY OF PRESENT ILLNESS|HPI|ROS|REVIEW OF SYSTEMS|PHYSICAL EXAM|EXAM|VITAL SIGNS|VITALS|LABS|MEDICATIONS|ALLERGIES|FAMILY HISTORY|SOCIAL HISTORY|FINDINGS?|IMPRESSION|COMPARISON|HOSPITAL COURSE|DISCHARGE DIAGNOSIS|ADMISSION DIAGNOSIS|DISCHARGE MEDICATIONS)\]/gi,
+                /\[\s*(SUBJECTIVE|OBJECTIVE|ASSESSMENT|PLAN|CHIEF COMPLAINT|CLINICAL HISTORY|HISTORY OF PRESENT ILLNESS|HPI|ROS|REVIEW OF SYSTEMS|PHYSICAL EXAM|EXAM|VITAL SIGNS|VITALS|LABS|LABORATORY|LAB RESULTS|MEDICATIONS|CURRENT MEDICATIONS|HOME MEDICATIONS|ALLERGIES|FAMILY HISTORY|SOCIAL HISTORY|PAST MEDICAL HISTORY|PMH|PAST SURGICAL HISTORY|PSH|FINDINGS?|IMPRESSION|COMPARISON|HOSPITAL COURSE|DISCHARGE DIAGNOSIS|ADMISSION DIAGNOSIS|DISCHARGE MEDICATIONS|DISCHARGE INSTRUCTIONS|FOLLOW-?UP|PROCEDURES?|CONSULTATIONS?|IMAGING|RADIOLOGY)\s*\]/gi,
                 '<span class="section-marker">[$1]</span>'
             );
 
@@ -3470,6 +3668,177 @@
         }
 
         // ============================================================================
+        // Export/Import Functions
+        // ============================================================================
+        const EXPORT_VERSION = '1.0';
+
+        // Convert Blob to base64 string
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                if (!blob) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Convert base64 string back to Blob
+        function base64ToBlob(base64) {
+            if (!base64) return null;
+            const [header, data] = base64.split(',');
+            const mimeMatch = header.match(/:(.*?);/);
+            const mime = mimeMatch ? mimeMatch[1] : 'audio/webm';
+            const binary = atob(data);
+            const array = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+            }
+            return new Blob([array], { type: mime });
+        }
+
+        async function exportState() {
+            try {
+                showToast('Preparing export...', 'info');
+
+                // Serialize queue items (convert blobs to base64)
+                const serializedQueue = await Promise.all(state.queue.map(async item => ({
+                    ...item,
+                    audioBlob: await blobToBase64(item.audioBlob)
+                })));
+
+                // Serialize review pool (convert blobs to base64)
+                const serializedReviewPool = await Promise.all(state.reviewPool.map(async item => ({
+                    ...item,
+                    audioBlob: await blobToBase64(item.audioBlob)
+                })));
+
+                const exportData = {
+                    version: EXPORT_VERSION,
+                    exportedAt: new Date().toISOString(),
+                    state: {
+                        workflows: state.workflows,
+                        queue: serializedQueue,
+                        reviewPool: serializedReviewPool,
+                        currentReviewIndex: state.currentReviewIndex,
+                        mockEHR: state.mockEHR,
+                        parallelMode: state.parallelMode
+                    },
+                    settings: {
+                        apiUrl: settings.apiUrl,
+                        hfToken: settings.hfToken ? '[REDACTED]' : null,
+                        transcriptionBackend: settings.transcriptionBackend,
+                        medgemmaEndpoint: settings.medgemmaEndpoint
+                    }
+                };
+
+                const json = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `voice-to-fhir-state-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast(`Exported ${state.queue.length} queue items, ${state.reviewPool.length} reviews, ${state.mockEHR.length} EHR records`, 'success');
+            } catch (error) {
+                console.error('Export failed:', error);
+                showToast('Export failed: ' + error.message, 'error');
+            }
+        }
+
+        async function importState(file) {
+            try {
+                showToast('Reading import file...', 'info');
+
+                const text = await file.text();
+                const importData = JSON.parse(text);
+
+                // Version check
+                if (!importData.version) {
+                    throw new Error('Invalid export file: missing version');
+                }
+
+                const [major] = importData.version.split('.');
+                const [currentMajor] = EXPORT_VERSION.split('.');
+                if (major !== currentMajor) {
+                    throw new Error(`Incompatible version: file is v${importData.version}, expected v${EXPORT_VERSION}`);
+                }
+
+                if (!importData.state) {
+                    throw new Error('Invalid export file: missing state data');
+                }
+
+                const imported = importData.state;
+
+                // Restore workflows
+                if (imported.workflows) {
+                    state.workflows = imported.workflows;
+                    populateWorkflowSelect();
+                }
+
+                // Restore queue (convert base64 back to blobs)
+                if (imported.queue) {
+                    state.queue = imported.queue.map(item => ({
+                        ...item,
+                        audioBlob: base64ToBlob(item.audioBlob)
+                    }));
+                }
+
+                // Restore review pool (convert base64 back to blobs)
+                if (imported.reviewPool) {
+                    state.reviewPool = imported.reviewPool.map(item => ({
+                        ...item,
+                        audioBlob: base64ToBlob(item.audioBlob)
+                    }));
+                }
+
+                // Restore other state
+                state.currentReviewIndex = imported.currentReviewIndex ?? -1;
+                state.mockEHR = imported.mockEHR || [];
+                state.parallelMode = imported.parallelMode || false;
+
+                // Clear any current audio
+                state.currentAudioBlob = null;
+                state.currentFilename = null;
+
+                // Update UI
+                elements.parallelToggle.checked = state.parallelMode;
+                renderQueue();
+                updateReviewPoolUI();
+                if (state.currentReviewIndex >= 0 && state.currentReviewIndex < state.reviewPool.length) {
+                    renderCurrentReview();
+                } else if (state.reviewPool.length > 0) {
+                    state.currentReviewIndex = 0;
+                    renderCurrentReview();
+                } else {
+                    elements.notesEmpty.style.display = 'block';
+                    elements.notesSections.style.display = 'none';
+                }
+                renderMockEHR();
+                clearCurrentAudio();
+
+                const summary = [
+                    imported.queue?.length ? `${imported.queue.length} queue items` : null,
+                    imported.reviewPool?.length ? `${imported.reviewPool.length} reviews` : null,
+                    imported.mockEHR?.length ? `${imported.mockEHR.length} EHR records` : null
+                ].filter(Boolean).join(', ');
+
+                showToast(`Imported: ${summary || 'empty state'}`, 'success');
+            } catch (error) {
+                console.error('Import failed:', error);
+                showToast('Import failed: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================================================
         // API Functions
         // ============================================================================
         function getApiHeaders() {
@@ -3503,18 +3872,25 @@
             }
         }
 
+        function populateWorkflowSelect() {
+            if (state.workflows && state.workflows.length > 0) {
+                elements.workflowSelect.innerHTML = state.workflows.map(w =>
+                    `<option value="${w.id}" title="${w.description}">${w.name}</option>`
+                ).join('');
+            } else {
+                elements.workflowSelect.innerHTML = '<option value="general">General Encounter</option>';
+            }
+        }
+
         async function loadWorkflows() {
             try {
                 const response = await fetch(`${getApiUrl()}/api/v1/workflows`);
                 const data = await response.json();
                 state.workflows = data.workflows;
-
-                elements.workflowSelect.innerHTML = state.workflows.map(w =>
-                    `<option value="${w.id}" title="${w.description}">${w.name}</option>`
-                ).join('');
+                populateWorkflowSelect();
             } catch (error) {
                 console.error('Failed to load workflows:', error);
-                elements.workflowSelect.innerHTML = '<option value="general">General Encounter</option>';
+                populateWorkflowSelect();
             }
         }
 
@@ -4226,6 +4602,41 @@
                     isChiefComplaint: c.is_chief_complaint || false,
                     approved: null
                 })),
+                // Use entities.medications for dose/frequency (FHIR bundle doesn't preserve these)
+                medications: (entities.medications || []).map((m, i) => ({
+                    id: `med-${i}`,
+                    name: m.name,
+                    dose: m.dose || null,
+                    frequency: m.frequency || null,
+                    route: m.route || null,
+                    isNewOrder: m.is_new_order || false,
+                    approved: null
+                })),
+                // Use entities.vitals for proper units
+                vitals: (entities.vitals || []).map((v, i) => ({
+                    id: `vital-${i}`,
+                    type: v.type,
+                    value: v.value,
+                    unit: v.unit || null,
+                    approved: null
+                })),
+                // Use entities.allergies
+                allergies: (entities.allergies || []).map((a, i) => ({
+                    id: `allergy-${i}`,
+                    substance: a.substance,
+                    reaction: a.reaction || null,
+                    severity: a.severity || null,
+                    approved: null
+                })),
+                // Use entities.lab_results (convert "null" strings to actual null)
+                labResults: (entities.lab_results || []).map((l, i) => ({
+                    id: `lab-${i}`,
+                    name: l.name,
+                    value: l.value,
+                    unit: (l.unit && l.unit !== 'null') ? l.unit : null,
+                    interpretation: (l.interpretation && l.interpretation !== 'null') ? l.interpretation : null,
+                    approved: null
+                })),
                 // Use entities data for family/social history if available (more complete than FHIR extraction)
                 familyHistory: (entities.family_history || []).map((fh, i) => ({
                     id: `fh-${i}`,
@@ -4256,9 +4667,11 @@
             state.reviewPool.push(reviewItem);
             updateReviewPoolUI();
 
-            // Auto-select the new item
-            state.currentReviewIndex = state.reviewPool.length - 1;
-            renderCurrentReview();
+            // Only auto-select if no item is currently selected (preserve user focus)
+            if (state.currentReviewIndex < 0) {
+                state.currentReviewIndex = state.reviewPool.length - 1;
+                renderCurrentReview();
+            }
         }
 
         function extractDataFromBundle(bundle) {
@@ -4339,12 +4752,15 @@
 
                     case 'Observation':
                         const category = resource.category?.[0]?.coding?.[0]?.code;
+                        // For BP, unit is in components; for others in valueQuantity
+                        const obsUnit = resource.valueQuantity?.unit ||
+                                       resource.component?.[0]?.valueQuantity?.unit || '';
                         const obs = {
                             id: resource.id,
                             name: resource.code?.coding?.[0]?.display || resource.code?.text || 'Unknown',
                             code: resource.code?.coding?.[0]?.code,
                             value: resource.valueQuantity?.value ?? resource.valueString ?? '',
-                            unit: resource.valueQuantity?.unit || '',
+                            unit: obsUnit,
                             interpretation: resource.interpretation?.[0]?.coding?.[0]?.code,
                             approved: null
                         };
@@ -4550,7 +4966,7 @@
                     key: 'vitals',
                     title: 'Vital Signs',
                     icon: 'heartbeat',
-                    content: data.vitals.map(v => `${v.name}: ${v.value} ${v.unit}`).join('\n')
+                    content: data.vitals.map(v => `${v.type || v.name}: ${v.value} ${v.unit || ''}`).join('\n')
                 });
             }
 
@@ -4706,7 +5122,14 @@
             }
 
             const approvedClass = item.approved === true ? 'approved' : item.approved === false ? 'rejected' : '';
-            const itemName = item.name || item.substance || item.relationship || 'Unknown';
+            const itemName = item.name || item.type || item.substance || item.relationship || 'Unknown';
+
+            // Add edit button for conditions
+            const editButton = category === 'conditions'
+                ? `<button class="btn-icon" onclick="editCondition('${item.id}')" title="Edit">
+                       <i class="ph ph-pencil"></i>
+                   </button>`
+                : '';
 
             return `
                 <div class="ehr-item ${approvedClass}" data-category="${category}" data-id="${item.id}">
@@ -4719,6 +5142,7 @@
                         ${code ? `<div class="ehr-item-code">${code}</div>` : ''}
                     </div>
                     <div class="ehr-item-actions">
+                        ${editButton}
                         <button class="btn-icon" onclick="approveEhrItem('${category}', '${item.id}')" title="Approve">
                             <i class="ph ph-check"></i>
                         </button>
@@ -4826,6 +5250,45 @@
                 dataItem.approved = false;
                 renderEhrData(item);
             }
+        }
+
+        function editCondition(id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const condition = item.extractedData.conditions?.find(c => c.id === id);
+            if (!condition) return;
+
+            // Populate modal with current values
+            document.getElementById('editConditionId').value = id;
+            document.getElementById('editConditionName').value = condition.name || '';
+            document.getElementById('editConditionIcd10').value = condition.icd10 || '';
+            document.getElementById('editConditionStatus').value = condition.status || 'active';
+
+            // Show modal
+            document.getElementById('editConditionModal').classList.add('visible');
+        }
+
+        function closeEditConditionModal() {
+            document.getElementById('editConditionModal').classList.remove('visible');
+        }
+
+        function saveConditionEdit() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const id = document.getElementById('editConditionId').value;
+            const condition = item.extractedData.conditions?.find(c => c.id === id);
+            if (!condition) return;
+
+            // Update condition with new values
+            condition.name = document.getElementById('editConditionName').value.trim();
+            condition.icd10 = document.getElementById('editConditionIcd10').value.trim() || null;
+            condition.status = document.getElementById('editConditionStatus').value;
+
+            // Close modal and re-render
+            closeEditConditionModal();
+            renderEhrData(item);
         }
 
         function approveOrder(type, id) {
@@ -4953,6 +5416,21 @@
             document.getElementById('addEhrTextInput').style.display = method === 'text' ? 'block' : 'none';
 
             if (method === 'text') {
+                updateAddEhrTextFields();
+            }
+        }
+
+        function setAddEhrItemType(type) {
+            // Update hidden input
+            document.getElementById('addEhrItemType').value = type;
+
+            // Update pill buttons
+            document.querySelectorAll('#addEhrItemTypePills .pill-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === type);
+            });
+
+            // Update text fields if in text mode
+            if (addEhrState.inputMethod === 'text') {
                 updateAddEhrTextFields();
             }
         }
@@ -5350,6 +5828,21 @@
             }
         }
 
+        function setAddOrderType(type) {
+            // Update hidden input
+            document.getElementById('addOrderType').value = type;
+
+            // Update pill buttons
+            document.querySelectorAll('#addOrderTypePills .pill-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === type);
+            });
+
+            // Update text fields if in text mode
+            if (addOrderState.inputMethod === 'text') {
+                updateAddOrderTextFields();
+            }
+        }
+
         function updateAddOrderTextFields() {
             const type = document.getElementById('addOrderType').value;
             const container = document.getElementById('addOrderTextInput');
@@ -5645,90 +6138,209 @@
         }
 
         // ============================================================================
-        // About Modal / Slideshow
+        // About Modal / Interactive Pipeline
         // ============================================================================
-        let currentSlide = 1;
-        const totalSlides = 8;
+        const pipelineContent = {
+            medasr: {
+                title: 'MedASR: Local Speech Recognition',
+                content: `
+                    <p>The workflow begins with <strong>highly reliable MedASR</strong>, running locally to protect sensitive data.</p>
+                    <div class="popup-grid">
+                        <div class="popup-card">
+                            <i class="ph ph-shield-check"></i>
+                            <strong>Privacy Protected</strong>
+                            <span>Voice biometrics stay local</span>
+                        </div>
+                        <div class="popup-card">
+                            <i class="ph ph-lightning"></i>
+                            <strong>Low Latency</strong>
+                            <span>Real-time transcription</span>
+                        </div>
+                        <div class="popup-card">
+                            <i class="ph ph-wifi-slash"></i>
+                            <strong>Always Available</strong>
+                            <span>Works offline</span>
+                        </div>
+                        <div class="popup-card">
+                            <i class="ph ph-stethoscope"></i>
+                            <strong>Medical Tuned</strong>
+                            <span>58-82% better accuracy</span>
+                        </div>
+                    </div>
+                `
+            },
+            medgemma: {
+                title: 'MedGemma: Clinical Entity Extraction',
+                content: `
+                    <p>MedGemma structures clinical information, deployable <strong>on-prem or cloud</strong> based on your requirements.</p>
+                    <div class="popup-grid">
+                        <div class="popup-card">
+                            <i class="ph ph-buildings"></i>
+                            <strong>On-Premises</strong>
+                            <span>Maximum privacy & data sovereignty</span>
+                        </div>
+                        <div class="popup-card">
+                            <i class="ph ph-cloud"></i>
+                            <strong>Cloud</strong>
+                            <span>Elastic scaling & high availability</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: var(--spacing-sm);"><strong>Extracts:</strong> Conditions, medications, allergies, vitals, labs, family history, social history, orders</p>
+                `
+            },
+            deterministic: {
+                title: 'Deterministic Enhancement',
+                content: `
+                    <p>AI outputs are enhanced by <strong>proven deterministic methods</strong> for coding accuracy.</p>
+                    <div class="popup-list">
+                        <div class="popup-list-item">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <span><strong>ICD-10 Lookup</strong> - Fuzzy matching against verified code database</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-brackets-square"></i>
+                            <span><strong>Transcript Markers</strong> - Extract from [SUBJECTIVE], [PLAN] sections</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-check-circle"></i>
+                            <span><strong>Validation</strong> - Filter placeholders, normalize values</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: var(--spacing-sm); color: var(--color-success); font-size: 0.75rem;">
+                        <i class="ph ph-check-circle"></i> Fast, reliable, no API costs, works offline
+                    </p>
+                `
+            },
+            clinician: {
+                title: 'Clinician Review & Correction',
+                content: `
+                    <p>Clinicians have <strong>full control</strong> to correct, enhance, and validate all extracted data.</p>
+                    <div class="popup-list">
+                        <div class="popup-list-item">
+                            <i class="ph ph-microphone"></i>
+                            <span><strong>Re-record</strong> - Voice-correct any field with MedASR</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-x-circle"></i>
+                            <span><strong>Reject</strong> - Remove incorrect extractions</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-pencil"></i>
+                            <span><strong>Edit</strong> - Inline editing of any content</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-plus-circle"></i>
+                            <span><strong>Add</strong> - Manually add missed items</span>
+                        </div>
+                        <div class="popup-list-item">
+                            <i class="ph ph-checks"></i>
+                            <span><strong>Approve</strong> - Explicit approval before submission</span>
+                        </div>
+                    </div>
+                `
+            },
+            fhir: {
+                title: 'FHIR R4 Interoperability',
+                content: `
+                    <p>All data is bundled into <strong>FHIR R4 format</strong> for seamless integration with modern healthcare systems.</p>
+                    <div class="popup-badges">
+                        <div class="popup-badge">Patient</div>
+                        <div class="popup-badge">Condition</div>
+                        <div class="popup-badge">Observation</div>
+                        <div class="popup-badge">MedicationRequest</div>
+                        <div class="popup-badge">AllergyIntolerance</div>
+                        <div class="popup-badge">Procedure</div>
+                        <div class="popup-badge">ServiceRequest</div>
+                        <div class="popup-badge">FamilyMemberHistory</div>
+                    </div>
+                    <p style="margin-top: var(--spacing-sm); font-size: 0.75rem; color: var(--color-text-secondary);">
+                        <i class="ph ph-globe"></i> Compatible with Epic, Cerner, athenahealth, and other FHIR-enabled systems
+                    </p>
+                `
+            }
+        };
 
         function openAboutModal() {
             const modal = document.getElementById('aboutModal');
             modal.classList.add('visible');
-            currentSlide = 1;
-            updateSlideshow();
-            initSlideDots();
+            closePipelinePopup();
         }
 
         function closeAboutModal() {
             const modal = document.getElementById('aboutModal');
             modal.classList.remove('visible');
+            closePipelinePopup();
         }
 
-        function initSlideDots() {
-            const dotsContainer = document.getElementById('slideDots');
-            dotsContainer.innerHTML = '';
-            for (let i = 1; i <= totalSlides; i++) {
-                const dot = document.createElement('div');
-                dot.className = `slide-dot ${i === currentSlide ? 'active' : ''}`;
-                dot.onclick = () => goToSlide(i);
-                dotsContainer.appendChild(dot);
-            }
-        }
+        const pipelineNodes = ['medasr', 'medgemma', 'deterministic', 'clinician', 'fhir'];
+        let currentPipelineNode = 0;
 
-        function updateSlideshow() {
-            // Update slides
-            document.querySelectorAll('.slide').forEach(slide => {
-                slide.classList.remove('active');
-                if (parseInt(slide.dataset.slide) === currentSlide) {
-                    slide.classList.add('active');
-                }
+        function showPipelinePopup(nodeId) {
+            const popup = document.getElementById('pipelinePopup');
+            const titleEl = document.getElementById('popupTitle');
+            const contentEl = document.getElementById('popupContent');
+            const counterEl = document.getElementById('popupCounter');
+            const content = pipelineContent[nodeId];
+
+            if (!content) return;
+
+            // Track current node index
+            currentPipelineNode = pipelineNodes.indexOf(nodeId);
+
+            // Update active node styling
+            document.querySelectorAll('.pipeline-node').forEach(node => {
+                node.classList.toggle('active', node.dataset.node === nodeId);
             });
 
-            // Update dots
-            document.querySelectorAll('.slide-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index + 1 === currentSlide);
+            titleEl.textContent = content.title;
+            contentEl.innerHTML = content.content;
+            counterEl.textContent = `${currentPipelineNode + 1} / ${pipelineNodes.length}`;
+
+            // Update nav button states
+            document.getElementById('popupPrevBtn').disabled = currentPipelineNode === 0;
+            document.getElementById('popupNextBtn').disabled = currentPipelineNode === pipelineNodes.length - 1;
+
+            popup.classList.add('visible');
+        }
+
+        function closePipelinePopup() {
+            const popup = document.getElementById('pipelinePopup');
+            popup.classList.remove('visible');
+            document.querySelectorAll('.pipeline-node').forEach(node => {
+                node.classList.remove('active');
             });
-
-            // Update counter
-            document.getElementById('currentSlideNum').textContent = currentSlide;
-            document.getElementById('totalSlideNum').textContent = totalSlides;
-
-            // Update nav buttons
-            document.getElementById('prevSlideBtn').disabled = currentSlide === 1;
-            document.getElementById('nextSlideBtn').disabled = currentSlide === totalSlides;
         }
 
-        function nextSlide() {
-            if (currentSlide < totalSlides) {
-                currentSlide++;
-                updateSlideshow();
+        function prevPipelineNode() {
+            if (currentPipelineNode > 0) {
+                showPipelinePopup(pipelineNodes[currentPipelineNode - 1]);
             }
         }
 
-        function prevSlide() {
-            if (currentSlide > 1) {
-                currentSlide--;
-                updateSlideshow();
+        function nextPipelineNode() {
+            if (currentPipelineNode < pipelineNodes.length - 1) {
+                showPipelinePopup(pipelineNodes[currentPipelineNode + 1]);
             }
         }
 
-        function goToSlide(slideNum) {
-            currentSlide = slideNum;
-            updateSlideshow();
-        }
-
-        // Keyboard navigation for slideshow
+        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             const aboutModal = document.getElementById('aboutModal');
             const apiGuideModal = document.getElementById('apiGuideModal');
 
-            // About modal navigation
+            // About modal - arrow keys for popup navigation, escape to close
             if (aboutModal.classList.contains('visible')) {
-                if (e.key === 'ArrowRight' || e.key === ' ') {
-                    e.preventDefault();
-                    nextSlide();
-                } else if (e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    prevSlide();
+                const popup = document.getElementById('pipelinePopup');
+                if (popup.classList.contains('visible')) {
+                    if (e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        nextPipelineNode();
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        prevPipelineNode();
+                    } else if (e.key === 'Escape') {
+                        closePipelinePopup();
+                    }
                 } else if (e.key === 'Escape') {
                     closeAboutModal();
                 }
@@ -5754,7 +6366,7 @@
         // API Guide Modal / Slideshow
         // ============================================================================
         let currentApiSlide = 1;
-        const totalApiSlides = 8;
+        const totalApiSlides = 7;
 
         function openApiGuideModal() {
             const modal = document.getElementById('apiGuideModal');
@@ -5866,7 +6478,7 @@
                         severity: c.severity || null
                     })),
                     vitals: (data.vitals || []).map(v => ({
-                        type: v.type,
+                        type: v.type || v.name,  // entities uses 'type', FHIR extraction uses 'name'
                         value: v.value,
                         unit: v.unit || null
                     })),
@@ -5897,8 +6509,8 @@
                     lab_results: (data.labResults || []).map(l => ({
                         name: l.name,
                         value: l.value || null,
-                        unit: l.unit || null,
-                        interpretation: l.interpretation || null
+                        unit: (l.unit && l.unit !== 'null') ? l.unit : null,
+                        interpretation: (l.interpretation && l.interpretation !== 'null') ? l.interpretation : null
                     }))
                 },
                 orders: {
@@ -6300,6 +6912,26 @@
                     closeAboutModal();
                 }
             });
+            // Close pipeline popup when clicking outside it (but inside the modal)
+            document.querySelector('.pipeline-container')?.addEventListener('click', (e) => {
+                // Don't close if clicking on a node or inside the popup
+                if (!e.target.closest('.pipeline-node') && !e.target.closest('.pipeline-popup')) {
+                    closePipelinePopup();
+                }
+            });
+
+            // Export/Import
+            document.getElementById('exportBtn').addEventListener('click', exportState);
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importFileInput').click();
+            });
+            document.getElementById('importFileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    importState(file);
+                    e.target.value = ''; // Reset so same file can be imported again
+                }
+            });
 
             // API Guide modal
             document.getElementById('apiGuideBtn').addEventListener('click', openApiGuideModal);
@@ -6326,8 +6958,15 @@
                 }
             });
 
-            // Item type change listener
-            document.getElementById('addEhrItemType').addEventListener('change', updateAddEhrTextFields);
+            // Edit Condition Modal
+            const editConditionModal = document.getElementById('editConditionModal');
+            editConditionModal.addEventListener('click', (e) => {
+                if (e.target === editConditionModal) {
+                    closeEditConditionModal();
+                }
+            });
+
+            // Item type change listener (now handled by pill buttons via setAddEhrItemType)
 
             // Add Order Modal
             const addOrderModal = document.getElementById('addOrderModal');
@@ -6469,6 +7108,7 @@
         // Initialization
         // ============================================================================
         async function init() {
+            restoreCollapsedStates();
             initVisualizer();
             initEventListeners();
             loadMockEHR();
