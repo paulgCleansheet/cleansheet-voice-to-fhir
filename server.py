@@ -373,6 +373,39 @@ async def process_audio(
             print(f"[Post-process] Applying transcript marker extraction and validation...")
             entities = post_process(entities, transcript_text)
 
+            # Step 3.6: DIRECT BP extraction from transcript (bypasses module caching issues)
+            import re
+            bp_patterns = [
+                r'blood\s+pressure\s+(?:today\s+|is\s+|of\s+)?(\d{2,3})\s*/\s*(\d{2,3})',
+                r'\bBP\s+(\d{2,3})\s*/\s*(\d{2,3})',
+                r'blood\s+pressure\s+(?:is\s+|today\s+)?(\d{2,3})\s+over\s+(\d{2,3})',
+                r'\bBP\s+(\d{2,3})\s+over\s+(\d{2,3})',
+            ]
+            for pattern in bp_patterns:
+                bp_match = re.search(pattern, transcript_text, re.IGNORECASE)
+                if bp_match:
+                    bp_value = f"{bp_match.group(1)}/{bp_match.group(2)}"
+                    print(f"[BP Direct] Extracted from transcript: {bp_value}")
+                    # Remove partial BP values and deduplicate complete BP values
+                    from voice_to_fhir.extraction.extraction_types import Vital
+                    seen_bp = set()
+                    cleaned_vitals = []
+                    for v in entities.vitals:
+                        if hasattr(v, 'unit') and v.unit and v.unit.lower() in ('mmhg', 'mm hg'):
+                            # Skip partial BP values (no slash)
+                            if '/' not in str(v.value):
+                                continue
+                            # Skip duplicate complete BP values
+                            if v.value in seen_bp:
+                                continue
+                            seen_bp.add(v.value)
+                        cleaned_vitals.append(v)
+                    # Add extracted BP at front if not already present
+                    if bp_value not in seen_bp:
+                        cleaned_vitals.insert(0, Vital(type="blood_pressure", value=bp_value, unit="mmHg"))
+                    entities.vitals = cleaned_vitals
+                    break
+
             # Step 4: FHIR transformation
             fhir_start = time.time()
             bundle = pipeline.transformer.transform(entities)
@@ -380,9 +413,10 @@ async def process_audio(
             print(f"[TIMING] FHIR transform: {metrics.fhir_transform_ms}ms")
 
             # Build entities dict for response (includes family_history, social_history, etc.)
-            chief = entities.chief_complaint
+            # Use chief_complaint_text (symptom/reason for visit) if available, fallback to condition name
+            chief_condition = entities.chief_complaint
             entities_dict = {
-                "chief_complaint": chief.name if chief else None,
+                "chief_complaint": entities.chief_complaint_text or (chief_condition.name if chief_condition else None),
                 "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
                 "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route} for m in entities.medications],
                 "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
@@ -623,6 +657,39 @@ async def process_chunk(
                 print(f"[Post-process] Applying transcript marker extraction and validation...")
                 entities = post_process(entities, full_transcript)
 
+                # Step 3.6: DIRECT BP extraction from transcript (bypasses module caching issues)
+                import re
+                bp_patterns = [
+                    r'blood\s+pressure\s+(?:today\s+|is\s+|of\s+)?(\d{2,3})\s*/\s*(\d{2,3})',
+                    r'\bBP\s+(\d{2,3})\s*/\s*(\d{2,3})',
+                    r'blood\s+pressure\s+(?:is\s+|today\s+)?(\d{2,3})\s+over\s+(\d{2,3})',
+                    r'\bBP\s+(\d{2,3})\s+over\s+(\d{2,3})',
+                ]
+                for pattern in bp_patterns:
+                    bp_match = re.search(pattern, full_transcript, re.IGNORECASE)
+                    if bp_match:
+                        bp_value = f"{bp_match.group(1)}/{bp_match.group(2)}"
+                        print(f"[BP Direct] Extracted from transcript: {bp_value}")
+                        # Remove partial BP values and deduplicate complete BP values
+                        from voice_to_fhir.extraction.extraction_types import Vital
+                        seen_bp = set()
+                        cleaned_vitals = []
+                        for v in entities.vitals:
+                            if hasattr(v, 'unit') and v.unit and v.unit.lower() in ('mmhg', 'mm hg'):
+                                # Skip partial BP values (no slash)
+                                if '/' not in str(v.value):
+                                    continue
+                                # Skip duplicate complete BP values
+                                if v.value in seen_bp:
+                                    continue
+                                seen_bp.add(v.value)
+                            cleaned_vitals.append(v)
+                        # Add extracted BP at front if not already present
+                        if bp_value not in seen_bp:
+                            cleaned_vitals.insert(0, Vital(type="blood_pressure", value=bp_value, unit="mmHg"))
+                        entities.vitals = cleaned_vitals
+                        break
+
                 # Debug: Log extracted entities
                 print(f"[Extraction] Conditions: {len(entities.conditions)}")
                 print(f"[Extraction] Medications: {len(entities.medications)} - {[m.name for m in entities.medications]}")
@@ -638,9 +705,10 @@ async def process_chunk(
                 metrics.fhir_transform_ms = round((time.time() - fhir_start) * 1000, 1)
 
                 # Convert entities to dict for response
-                chief = entities.chief_complaint
+                # Use chief_complaint_text (symptom/reason for visit) if available, fallback to condition name
+                chief_condition = entities.chief_complaint
                 entities_dict = {
-                    "chief_complaint": chief.name if chief else None,
+                    "chief_complaint": entities.chief_complaint_text or (chief_condition.name if chief_condition else None),
                     "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
                     "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route, "status": m.status, "is_new_order": m.is_new_order} for m in entities.medications],
                     "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
