@@ -78,7 +78,7 @@ def launch_medasr_server():
     env['PYTHONUNBUFFERED'] = '1'
 
     process = subprocess.Popen(
-        [sys.executable, medasr_script],
+        [sys.executable, "-B", medasr_script],  # -B disables bytecode caching
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -110,7 +110,7 @@ def launch_pipeline_server():
     env['MEDASR_LOCAL_URL'] = f'http://localhost:{MEDASR_PORT}'
 
     process = subprocess.Popen(
-        [sys.executable, str(server_script)],
+        [sys.executable, "-B", str(server_script)],  # -B disables bytecode caching
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
