@@ -36,26 +36,63 @@ This document tracks known issues discovered during testing that are lower prior
 - Consider renaming "referral_orders" to "follow_up_orders" if this is the intended semantics
 
 ### 5. Hallucinated Lab Orders
-**Affected:** general workflow
+**Affected:** general workflow, complex patient
 **Example:** `lab_orders: [{"name": "A1c"}]` but transcript has no mention of A1c
 **Root Cause:** MedGemma infers labs based on conditions (diabetes -> A1c) rather than explicit orders
 **Potential Fix:** Cross-reference lab_orders against transcript keywords; require explicit mention
 
+### 6. Missing Referral Orders
+**Affected:** complex patient workflow
+**Example:** Transcript says "cardiology consult, diabetes consult, social work consult" but `referral_orders: []`
+**Root Cause:** MedGemma doesn't extract "consult" as referral orders
+**Potential Fix:** Add post-processor pattern to extract "X consult" patterns from transcript as referral orders
+
+### 7. Wrong Family History Relationship
+**Affected:** complex patient workflow
+**Example:** "Paternal grandfather had heart failure" → `{"relationship": "father", "condition": "heart failure"}`
+**Root Cause:** MedGemma misinterprets compound relationships like "paternal grandfather"
+**Potential Fix:** Add relationship normalization/validation in post-processor
+
+### 8. Missing Stated Conditions
+**Affected:** complex patient workflow
+**Example:** Transcript clearly states "hyperlipidemia" in past medical history but condition not extracted
+**Root Cause:** MedGemma may truncate or miss conditions in very long transcripts
+**Potential Fix:** Add deterministic extraction for conditions mentioned in "[PAST MEDICAL HISTORY]" section
+
+### 9. Missing Lab Results
+**Affected:** complex patient workflow
+**Example:** "INR 2.4, therapeutic" in transcript but not in lab_results
+**Root Cause:** MedGemma misses some lab values in dense lab sections
+**Potential Fix:** Add regex patterns for common labs (INR, PT, PTT) in post-processor
+
+## MedASR Transcription Issues
+
+### 10. Drug Name Transcription Errors
+**Affected:** complex patient workflow (uncommon drug names)
+**Examples:**
+- "spironolactone" → "pirro lactone"
+- "tiotropium" → "Toroptooum"
+- "tamsulosin" → "tamsosin"
+- "sacubitril-valsartan" → "secubr valsartan"
+
+**Root Cause:** MedASR phonetically transcribes uncommon drug names
+**Potential Fix:** Add drug name normalization using fuzzy matching against RxNorm dictionary
+
 ## Lower Priority Issues
 
-### 6. Ventilator Settings as Medication
+### 11. Ventilator Settings as Medication
 **Affected:** respiratory workflow
 **Example:** `medications: [{"name": "Ventilator settings", "dose": null}]`
 **Root Cause:** MedGemma misclassifies equipment settings as medications
 **Potential Fix:** Add "Ventilator settings" to non-medication filter list
 
-### 7. ABG Values with Generic Units
+### 12. ABG Values with Generic Units
 **Affected:** respiratory workflow
 **Example:** `{"type": "pH", "value": "7.38", "unit": "unit"}`
 **Root Cause:** MedGemma doesn't know appropriate units for ABG values
 **Potential Fix:** Add unit mapping by vital type (pH -> dimensionless, pCO2/pO2 -> mmHg, HCO3 -> mEq/L)
 
-### 8. EEG Listed as Lab Result
+### 13. EEG Listed as Lab Result
 **Affected:** neurology workflow
 **Example:** `lab_results: [{"name": "EEG", "value": "deprivation"}]`
 **Root Cause:** MedGemma categorizes diagnostic tests as lab results
@@ -72,9 +109,14 @@ This document tracks known issues discovered during testing that are lower prior
 | 3. Duplicate family history | Medium | Open | Post-competition |
 | 4. Invalid referrals | Low | Open | Post-competition |
 | 5. Hallucinated labs | Low | Open | Post-competition |
-| 6. Vent settings as med | Low | Open | Post-competition |
-| 7. ABG units | Low | Open | Post-competition |
-| 8. EEG categorization | Low | Open | Post-competition |
+| 6. Missing referrals | Medium | Open | Post-competition |
+| 7. Wrong family relationship | Low | Open | Post-competition |
+| 8. Missing stated conditions | Medium | Open | Post-competition |
+| 9. Missing lab results | Low | Open | Post-competition |
+| 10. Drug name transcription | Low | Open | Post-competition |
+| 11. Vent settings as med | Low | Open | Post-competition |
+| 12. ABG units | Low | Open | Post-competition |
+| 13. EEG categorization | Low | Open | Post-competition |
 
 ---
 
