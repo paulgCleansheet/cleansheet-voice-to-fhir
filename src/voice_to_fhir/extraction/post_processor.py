@@ -20,6 +20,8 @@ from voice_to_fhir.extraction.extraction_types import (
     MedicationOrder,
 )
 from voice_to_fhir.extraction.icd10_lookup import enrich_conditions_with_icd10
+from voice_to_fhir.extraction.rxnorm_lookup import enrich_medications_with_rxnorm
+from voice_to_fhir.extraction.order_diagnosis_linker import enrich_orders_with_diagnoses
 
 
 # Placeholder values to filter out
@@ -1126,5 +1128,17 @@ def post_process(entities: ClinicalEntities, transcript: str) -> ClinicalEntitie
     entities.conditions = enrich_conditions_with_icd10(entities.conditions)
     icd_coded = sum(1 for c in entities.conditions if c.icd10)
     print(f"[Post-process DEBUG] ICD-10 codes added: {icd_coded}/{len(entities.conditions)} conditions")
+
+    # 8. Enrich medications with verified RxNorm codes from lookup database
+    entities.medications = enrich_medications_with_rxnorm(entities.medications)
+    entities.medication_orders = enrich_medications_with_rxnorm(entities.medication_orders)
+    rxnorm_meds = sum(1 for m in entities.medications if getattr(m, 'rxnorm_matched', False))
+    rxnorm_orders = sum(1 for m in entities.medication_orders if getattr(m, 'rxnorm_matched', False))
+    print(f"[Post-process DEBUG] RxNorm verified: {rxnorm_meds}/{len(entities.medications)} medications, {rxnorm_orders}/{len(entities.medication_orders)} orders")
+
+    # 9. Link medication orders to diagnoses (based on drug class rules and patient conditions)
+    entities = enrich_orders_with_diagnoses(entities)
+    linked_orders = sum(1 for m in entities.medication_orders if getattr(m, 'linked_diagnosis', None))
+    print(f"[Post-process DEBUG] Diagnosis linked: {linked_orders}/{len(entities.medication_orders)} medication orders")
 
     return entities

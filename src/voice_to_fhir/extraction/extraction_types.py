@@ -91,6 +91,7 @@ class Medication:
     status: str = "active"
     is_new_order: bool = False
     confidence: float = 1.0
+    rxnorm_matched: bool | None = None  # True if verified in RxNorm database
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -103,6 +104,7 @@ class Medication:
             "status": self.status,
             "is_new_order": self.is_new_order,
             "confidence": self.confidence,
+            "rxnorm_matched": self.rxnorm_matched,
         }
 
     @classmethod
@@ -117,6 +119,7 @@ class Medication:
             status=data.get("status", "active"),
             is_new_order=data.get("is_new_order", False),
             confidence=data.get("confidence", 1.0),
+            rxnorm_matched=data.get("rxnorm_matched"),
         )
 
 
@@ -237,6 +240,9 @@ class MedicationOrder:
     frequency: str | None = None
     instructions: str | None = None
     confidence: float = 1.0
+    rxnorm: str | None = None  # RxNorm code
+    rxnorm_matched: bool | None = None  # True if verified in RxNorm database
+    linked_diagnosis: dict | None = None  # {icd10, display, confidence, method}
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -246,6 +252,9 @@ class MedicationOrder:
             "frequency": self.frequency,
             "instructions": self.instructions,
             "confidence": self.confidence,
+            "rxnorm": self.rxnorm,
+            "rxnorm_matched": self.rxnorm_matched,
+            "linked_diagnosis": self.linked_diagnosis,
         }
 
     @classmethod
@@ -257,6 +266,9 @@ class MedicationOrder:
             frequency=data.get("frequency"),
             instructions=data.get("instructions"),
             confidence=data.get("confidence", 1.0),
+            rxnorm=data.get("rxnorm"),
+            rxnorm_matched=data.get("rxnorm_matched"),
+            linked_diagnosis=data.get("linked_diagnosis"),
         )
 
 

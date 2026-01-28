@@ -902,9 +902,28 @@
             font-weight: 500;
         }
 
-        /* EHR Data Tab */
+        /* EHR Data Tab - 3 Column Grid */
+        #ehrCategories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            align-items: start;
+        }
+
+        @media (max-width: 1400px) {
+            #ehrCategories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            #ehrCategories {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .ehr-category {
-            margin-bottom: var(--spacing-md);
+            margin-bottom: 0;
         }
 
         .ehr-category-header {
@@ -1288,11 +1307,30 @@
             flex: 1;
         }
 
-        /* Orders Tab */
+        /* Orders Tab - 3 Column Grid */
+        #ordersList {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            align-items: start;
+        }
+
+        @media (max-width: 1400px) {
+            #ordersList {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            #ordersList {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .order-card {
             border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-md);
+            margin-bottom: 0;
             overflow: hidden;
         }
 
@@ -1371,6 +1409,330 @@
 
         .order-card.rejected .order-card-header {
             background: var(--color-error-bg);
+        }
+
+        /* Unmatched medication orders (RxNorm not verified) */
+        .order-card.unmatched {
+            border-color: var(--color-warning);
+        }
+
+        .order-card.unmatched .order-card-header {
+            background: var(--color-warning-bg);
+        }
+
+        .rxnorm-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .rxnorm-status.verified {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .rxnorm-status.unverified {
+            background: var(--color-warning-bg);
+            color: #b45309;
+        }
+
+        .unmatched-alert {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: var(--color-warning-bg);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.8rem;
+            color: #b45309;
+        }
+
+        .unmatched-alert i {
+            font-size: 1rem;
+        }
+
+        /* Linked diagnosis chip on order cards */
+        .linked-diagnosis {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: var(--color-info-bg);
+            color: var(--color-info);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            margin-top: var(--spacing-xs);
+        }
+
+        .linked-diagnosis code {
+            font-family: monospace;
+            font-weight: 500;
+        }
+
+        /* Diagnosis Link Section in Order Cards */
+        .diagnosis-link-section {
+            margin-top: var(--spacing-sm);
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .diagnosis-link-section .btn-link {
+            background: none;
+            border: none;
+            color: var(--color-primary-blue);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0;
+            margin-left: var(--spacing-sm);
+        }
+
+        .diagnosis-link-section .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .diagnosis-link-section.unlinked {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .unlinked-warning {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+        }
+
+        .unlinked-warning i {
+            color: #b45309;
+        }
+
+        /* Diagnosis Options List in Modal */
+        .diagnosis-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .diagnosis-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            transition: all 0.15s ease;
+        }
+
+        .diagnosis-option:hover {
+            background: var(--color-primary-blue);
+            color: white;
+            border-color: var(--color-primary-blue);
+        }
+
+        .diagnosis-option:hover .icd10-code {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .diagnosis-option:hover .condition-name {
+            color: white;
+        }
+
+        .diagnosis-option:hover .status-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .diagnosis-option:hover .icd10-code.empty {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .diagnosis-option .icd10-code {
+            font-family: monospace;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            background: var(--color-bg-white);
+            border-radius: var(--radius-xs);
+            min-width: 60px;
+            text-align: center;
+            color: var(--color-text);
+        }
+
+        .diagnosis-option .icd10-code.empty {
+            color: var(--color-text-muted);
+        }
+
+        .diagnosis-option .condition-name {
+            flex: 1;
+            color: var(--color-text);
+        }
+
+        .diagnosis-option .status-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: var(--radius-xs);
+            background: var(--color-bg-white);
+            color: var(--color-text-muted);
+        }
+
+        .diagnosis-option .status-badge.resolved {
+            color: var(--color-success);
+        }
+
+        .diagnosis-option:hover .status-badge.resolved {
+            color: #86efac;
+        }
+
+        .diagnosis-option.create-new {
+            background: transparent;
+            border-style: dashed;
+            color: var(--color-primary-blue);
+        }
+
+        .diagnosis-option.create-new:hover {
+            background: var(--color-primary-bg, #e0f2fe);
+            color: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
+        }
+
+        .diagnosis-option.create-new i {
+            font-size: 1.25rem;
+        }
+
+        .diagnosis-drop-zone {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-bg-light);
+            transition: all 0.2s ease;
+        }
+
+        .diagnosis-drop-zone.drag-over {
+            border-color: var(--color-primary-blue);
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .diagnosis-drop-zone-header {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .condition-drop-target {
+            padding: var(--spacing-sm);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-xs);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .condition-drop-target:hover,
+        .condition-drop-target.drag-over {
+            border-color: var(--color-primary-blue);
+            background: var(--color-info-bg);
+        }
+
+        .condition-drop-target code {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+        }
+
+        .drag-hint {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            margin-top: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        /* Autocomplete Component */
+        .autocomplete-wrapper {
+            position: relative;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .autocomplete-list.visible {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+            font-size: 0.875rem;
+            transition: background 0.15s ease;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.highlighted {
+            background: var(--color-bg-light);
+        }
+
+        .autocomplete-item-name {
+            flex: 1;
+        }
+
+        .autocomplete-item-code {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            padding: 2px 6px;
+            background: var(--color-bg-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .autocomplete-item-class {
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+
+        .autocomplete-no-results {
+            padding: var(--spacing-md);
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
         }
 
         /* Mock EHR Panel */
@@ -2517,7 +2879,11 @@
                 <i class="ph ph-info"></i>
                 About
             </button>
-            <button class="settings-btn" id="apiGuideBtn">
+            <button class="settings-btn" id="architectureBtn" onclick="window.open('../doc/reference-architecture.html', '_blank')">
+                <i class="ph ph-blueprint"></i>
+                Architecture
+            </button>
+            <button class="settings-btn" id="apiGuideBtn" onclick="window.open('../doc/api.html', '_blank')">
                 <i class="ph ph-code"></i>
                 API
             </button>
@@ -3103,6 +3469,119 @@
         </div>
     </div>
 
+    <!-- Edit Order Modal -->
+    <div class="modal-overlay" id="editOrderModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-pencil"></i> Edit Order</h2>
+                <button class="btn-icon" onclick="closeEditOrderModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editOrderId">
+                <input type="hidden" id="editOrderType">
+
+                <!-- Order Name (all types) -->
+                <div class="setting-group">
+                    <label class="setting-label">Name</label>
+                    <input type="text" class="form-input" id="editOrderName" placeholder="Order name">
+                </div>
+
+                <!-- Medication-specific fields -->
+                <div id="editOrderMedicationFields">
+                    <div class="setting-group">
+                        <label class="setting-label">Dosage</label>
+                        <input type="text" class="form-input" id="editOrderDosage" placeholder="e.g., 500 mg twice daily">
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">Frequency</label>
+                        <select class="form-select" id="editOrderFrequency" style="width: 100%;">
+                            <option value="">Select frequency...</option>
+                            <option value="once daily">Once daily</option>
+                            <option value="twice daily">Twice daily</option>
+                            <option value="three times daily">Three times daily</option>
+                            <option value="four times daily">Four times daily</option>
+                            <option value="every 4 hours">Every 4 hours</option>
+                            <option value="every 6 hours">Every 6 hours</option>
+                            <option value="every 8 hours">Every 8 hours</option>
+                            <option value="every 12 hours">Every 12 hours</option>
+                            <option value="as needed">As needed (PRN)</option>
+                            <option value="at bedtime">At bedtime</option>
+                            <option value="with meals">With meals</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">Instructions</label>
+                        <input type="text" class="form-input" id="editOrderInstructions" placeholder="e.g., Take with food">
+                    </div>
+                </div>
+
+                <!-- Consult-specific fields -->
+                <div id="editOrderConsultFields" style="display: none;">
+                    <div class="setting-group">
+                        <label class="setting-label">Reason for Referral</label>
+                        <textarea class="form-input" id="editOrderReason" rows="3" placeholder="Reason for consultation"></textarea>
+                    </div>
+                </div>
+
+                <!-- Linked Diagnosis Display -->
+                <div class="setting-group" id="editOrderDiagnosisGroup">
+                    <label class="setting-label">Linked Diagnosis</label>
+                    <div id="editOrderLinkedDiagnosis" style="padding: var(--spacing-sm); background: var(--color-bg-light); border-radius: var(--radius-sm); font-size: 0.875rem;">
+                        <span style="color: var(--color-text-muted);">No diagnosis linked</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeEditOrderModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveOrderEdit()">
+                    <i class="ph ph-check"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagnosis Link Modal -->
+    <div class="modal-overlay" id="diagnosisLinkModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-link"></i> Link to Diagnosis</h2>
+                <button class="btn-icon" onclick="closeDiagnosisLinkModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                    Select an existing diagnosis or create a new one:
+                </p>
+                <div id="diagnosisLinkConditions" class="diagnosis-options-list">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- New Diagnosis Form (hidden by default) -->
+                <div id="newDiagnosisForm" style="display: none; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+                    <div class="setting-group">
+                        <label class="setting-label">Diagnosis Name</label>
+                        <input type="text" class="form-input" id="newDiagnosisName" placeholder="e.g., Essential Hypertension" data-autocomplete="conditions">
+                    </div>
+                    <div class="setting-group">
+                        <label class="setting-label">ICD-10 Code (optional)</label>
+                        <input type="text" class="form-input" id="newDiagnosisIcd10" placeholder="e.g., I10">
+                    </div>
+                    <div style="text-align: right; margin-top: var(--spacing-sm);">
+                        <button class="btn-primary" onclick="createAndLinkDiagnosis()">
+                            <i class="ph ph-plus"></i> Create & Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeDiagnosisLinkModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Order Modal -->
     <div class="modal-overlay" id="addOrderModal">
         <div class="modal" style="max-width: 500px;">
@@ -3415,6 +3894,19 @@
                     </button>
                 </div>
                 <div id="ordersList"></div>
+
+                <!-- Drop Zone for Order-Diagnosis Linking -->
+                <div class="diagnosis-drop-zone" id="diagnosisDropZone" style="display: none;">
+                    <div class="diagnosis-drop-zone-header">
+                        <i class="ph ph-link"></i>
+                        <span>Drop medication here to link to a diagnosis</span>
+                    </div>
+                    <div id="conditionDropTargets"></div>
+                    <div class="drag-hint">
+                        <i class="ph ph-info"></i>
+                        <span>Drag unverified medications to link them to patient diagnoses</span>
+                    </div>
+                </div>
             </div>
 
             <div class="panel-footer" style="gap: var(--spacing-sm);">
@@ -4609,9 +5101,51 @@
                     dose: m.dose || null,
                     frequency: m.frequency || null,
                     route: m.route || null,
+                    rxnorm: m.rxnorm || null,
+                    rxnorm_matched: m.rxnorm_matched,
                     isNewOrder: m.is_new_order || false,
                     approved: null
                 })),
+                // Use entities.medication_orders for RxNorm verification and linked diagnoses
+                orders: {
+                    medications: (entities.medication_orders || []).map((o, i) => ({
+                        id: `med-order-${i}`,
+                        name: o.name,
+                        dosage: o.dose || o.dosage || null,
+                        frequency: o.frequency || null,
+                        route: o.route || null,
+                        instructions: o.instructions || null,
+                        rxnorm: o.rxnorm || null,
+                        rxnorm_matched: o.rxnorm_matched,
+                        linked_diagnosis: o.linked_diagnosis || null,
+                        approved: null
+                    })),
+                    labs: (entities.lab_orders || fhirData.orders?.labs || []).map((l, i) => ({
+                        id: `lab-order-${i}`,
+                        name: l.name,
+                        loinc: l.loinc || null,
+                        linked_diagnosis: l.linked_diagnosis || null,
+                        approved: null
+                    })),
+                    consults: (entities.referral_orders || fhirData.orders?.consults || []).map((c, i) => ({
+                        id: `consult-order-${i}`,
+                        specialty: c.specialty,
+                        reason: c.reason || null,
+                        linked_diagnosis: c.linked_diagnosis || null,
+                        approved: null
+                    })),
+                    procedures: (entities.procedure_orders || fhirData.orders?.procedures || []).map((p, i) => ({
+                        id: `proc-order-${i}`,
+                        name: p.name,
+                        linked_diagnosis: p.linked_diagnosis || null,
+                        approved: null
+                    })),
+                    imaging: (entities.imaging_orders || fhirData.orders?.imaging || []).map((img, i) => ({
+                        id: `img-order-${i}`,
+                        name: img.name,
+                        approved: null
+                    }))
+                },
                 // Use entities.vitals for proper units
                 vitals: (entities.vitals || []).map((v, i) => ({
                     id: `vital-${i}`,
@@ -5090,8 +5624,14 @@
                     code = item.icd10 ? `<span class="ehr-icd10-code">${item.icd10}</span>` : '';
                     break;
                 case 'medications':
-                    details = item.dosage ? `<span class="ehr-measurement">${item.dosage}</span>` : '';
+                    details = item.dose ? `<span class="ehr-measurement">${item.dose}${item.frequency ? ' ' + item.frequency : ''}</span>` : '';
                     code = item.code || '';
+                    // Add RxNorm verification badge
+                    if (item.rxnorm_matched === true) {
+                        badge = `<span class="rxnorm-status verified"><i class="ph ph-seal-check"></i> Verified</span>`;
+                    } else if (item.rxnorm_matched === false) {
+                        badge = `<span class="rxnorm-status unverified"><i class="ph ph-warning"></i> Unverified</span>`;
+                    }
                     break;
                 case 'allergies':
                     const reaction = item.reaction || 'Unknown reaction';
@@ -5193,17 +5733,98 @@
             elements.ordersList.innerHTML = allOrders.map(order => {
                 const approvedClass = order.approved === true ? 'approved' : order.approved === false ? 'rejected' : '';
 
+                // Check if medication is unmatched in RxNorm database
+                const isUnmatched = order.type === 'medication' && order.rxnorm_matched === false;
+                const unmatchedClass = isUnmatched ? 'unmatched' : '';
+
+                // Build verification badge for medications
+                let verificationBadge = '';
+                if (order.type === 'medication') {
+                    if (order.rxnorm_matched === true) {
+                        verificationBadge = `<span class="rxnorm-status verified"><i class="ph ph-seal-check"></i> Verified</span>`;
+                    } else if (order.rxnorm_matched === false) {
+                        verificationBadge = `<span class="rxnorm-status unverified"><i class="ph ph-warning"></i> Unverified</span>`;
+                    }
+                }
+
+                // Build unmatched alert banner
+                const unmatchedAlert = isUnmatched ? `
+                    <div class="unmatched-alert">
+                        <i class="ph ph-warning-circle"></i>
+                        <span>Medication not found in RxNorm database. Please verify spelling or link to a known medication.</span>
+                    </div>
+                ` : '';
+
+                // Build linked diagnosis display
+                let linkedDiagnosis = '';
+                if (order.linked_diagnosis) {
+                    const diag = order.linked_diagnosis;
+                    linkedDiagnosis = `
+                        <div class="linked-diagnosis">
+                            <i class="ph ph-link"></i>
+                            <code>${diag.icd10 || ''}</code>
+                            <span>${diag.display || ''}</span>
+                        </div>
+                    `;
+                }
+
+                // Build diagnosis link section (dropdown instead of drag-drop)
+                // Apply to all order types - every order needs an indication
+                let diagnosisLinkSection = '';
+                if (order.type === 'medication' || order.type === 'lab' || order.type === 'consult' || order.type === 'procedure') {
+                    if (order.linked_diagnosis) {
+                        // Show existing link with option to change
+                        diagnosisLinkSection = `
+                            <div class="diagnosis-link-section">
+                                ${linkedDiagnosis}
+                                <button class="btn-link" onclick="showDiagnosisDropdown('${order.id}')">
+                                    <i class="ph ph-swap"></i> Change
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        // Show dropdown to link
+                        diagnosisLinkSection = `
+                            <div class="diagnosis-link-section unlinked">
+                                <div class="unlinked-warning">
+                                    <i class="ph ph-warning"></i> No linked diagnosis
+                                </div>
+                                <button class="btn-secondary" onclick="showDiagnosisDropdown('${order.id}')">
+                                    <i class="ph ph-link"></i> Link Diagnosis
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Build dosage display with frequency
+                let dosageDisplay = '';
+                if (order.dosage || order.frequency) {
+                    const parts = [];
+                    if (order.dosage) parts.push(order.dosage);
+                    if (order.frequency) parts.push(order.frequency);
+                    dosageDisplay = `
+                        <div class="order-detail">
+                            <span class="order-detail-label">Dosage:</span>
+                            <span>${parts.join(' ')}</span>
+                        </div>
+                    `;
+                }
+
                 return `
-                    <div class="order-card ${approvedClass}" data-type="${order.type}" data-id="${order.id}">
+                    <div class="order-card ${approvedClass} ${unmatchedClass}" data-type="${order.type}" data-id="${order.id}">
                         <div class="order-card-header">
                             <span class="order-type-badge ${order.type}">${order.type.charAt(0).toUpperCase() + order.type.slice(1)}</span>
-                            <strong>${order.name}</strong>
+                            <strong>${order.specialty || order.name}</strong>
+                            ${verificationBadge}
                         </div>
                         <div class="order-card-body">
-                            ${order.dosage ? `
+                            ${unmatchedAlert}
+                            ${dosageDisplay}
+                            ${order.instructions ? `
                                 <div class="order-detail">
-                                    <span class="order-detail-label">Dosage:</span>
-                                    <span>${order.dosage}</span>
+                                    <span class="order-detail-label">Instructions:</span>
+                                    <span>${order.instructions}</span>
                                 </div>
                             ` : ''}
                             ${order.code ? `
@@ -5212,12 +5833,12 @@
                                     <span style="font-family: monospace;">${order.code}</span>
                                 </div>
                             ` : ''}
-                            <div class="order-detail">
-                                <span class="order-detail-label">Intent:</span>
-                                <span>${order.intent || 'order'}</span>
-                            </div>
+                            ${diagnosisLinkSection}
                         </div>
                         <div class="order-card-actions">
+                            <button class="btn-secondary" onclick="editOrder('${order.type}', '${order.id}')">
+                                <i class="ph ph-pencil"></i> Edit
+                            </button>
                             <button class="btn-secondary" onclick="approveOrder('${order.type}', '${order.id}')">
                                 <i class="ph ph-check"></i> Approve
                             </button>
@@ -5289,6 +5910,240 @@
             // Close modal and re-render
             closeEditConditionModal();
             renderEhrData(item);
+        }
+
+        // ============================================================================
+        // Edit Order Modal Functions
+        // ============================================================================
+        function editOrder(type, id) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const orderList = item.extractedData.orders[type + 's'];
+            const order = orderList?.find(o => o.id === id);
+            if (!order) return;
+
+            // Populate hidden fields
+            document.getElementById('editOrderId').value = id;
+            document.getElementById('editOrderType').value = type;
+
+            // Populate common fields (use specialty for consults)
+            document.getElementById('editOrderName').value = order.specialty || order.name || '';
+
+            // Show/hide type-specific fields
+            const medFields = document.getElementById('editOrderMedicationFields');
+            const consultFields = document.getElementById('editOrderConsultFields');
+
+            if (type === 'medication') {
+                medFields.style.display = 'block';
+                consultFields.style.display = 'none';
+                document.getElementById('editOrderDosage').value = order.dosage || '';
+                document.getElementById('editOrderFrequency').value = order.frequency || '';
+                document.getElementById('editOrderInstructions').value = order.instructions || '';
+            } else if (type === 'consult') {
+                medFields.style.display = 'none';
+                consultFields.style.display = 'block';
+                document.getElementById('editOrderReason').value = order.reason || '';
+            } else {
+                medFields.style.display = 'none';
+                consultFields.style.display = 'none';
+            }
+
+            // Display linked diagnosis if present
+            const diagDisplay = document.getElementById('editOrderLinkedDiagnosis');
+            if (order.linked_diagnosis) {
+                const diag = order.linked_diagnosis;
+                diagDisplay.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <i class="ph ph-link" style="color: var(--color-info);"></i>
+                        <code style="font-family: monospace; font-weight: 500;">${diag.icd10 || ''}</code>
+                        <span>${diag.display || ''}</span>
+                        <span style="color: var(--color-text-muted); font-size: 0.75rem;">(${diag.method || 'auto'})</span>
+                    </div>
+                `;
+            } else {
+                diagDisplay.innerHTML = '<span style="color: var(--color-text-muted);">No diagnosis linked</span>';
+            }
+
+            // Show modal
+            document.getElementById('editOrderModal').classList.add('visible');
+        }
+
+        function closeEditOrderModal() {
+            document.getElementById('editOrderModal').classList.remove('visible');
+        }
+
+        function saveOrderEdit() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const id = document.getElementById('editOrderId').value;
+            const type = document.getElementById('editOrderType').value;
+
+            const orderList = item.extractedData.orders[type + 's'];
+            const order = orderList?.find(o => o.id === id);
+            if (!order) return;
+
+            // Update common fields (use specialty for consults, name for others)
+            const nameValue = document.getElementById('editOrderName').value.trim();
+            if (type === 'consult') {
+                order.specialty = nameValue;
+            } else {
+                order.name = nameValue;
+            }
+
+            // Update type-specific fields
+            if (type === 'medication') {
+                order.dosage = document.getElementById('editOrderDosage').value.trim() || null;
+                order.frequency = document.getElementById('editOrderFrequency').value || null;
+                order.instructions = document.getElementById('editOrderInstructions').value.trim() || null;
+            } else if (type === 'consult') {
+                order.reason = document.getElementById('editOrderReason').value.trim() || null;
+            }
+
+            // Close modal and re-render
+            closeEditOrderModal();
+            renderOrders(item);
+            showToast('Order updated', 'success');
+        }
+
+        // ============================================================================
+        // Order-Diagnosis Linking (Dropdown)
+        // ============================================================================
+        let currentLinkingOrderId = null;
+
+        function showDiagnosisDropdown(orderId) {
+            currentLinkingOrderId = orderId;
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const conditions = item.extractedData.conditions || [];
+            const modal = document.getElementById('diagnosisLinkModal');
+            const conditionsList = document.getElementById('diagnosisLinkConditions');
+
+            // Build condition options
+            let optionsHtml = conditions.map(c => `
+                <button class="diagnosis-option" onclick="linkOrderToDiagnosisById('${orderId}', '${c.id}')">
+                    ${c.icd10 ? `<code class="icd10-code">${c.icd10}</code>` : '<code class="icd10-code empty">--</code>'}
+                    <span class="condition-name">${c.name}</span>
+                    ${c.status === 'resolved' ? '<span class="status-badge resolved">Resolved</span>' : ''}
+                </button>
+            `).join('');
+
+            // Add "Create New Diagnosis" option
+            optionsHtml += `
+                <button class="diagnosis-option create-new" onclick="showCreateDiagnosisForm('${orderId}')">
+                    <i class="ph ph-plus-circle"></i>
+                    <span>Create New Diagnosis</span>
+                </button>
+            `;
+
+            conditionsList.innerHTML = optionsHtml;
+
+            // Show new diagnosis form (hidden by default)
+            document.getElementById('newDiagnosisForm').style.display = 'none';
+            document.getElementById('newDiagnosisName').value = '';
+            document.getElementById('newDiagnosisIcd10').value = '';
+
+            modal.classList.add('visible');
+        }
+
+        function closeDiagnosisLinkModal() {
+            document.getElementById('diagnosisLinkModal').classList.remove('visible');
+            currentLinkingOrderId = null;
+        }
+
+        function showCreateDiagnosisForm(orderId) {
+            document.getElementById('newDiagnosisForm').style.display = 'block';
+            document.getElementById('newDiagnosisName').focus();
+        }
+
+        function createAndLinkDiagnosis() {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item || !currentLinkingOrderId) return;
+
+            const name = document.getElementById('newDiagnosisName').value.trim();
+            const icd10 = document.getElementById('newDiagnosisIcd10').value.trim();
+
+            if (!name) {
+                showToast('Please enter a diagnosis name', 'error');
+                return;
+            }
+
+            // Create new condition
+            const newCondition = {
+                id: `cond-${Date.now()}`,
+                name: name,
+                icd10: icd10 || null,
+                status: 'active',
+                severity: null,
+                isChiefComplaint: false,
+                approved: null
+            };
+
+            // Add to conditions list
+            item.extractedData.conditions.push(newCondition);
+
+            // Link the order to this new condition
+            linkOrderToDiagnosis(currentLinkingOrderId, newCondition);
+
+            closeDiagnosisLinkModal();
+            renderEhrData(item);
+        }
+
+        function linkOrderToDiagnosisById(orderId, conditionId) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            const condition = item.extractedData.conditions?.find(c => c.id === conditionId);
+            if (!condition) return;
+
+            linkOrderToDiagnosis(orderId, condition);
+            closeDiagnosisLinkModal();
+        }
+
+        function linkOrderToDiagnosis(orderId, condition) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            // Search all order types
+            const orders = item.extractedData.orders;
+            const order = orders.medications?.find(o => o.id === orderId) ||
+                          orders.labs?.find(o => o.id === orderId) ||
+                          orders.consults?.find(o => o.id === orderId) ||
+                          orders.procedures?.find(o => o.id === orderId);
+            if (!order) return;
+
+            // Link the order to the diagnosis
+            order.linked_diagnosis = {
+                icd10: condition.icd10 || '',
+                display: condition.name,
+                confidence: 1.0,
+                method: 'manual'
+            };
+
+            // Re-render orders
+            renderOrders(item);
+            const orderName = order.specialty || order.name;
+            showToast(`Linked ${orderName} to ${condition.name}`, 'success');
+        }
+
+        function unlinkOrderDiagnosis(orderId) {
+            const item = state.reviewPool[state.currentReviewIndex];
+            if (!item) return;
+
+            // Search all order types
+            const orders = item.extractedData.orders;
+            const order = orders.medications?.find(o => o.id === orderId) ||
+                          orders.labs?.find(o => o.id === orderId) ||
+                          orders.consults?.find(o => o.id === orderId) ||
+                          orders.procedures?.find(o => o.id === orderId);
+            if (!order) return;
+
+            order.linked_diagnosis = null;
+            renderOrders(item);
+            const orderName = order.specialty || order.name;
+            showToast(`Unlinked diagnosis from ${orderName}`, 'info');
         }
 
         function approveOrder(type, id) {
@@ -5441,45 +6296,77 @@
 
             const fieldConfigs = {
                 conditions: [
-                    { name: 'name', label: 'Condition Name', type: 'text', required: true },
+                    { name: 'name', label: 'Condition Name', type: 'text', required: true, autocomplete: 'conditions' },
                     { name: 'icd10', label: 'ICD-10 Code', type: 'text', placeholder: 'e.g., E11.9' },
                     { name: 'status', label: 'Status', type: 'select', options: ['active', 'resolved', 'chronic'] }
                 ],
                 medications: [
-                    { name: 'name', label: 'Medication Name', type: 'text', required: true },
+                    { name: 'name', label: 'Medication Name', type: 'text', required: true, autocomplete: 'medications' },
                     { name: 'dosage', label: 'Dosage', type: 'text', placeholder: 'e.g., 500mg twice daily' },
                     { name: 'route', label: 'Route', type: 'select', options: ['oral', 'IV', 'IM', 'topical', 'inhaled', 'sublingual'] }
                 ],
                 allergies: [
-                    { name: 'substance', label: 'Allergen', type: 'text', required: true },
+                    { name: 'substance', label: 'Allergen', type: 'text', required: true, autocomplete: 'allergies' },
                     { name: 'reaction', label: 'Reaction', type: 'text', placeholder: 'e.g., rash, anaphylaxis' },
                     { name: 'severity', label: 'Severity', type: 'select', options: ['mild', 'moderate', 'severe'] }
                 ],
                 vitals: [
-                    { name: 'name', label: 'Vital Sign', type: 'select', options: ['Blood Pressure', 'Heart Rate', 'Temperature', 'Respiratory Rate', 'O2 Saturation', 'Weight'] },
+                    { name: 'name', label: 'Vital Sign', type: 'pills', options: [
+                        { value: 'Blood Pressure', label: 'BP', icon: 'heartbeat', defaultUnit: 'mmHg' },
+                        { value: 'Heart Rate', label: 'HR', icon: 'heartbeat', defaultUnit: 'bpm' },
+                        { value: 'Temperature', label: 'Temp', icon: 'thermometer', defaultUnit: 'F' },
+                        { value: 'Respiratory Rate', label: 'RR', icon: 'wind', defaultUnit: '/min' },
+                        { value: 'O2 Saturation', label: 'SpO2', icon: 'drop', defaultUnit: '%' },
+                        { value: 'Weight', label: 'Weight', icon: 'scales', defaultUnit: 'lbs' }
+                    ]},
                     { name: 'value', label: 'Value', type: 'text', required: true, placeholder: 'e.g., 120/80' },
                     { name: 'unit', label: 'Unit', type: 'text', placeholder: 'e.g., mmHg, bpm' }
                 ],
                 labResults: [
-                    { name: 'name', label: 'Lab Test', type: 'text', required: true },
+                    { name: 'name', label: 'Lab Test', type: 'text', required: true, autocomplete: 'labs' },
                     { name: 'value', label: 'Result', type: 'text', required: true },
                     { name: 'unit', label: 'Unit', type: 'text' },
                     { name: 'interpretation', label: 'Interpretation', type: 'select', options: ['normal', 'abnormal', 'high', 'low', 'critical'] }
                 ],
                 procedures: [
-                    { name: 'name', label: 'Procedure Name', type: 'text', required: true },
+                    { name: 'name', label: 'Procedure Name', type: 'text', required: true, autocomplete: 'procedures' },
                     { name: 'status', label: 'Status', type: 'select', options: ['completed', 'planned', 'in-progress'] }
                 ],
                 familyHistory: [
-                    { name: 'relationship', label: 'Relationship', type: 'select', options: ['mother', 'father', 'sibling', 'grandmother', 'grandfather', 'aunt', 'uncle'] },
-                    { name: 'condition', label: 'Condition', type: 'text', required: true },
+                    { name: 'relationship', label: 'Relationship', type: 'pills', options: [
+                        { value: 'mother', label: 'Mother', icon: 'user' },
+                        { value: 'father', label: 'Father', icon: 'user' },
+                        { value: 'sibling', label: 'Sibling', icon: 'users' },
+                        { value: 'grandmother', label: 'Grandma', icon: 'user' },
+                        { value: 'grandfather', label: 'Grandpa', icon: 'user' },
+                        { value: 'aunt', label: 'Aunt', icon: 'user' },
+                        { value: 'uncle', label: 'Uncle', icon: 'user' }
+                    ]},
+                    { name: 'condition', label: 'Condition', type: 'text', required: true, autocomplete: 'conditions' },
                     { name: 'ageOfOnset', label: 'Age of Onset', type: 'text', placeholder: 'e.g., 55' }
                 ]
             };
 
             const fields = fieldConfigs[type] || [];
             container.innerHTML = fields.map(field => {
-                if (field.type === 'select') {
+                if (field.type === 'pills') {
+                    // Pill selector with icons
+                    return `
+                        <div class="form-group">
+                            <label>${field.label}${field.required ? ' *' : ''}</label>
+                            <div class="pill-selector" id="addEhr_${field.name}_pills">
+                                ${field.options.map(opt => `
+                                    <button type="button" class="pill-btn" data-value="${opt.value}" data-default-unit="${opt.defaultUnit || ''}"
+                                            onclick="selectPillOption('${field.name}', '${opt.value}', '${opt.defaultUnit || ''}')">
+                                        ${opt.icon ? `<i class="ph ph-${opt.icon}"></i>` : ''}
+                                        ${opt.label}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <input type="hidden" id="addEhr_${field.name}" value="">
+                        </div>
+                    `;
+                } else if (field.type === 'select') {
                     return `
                         <div class="form-group">
                             <label>${field.label}${field.required ? ' *' : ''}</label>
@@ -5495,11 +6382,335 @@
                             <label>${field.label}${field.required ? ' *' : ''}</label>
                             <input type="text" id="addEhr_${field.name}"
                                    placeholder="${field.placeholder || ''}"
-                                   ${field.required ? 'required' : ''}>
+                                   ${field.required ? 'required' : ''}
+                                   ${field.autocomplete ? `data-autocomplete="${field.autocomplete}"` : ''}>
                         </div>
                     `;
                 }
             }).join('');
+
+            // Initialize autocomplete on fields that have it
+            setTimeout(() => {
+                fields.forEach(field => {
+                    if (field.autocomplete) {
+                        createAutocomplete(`addEhr_${field.name}`, field.autocomplete);
+                    }
+                });
+            }, 50);
+        }
+
+        function selectPillOption(fieldName, value, defaultUnit) {
+            // Update hidden input
+            const hiddenInput = document.getElementById(`addEhr_${fieldName}`);
+            if (hiddenInput) hiddenInput.value = value;
+
+            // Update pill button states
+            const container = document.getElementById(`addEhr_${fieldName}_pills`);
+            if (container) {
+                container.querySelectorAll('.pill-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.value === value);
+                });
+            }
+
+            // Auto-fill unit for vitals if applicable
+            if (fieldName === 'name' && defaultUnit) {
+                const unitInput = document.getElementById('addEhr_unit');
+                if (unitInput && !unitInput.value) {
+                    unitInput.value = defaultUnit;
+                }
+            }
+        }
+
+        // ============================================================================
+        // Autocomplete Data Sources and Component
+        // ============================================================================
+        const AUTOCOMPLETE_SOURCES = {
+            medications: [
+                // Common medications from RxNorm database (subset)
+                { name: 'Metformin', code: '6809', class: 'diabetes' },
+                { name: 'Lisinopril', code: '29046', class: 'ace_inhibitor' },
+                { name: 'Atorvastatin', code: '83367', class: 'statin' },
+                { name: 'Amlodipine', code: '17767', class: 'ccb' },
+                { name: 'Metoprolol', code: '6918', class: 'beta_blocker' },
+                { name: 'Omeprazole', code: '7646', class: 'ppi' },
+                { name: 'Losartan', code: '52175', class: 'arb' },
+                { name: 'Gabapentin', code: '25480', class: 'anticonvulsant' },
+                { name: 'Hydrochlorothiazide', code: '5487', class: 'diuretic' },
+                { name: 'Sertraline', code: '36437', class: 'ssri' },
+                { name: 'Amoxicillin', code: '723', class: 'antibiotic' },
+                { name: 'Azithromycin', code: '18631', class: 'antibiotic' },
+                { name: 'Ciprofloxacin', code: '2551', class: 'antibiotic' },
+                { name: 'Prednisone', code: '8640', class: 'steroid' },
+                { name: 'Albuterol', code: '435', class: 'bronchodilator' },
+                { name: 'Levothyroxine', code: '10582', class: 'thyroid' },
+                { name: 'Warfarin', code: '11289', class: 'anticoagulant' },
+                { name: 'Apixaban', code: '1364430', class: 'anticoagulant' },
+                { name: 'Furosemide', code: '4603', class: 'diuretic' },
+                { name: 'Pantoprazole', code: '40790', class: 'ppi' },
+                { name: 'Clopidogrel', code: '32968', class: 'antiplatelet' },
+                { name: 'Escitalopram', code: '321988', class: 'ssri' },
+                { name: 'Duloxetine', code: '72625', class: 'snri' },
+                { name: 'Simvastatin', code: '36567', class: 'statin' },
+                { name: 'Rosuvastatin', code: '301542', class: 'statin' },
+                { name: 'Carvedilol', code: '20352', class: 'beta_blocker' },
+                { name: 'Ibuprofen', code: '5640', class: 'nsaid' },
+                { name: 'Naproxen', code: '7258', class: 'nsaid' },
+                { name: 'Acetaminophen', code: '161', class: 'analgesic' },
+                { name: 'Tramadol', code: '10689', class: 'opioid' },
+            ],
+            conditions: [
+                // Common conditions from ICD-10 database (subset)
+                { name: 'Hypertension', code: 'I10', class: 'cardiovascular' },
+                { name: 'Type 2 Diabetes', code: 'E11.9', class: 'endocrine' },
+                { name: 'Hyperlipidemia', code: 'E78.5', class: 'endocrine' },
+                { name: 'GERD', code: 'K21.0', class: 'gastrointestinal' },
+                { name: 'Coronary Artery Disease', code: 'I25.10', class: 'cardiovascular' },
+                { name: 'Heart Failure', code: 'I50.9', class: 'cardiovascular' },
+                { name: 'Atrial Fibrillation', code: 'I48.91', class: 'cardiovascular' },
+                { name: 'COPD', code: 'J44.9', class: 'respiratory' },
+                { name: 'Asthma', code: 'J45.909', class: 'respiratory' },
+                { name: 'Depression', code: 'F32.9', class: 'psychiatric' },
+                { name: 'Anxiety', code: 'F41.9', class: 'psychiatric' },
+                { name: 'Chronic Kidney Disease', code: 'N18.9', class: 'renal' },
+                { name: 'Hypothyroidism', code: 'E03.9', class: 'endocrine' },
+                { name: 'Osteoarthritis', code: 'M19.90', class: 'musculoskeletal' },
+                { name: 'Low Back Pain', code: 'M54.50', class: 'musculoskeletal' },
+                { name: 'Pneumonia', code: 'J18.9', class: 'respiratory' },
+                { name: 'Urinary Tract Infection', code: 'N39.0', class: 'renal' },
+                { name: 'Anemia', code: 'D64.9', class: 'hematological' },
+                { name: 'Obesity', code: 'E66.9', class: 'endocrine' },
+                { name: 'Stroke', code: 'I63.9', class: 'neurological' },
+            ],
+            labs: [
+                { name: 'Complete Blood Count (CBC)', code: '58410-2', class: 'hematology' },
+                { name: 'Basic Metabolic Panel (BMP)', code: '51990-0', class: 'chemistry' },
+                { name: 'Comprehensive Metabolic Panel (CMP)', code: '24323-8', class: 'chemistry' },
+                { name: 'Lipid Panel', code: '24331-1', class: 'chemistry' },
+                { name: 'Hemoglobin A1c', code: '4548-4', class: 'chemistry' },
+                { name: 'TSH', code: '3016-3', class: 'endocrine' },
+                { name: 'Free T4', code: '3024-7', class: 'endocrine' },
+                { name: 'Urinalysis', code: '24357-6', class: 'urinalysis' },
+                { name: 'Creatinine', code: '2160-0', class: 'chemistry' },
+                { name: 'BUN', code: '3094-0', class: 'chemistry' },
+                { name: 'Liver Function Panel', code: '24325-3', class: 'chemistry' },
+                { name: 'PT/INR', code: '5902-2', class: 'coagulation' },
+                { name: 'PTT', code: '3173-2', class: 'coagulation' },
+                { name: 'Troponin', code: '10839-9', class: 'cardiac' },
+                { name: 'BNP', code: '30934-4', class: 'cardiac' },
+                { name: 'D-Dimer', code: '48066-5', class: 'coagulation' },
+                { name: 'Blood Culture', code: '600-7', class: 'microbiology' },
+                { name: 'Urine Culture', code: '630-4', class: 'microbiology' },
+            ],
+            consults: [
+                { name: 'Cardiology', code: null, class: 'specialty' },
+                { name: 'Pulmonology', code: null, class: 'specialty' },
+                { name: 'Gastroenterology', code: null, class: 'specialty' },
+                { name: 'Neurology', code: null, class: 'specialty' },
+                { name: 'Nephrology', code: null, class: 'specialty' },
+                { name: 'Endocrinology', code: null, class: 'specialty' },
+                { name: 'Orthopedics', code: null, class: 'specialty' },
+                { name: 'Rheumatology', code: null, class: 'specialty' },
+                { name: 'Psychiatry', code: null, class: 'specialty' },
+                { name: 'Infectious Disease', code: null, class: 'specialty' },
+                { name: 'Oncology', code: null, class: 'specialty' },
+                { name: 'Hematology', code: null, class: 'specialty' },
+                { name: 'Surgery (General)', code: null, class: 'surgery' },
+                { name: 'Vascular Surgery', code: null, class: 'surgery' },
+                { name: 'Physical Therapy', code: null, class: 'rehabilitation' },
+                { name: 'Occupational Therapy', code: null, class: 'rehabilitation' },
+                { name: 'Dermatology', code: null, class: 'specialty' },
+                { name: 'Ophthalmology', code: null, class: 'specialty' },
+            ],
+            procedures: [
+                { name: 'Electrocardiogram (ECG/EKG)', code: '93000', class: 'diagnostic' },
+                { name: 'Chest X-Ray', code: '71046', class: 'imaging' },
+                { name: 'CT Chest', code: '71250', class: 'imaging' },
+                { name: 'CT Abdomen/Pelvis', code: '74177', class: 'imaging' },
+                { name: 'CT Head', code: '70450', class: 'imaging' },
+                { name: 'MRI Brain', code: '70551', class: 'imaging' },
+                { name: 'MRI Spine', code: '72141', class: 'imaging' },
+                { name: 'Echocardiogram', code: '93306', class: 'diagnostic' },
+                { name: 'Stress Test', code: '93015', class: 'diagnostic' },
+                { name: 'Ultrasound Abdomen', code: '76700', class: 'imaging' },
+                { name: 'Colonoscopy', code: '45378', class: 'procedure' },
+                { name: 'Upper Endoscopy (EGD)', code: '43239', class: 'procedure' },
+                { name: 'Lumbar Puncture', code: '62270', class: 'procedure' },
+                { name: 'Bronchoscopy', code: '31622', class: 'procedure' },
+                { name: 'Bone Density Scan (DEXA)', code: '77080', class: 'imaging' },
+            ],
+            allergies: [
+                { name: 'Penicillin', code: null, class: 'medication' },
+                { name: 'Sulfa drugs', code: null, class: 'medication' },
+                { name: 'Aspirin', code: null, class: 'medication' },
+                { name: 'NSAIDs', code: null, class: 'medication' },
+                { name: 'Codeine', code: null, class: 'medication' },
+                { name: 'Morphine', code: null, class: 'medication' },
+                { name: 'Latex', code: null, class: 'environmental' },
+                { name: 'Contrast dye', code: null, class: 'medication' },
+                { name: 'Peanuts', code: null, class: 'food' },
+                { name: 'Tree nuts', code: null, class: 'food' },
+                { name: 'Shellfish', code: null, class: 'food' },
+                { name: 'Eggs', code: null, class: 'food' },
+                { name: 'Milk', code: null, class: 'food' },
+                { name: 'Soy', code: null, class: 'food' },
+                { name: 'Wheat', code: null, class: 'food' },
+                { name: 'Bee stings', code: null, class: 'environmental' },
+            ],
+        };
+
+        // Autocomplete component
+        let activeAutocomplete = null;
+        let highlightedIndex = -1;
+
+        function createAutocomplete(inputId, dataType) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            // Wrap input in autocomplete wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            // Create dropdown list
+            const list = document.createElement('div');
+            list.className = 'autocomplete-list';
+            list.id = `${inputId}_autocomplete`;
+            wrapper.appendChild(list);
+
+            // Input event handlers
+            let debounceTimer;
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    const query = input.value.trim().toLowerCase();
+                    if (query.length < 2) {
+                        hideAutocomplete(list);
+                        return;
+                    }
+                    showAutocomplete(input, list, dataType, query);
+                }, 150);
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (!list.classList.contains('visible')) return;
+
+                const items = list.querySelectorAll('.autocomplete-item');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+                    e.preventDefault();
+                    selectAutocompleteItem(items[highlightedIndex], input, list);
+                } else if (e.key === 'Escape') {
+                    hideAutocomplete(list);
+                }
+            });
+
+            input.addEventListener('blur', () => {
+                // Delay to allow click on list item
+                setTimeout(() => hideAutocomplete(list), 200);
+            });
+
+            input.addEventListener('focus', () => {
+                const query = input.value.trim().toLowerCase();
+                if (query.length >= 2) {
+                    showAutocomplete(input, list, dataType, query);
+                }
+            });
+        }
+
+        function showAutocomplete(input, list, dataType, query) {
+            const source = AUTOCOMPLETE_SOURCES[dataType] || [];
+            const matches = source.filter(item =>
+                item.name.toLowerCase().includes(query)
+            ).slice(0, 10); // Limit to 10 results
+
+            if (matches.length === 0) {
+                list.innerHTML = '<div class="autocomplete-no-results">No matches found</div>';
+            } else {
+                list.innerHTML = matches.map((item, idx) => `
+                    <div class="autocomplete-item" data-name="${item.name}" data-code="${item.code || ''}">
+                        <span class="autocomplete-item-name">${item.name}</span>
+                        ${item.code ? `<span class="autocomplete-item-code">${item.code}</span>` : ''}
+                        ${item.class ? `<span class="autocomplete-item-class">${item.class}</span>` : ''}
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                list.querySelectorAll('.autocomplete-item').forEach((el, idx) => {
+                    el.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        selectAutocompleteItem(el, input, list);
+                    });
+                });
+            }
+
+            list.classList.add('visible');
+            activeAutocomplete = list;
+            highlightedIndex = -1;
+        }
+
+        function hideAutocomplete(list) {
+            list.classList.remove('visible');
+            if (activeAutocomplete === list) {
+                activeAutocomplete = null;
+            }
+            highlightedIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('highlighted', idx === highlightedIndex);
+            });
+            if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function selectAutocompleteItem(item, input, list) {
+            input.value = item.dataset.name;
+
+            // Try to auto-fill code field if present
+            const code = item.dataset.code;
+            if (code) {
+                // Look for common code field names
+                const codeFieldIds = ['addEhr_icd10', 'addEhr_rxnorm', 'addEhr_loinc', 'addEhr_code'];
+                for (const fieldId of codeFieldIds) {
+                    const codeField = document.getElementById(fieldId);
+                    if (codeField) {
+                        codeField.value = code;
+                        break;
+                    }
+                }
+            }
+
+            hideAutocomplete(list);
+            input.focus();
+        }
+
+        // Initialize autocomplete on form fields when modal opens
+        function initializeAutocomplete() {
+            // These mappings define which fields get which autocomplete type
+            const fieldMappings = {
+                'addEhr_name': null, // Will be set based on item type
+                'addEhr_substance': 'allergies',
+                'addEhr_condition': 'conditions',
+            };
+
+            // Delayed initialization to ensure DOM is ready
+            setTimeout(() => {
+                Object.entries(fieldMappings).forEach(([fieldId, dataType]) => {
+                    if (dataType) {
+                        createAutocomplete(fieldId, dataType);
+                    }
+                });
+            }, 100);
         }
 
         async function toggleAddEhrRecording() {
@@ -5849,24 +7060,24 @@
 
             const fieldConfigs = {
                 medications: [
-                    { name: 'name', label: 'Medication Name', type: 'text', required: true, placeholder: 'e.g., Amoxicillin' },
+                    { name: 'name', label: 'Medication Name', type: 'text', required: true, placeholder: 'e.g., Amoxicillin', autocomplete: 'medications' },
                     { name: 'dosage', label: 'Dosage', type: 'text', placeholder: 'e.g., 500mg three times daily' },
                     { name: 'route', label: 'Route', type: 'select', options: ['oral', 'IV', 'IM', 'topical', 'inhaled', 'sublingual', 'rectal'] },
                     { name: 'duration', label: 'Duration', type: 'text', placeholder: 'e.g., 10 days' },
                     { name: 'instructions', label: 'Instructions', type: 'text', placeholder: 'e.g., Take with food' }
                 ],
                 labs: [
-                    { name: 'name', label: 'Lab Test', type: 'text', required: true, placeholder: 'e.g., CBC, BMP, Lipid Panel' },
+                    { name: 'name', label: 'Lab Test', type: 'text', required: true, placeholder: 'e.g., CBC, BMP, Lipid Panel', autocomplete: 'labs' },
                     { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'stat'] },
                     { name: 'instructions', label: 'Special Instructions', type: 'text', placeholder: 'e.g., Fasting required' }
                 ],
                 consults: [
-                    { name: 'name', label: 'Specialty / Service', type: 'text', required: true, placeholder: 'e.g., Cardiology, Physical Therapy' },
+                    { name: 'name', label: 'Specialty / Service', type: 'text', required: true, placeholder: 'e.g., Cardiology, Physical Therapy', autocomplete: 'consults' },
                     { name: 'reason', label: 'Reason for Consult', type: 'text', placeholder: 'e.g., Evaluation of chest pain' },
                     { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'emergent'] }
                 ],
                 procedures: [
-                    { name: 'name', label: 'Procedure Name', type: 'text', required: true, placeholder: 'e.g., Chest X-ray, ECG, MRI' },
+                    { name: 'name', label: 'Procedure Name', type: 'text', required: true, placeholder: 'e.g., Chest X-ray, ECG, MRI', autocomplete: 'procedures' },
                     { name: 'priority', label: 'Priority', type: 'select', options: ['routine', 'urgent', 'stat'] },
                     { name: 'instructions', label: 'Special Instructions', type: 'text', placeholder: 'e.g., With contrast' }
                 ]
@@ -5890,11 +7101,21 @@
                             <label>${field.label}${field.required ? ' *' : ''}</label>
                             <input type="text" id="addOrder_${field.name}"
                                    placeholder="${field.placeholder || ''}"
-                                   ${field.required ? 'required' : ''}>
+                                   ${field.required ? 'required' : ''}
+                                   ${field.autocomplete ? `data-autocomplete="${field.autocomplete}"` : ''}>
                         </div>
                     `;
                 }
             }).join('');
+
+            // Initialize autocomplete on fields that have it
+            setTimeout(() => {
+                fields.forEach(field => {
+                    if (field.autocomplete) {
+                        createAutocomplete(`addOrder_${field.name}`, field.autocomplete);
+                    }
+                });
+            }, 50);
         }
 
         async function toggleAddOrderRecording() {
@@ -6933,13 +8154,7 @@
                 }
             });
 
-            // API Guide modal
-            document.getElementById('apiGuideBtn').addEventListener('click', openApiGuideModal);
-            document.getElementById('apiGuideModal').addEventListener('click', (e) => {
-                if (e.target.id === 'apiGuideModal') {
-                    closeApiGuideModal();
-                }
-            });
+            // API Guide - now opens external page via onclick handler
 
             // Settings modal
             elements.settingsBtn.addEventListener('click', openSettingsModal);

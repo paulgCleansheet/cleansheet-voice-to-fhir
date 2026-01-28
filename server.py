@@ -418,7 +418,7 @@ async def process_audio(
             entities_dict = {
                 "chief_complaint": entities.chief_complaint_text or (chief_condition.name if chief_condition else None),
                 "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
-                "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route} for m in entities.medications],
+                "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route, "rxnorm": getattr(m, 'rxnorm', None), "rxnorm_matched": getattr(m, 'rxnorm_matched', None)} for m in entities.medications],
                 "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
                 "vitals": [{"type": v.type, "value": v.value, "unit": v.unit} for v in entities.vitals],
                 "lab_results": [{"name": l.name, "value": l.value, "unit": l.unit, "interpretation": l.interpretation} for l in entities.lab_results],
@@ -436,6 +436,11 @@ async def process_audio(
                     "gender": entities.patient.gender if entities.patient else None,
                     "date_of_birth": getattr(entities.patient, 'date_of_birth', None) if entities.patient else None,
                 } if entities.patient else None,
+                "medication_orders": [{"name": mo.name, "dose": mo.dose, "frequency": mo.frequency, "duration": getattr(mo, 'duration', None), "instructions": mo.instructions, "rxnorm": getattr(mo, 'rxnorm', None), "rxnorm_matched": getattr(mo, 'rxnorm_matched', None), "linked_diagnosis": getattr(mo, 'linked_diagnosis', None)} for mo in entities.medication_orders],
+                "lab_orders": [{"name": lo.name, "loinc": lo.loinc, "linked_diagnosis": getattr(lo, 'linked_diagnosis', None)} for lo in entities.lab_orders],
+                "referral_orders": [{"specialty": ro.specialty, "reason": ro.reason, "linked_diagnosis": getattr(ro, 'linked_diagnosis', None)} for ro in entities.referral_orders],
+                "procedure_orders": [{"name": po.name, "linked_diagnosis": getattr(po, 'linked_diagnosis', None)} for po in entities.procedure_orders],
+                "imaging_orders": [{"name": io.name} for io in entities.imaging_orders],
             }
 
         except Exception as e:
@@ -710,7 +715,7 @@ async def process_chunk(
                 entities_dict = {
                     "chief_complaint": entities.chief_complaint_text or (chief_condition.name if chief_condition else None),
                     "conditions": [{"name": c.name, "icd10": c.icd10, "status": c.status, "severity": c.severity, "is_chief_complaint": c.is_chief_complaint} for c in entities.conditions],
-                    "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route, "status": m.status, "is_new_order": m.is_new_order} for m in entities.medications],
+                    "medications": [{"name": m.name, "dose": m.dose, "frequency": m.frequency, "route": m.route, "status": m.status, "is_new_order": m.is_new_order, "rxnorm": getattr(m, 'rxnorm', None), "rxnorm_matched": getattr(m, 'rxnorm_matched', None)} for m in entities.medications],
                     "allergies": [{"substance": a.substance, "reaction": a.reaction, "severity": a.severity} for a in entities.allergies],
                     "vitals": [{"type": v.type, "value": v.value, "unit": v.unit} for v in entities.vitals],
                     "lab_results": [{"name": l.name, "value": l.value, "unit": l.unit, "interpretation": l.interpretation} for l in entities.lab_results],
@@ -728,10 +733,10 @@ async def process_chunk(
                         "gender": entities.patient.gender,
                         "date_of_birth": entities.patient.date_of_birth,
                     } if entities.patient else None,
-                    "lab_orders": [{"name": lo.name, "loinc": lo.loinc} for lo in entities.lab_orders],
-                    "medication_orders": [{"name": mo.name, "dose": mo.dose, "frequency": mo.frequency, "duration": getattr(mo, 'duration', None), "instructions": mo.instructions} for mo in entities.medication_orders],
-                    "referral_orders": [{"specialty": ro.specialty, "reason": ro.reason} for ro in entities.referral_orders],
-                    "procedure_orders": [{"name": po.name} for po in entities.procedure_orders],
+                    "lab_orders": [{"name": lo.name, "loinc": lo.loinc, "linked_diagnosis": getattr(lo, 'linked_diagnosis', None)} for lo in entities.lab_orders],
+                    "medication_orders": [{"name": mo.name, "dose": mo.dose, "frequency": mo.frequency, "duration": getattr(mo, 'duration', None), "instructions": mo.instructions, "rxnorm": getattr(mo, 'rxnorm', None), "rxnorm_matched": getattr(mo, 'rxnorm_matched', None), "linked_diagnosis": getattr(mo, 'linked_diagnosis', None)} for mo in entities.medication_orders],
+                    "referral_orders": [{"specialty": ro.specialty, "reason": ro.reason, "linked_diagnosis": getattr(ro, 'linked_diagnosis', None)} for ro in entities.referral_orders],
+                    "procedure_orders": [{"name": po.name, "linked_diagnosis": getattr(po, 'linked_diagnosis', None)} for po in entities.procedure_orders],
                     "imaging_orders": [{"name": io.name} for io in entities.imaging_orders],
                 }
 
