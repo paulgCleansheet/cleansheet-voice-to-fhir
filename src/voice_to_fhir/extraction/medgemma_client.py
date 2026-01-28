@@ -32,6 +32,7 @@ from voice_to_fhir.extraction.extraction_types import (
     SocialHistory,
     PatientDemographics,
 )
+from voice_to_fhir.extraction.post_processor import post_process
 
 
 @dataclass
@@ -299,6 +300,10 @@ TRANSCRIPT:
 
         # Parse JSON from response
         entities = self._parse_response(generated_text, transcript, workflow)
+
+        # Apply deterministic post-processing (BP normalization, ICD-10 enrichment, etc.)
+        entities = post_process(entities, transcript)
+
         return entities
 
     def _parse_response(
@@ -359,8 +364,11 @@ TRANSCRIPT:
             name = c.get("name") or c.get("description") or ""
             if not name:
                 continue  # Skip conditions without a name
+            # Extract status from MedGemma response (e.g., "resolved" for discharge diagnoses)
+            condition_status = c.get("status")
             condition = Condition(
                 name=name,
+                status=condition_status if condition_status else "active",
                 severity=c.get("severity"),
                 onset=c.get("onset"),
                 icd10=c.get("icd10"),
@@ -368,14 +376,14 @@ TRANSCRIPT:
             )
             entities.conditions.append(condition)
 
-        # Mark chief complaint
+        # Store chief complaint text (reason for visit / presenting symptoms)
+        # DO NOT add symptoms as conditions - post_processor will handle marking
         chief = data.get("chief_complaint")
-        if chief and entities.conditions:
-            entities.conditions[0].is_chief_complaint = True
-        elif chief:
-            entities.conditions.insert(
-                0, Condition(name=chief, is_chief_complaint=True)
-            )
+        if chief:
+            entities.chief_complaint_text = chief
+            # Mark first condition as chief complaint if conditions exist
+            if entities.conditions:
+                entities.conditions[0].is_chief_complaint = True
 
         # Parse vitals
         for v in data.get("vitals", []):
@@ -383,9 +391,12 @@ TRANSCRIPT:
                 continue
             # Handle null values from JSON
             vital_type = v.get("type") or v.get("name") or ""
-            vital_value = v.get("value") or ""
-            if not vital_type or not vital_value:
-                continue  # Skip vitals without type or value
+            vital_value = v.get("value")
+            if vital_value is None or vital_value == "":
+                continue  # Skip vitals without a value
+            # Convert numeric values to strings (MedGemma may return numbers)
+            vital_value = str(vital_value)
+            # Don't skip vitals without type - post-processor will infer from unit/value
             vital = Vital(
                 type=vital_type,
                 value=vital_value,
@@ -397,9 +408,14 @@ TRANSCRIPT:
         for o in data.get("observations", []):
             if not isinstance(o, dict):
                 continue
+            obs_value = o.get("value")
+            if obs_value is None or obs_value == "":
+                continue  # Skip observations without a value
+            # Convert numeric values to strings
+            obs_value = str(obs_value)
             vital = Vital(
                 type=o.get("name", ""),
-                value=o.get("value", ""),
+                value=obs_value,
                 unit=o.get("unit"),
             )
             entities.vitals.append(vital)

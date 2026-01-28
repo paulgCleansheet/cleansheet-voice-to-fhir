@@ -563,6 +563,7 @@ class ClinicalEntities:
     # Metadata
     workflow: str = "general"
     raw_transcript: str = ""
+    chief_complaint_text: str | None = None  # Reason for visit / presenting complaint (separate from diagnoses)
     extraction_metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -675,6 +676,7 @@ class ClinicalEntities:
             "family_history": [fh.to_dict() for fh in self.family_history],
             "social_history": self.social_history.to_dict() if self.social_history else None,
             "workflow": self.workflow,
+            "chief_complaint_text": self.chief_complaint_text,
         }
 
     def to_json(self, indent: int | None = 2) -> str:
@@ -708,4 +710,5 @@ class ClinicalEntities:
             family_history=[FamilyHistory.from_dict(fh) for fh in data.get("family_history", [])],
             social_history=social_history,
             workflow=data.get("workflow", "general"),
+            chief_complaint_text=data.get("chief_complaint_text"),
         )
