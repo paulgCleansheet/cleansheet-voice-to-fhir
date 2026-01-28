@@ -362,15 +362,18 @@ def extract_blood_pressure_from_transcript(transcript: str) -> Vital | None:
     - "BP 120/80"
     - "blood pressure today 128/78"
     - "blood pressure is 118 over 74"
-    - "118/74 mm Hg"
+    - "BP 118 over 74"
+    - "120/80 mm Hg"
     """
     bp_patterns = [
         # "blood pressure 120/80" or "blood pressure today 128/78"
         r'blood\s+pressure\s+(?:today\s+|is\s+|of\s+)?(\d{2,3})\s*/\s*(\d{2,3})',
         # "BP 120/80"
         r'\bBP\s+(\d{2,3})\s*/\s*(\d{2,3})',
-        # "blood pressure is 118 over 74"
-        r'blood\s+pressure\s+(?:is\s+)?(\d{2,3})\s+over\s+(\d{2,3})',
+        # "blood pressure is 118 over 74" or "blood pressure 118 over 74"
+        r'blood\s+pressure\s+(?:is\s+|today\s+)?(\d{2,3})\s+over\s+(\d{2,3})',
+        # "BP 118 over 74"
+        r'\bBP\s+(\d{2,3})\s+over\s+(\d{2,3})',
         # "120/80 mm Hg" or "120/80 mmHg"
         r'(\d{2,3})\s*/\s*(\d{2,3})\s*(?:mm\s*Hg|mmHg)',
     ]
@@ -391,18 +394,202 @@ def extract_blood_pressure_from_transcript(transcript: str) -> Vital | None:
     return None
 
 
+def ensure_blood_pressure_from_transcript(entities: "ClinicalEntities", transcript: str) -> None:
+    """
+    SIMPLE BP EXTRACTION: Extract BP directly from transcript and fix vitals.
+
+    This function:
+    1. Extracts BP from transcript using reliable patterns
+    2. Removes any partial/incorrect BP values from vitals (single mmHg values)
+    3. Adds the complete BP to vitals
+
+    Called at the START of post_process to ensure BP is always correct.
+    """
+    # Extract BP from transcript
+    bp_from_transcript = extract_blood_pressure_from_transcript(transcript)
+
+    if not bp_from_transcript:
+        print("[BP Ensure] No blood pressure found in transcript")
+        return
+
+    print(f"[BP Ensure] Extracted BP from transcript: {bp_from_transcript.value}")
+
+    # Remove ALL existing BP values (both partial and complete)
+    # The deterministic extraction is the source of truth for BP
+    cleaned_vitals = []
+    for v in entities.vitals:
+        value_str = str(v.value) if v.value else ""
+        unit_lower = (v.unit or "").lower()
+        type_lower = (v.type or "").lower()
+
+        # Skip any blood pressure vitals (by type or by mmHg unit)
+        if type_lower in ("blood_pressure", "bp"):
+            print(f"[BP Ensure] Removing existing BP: {value_str} {v.unit}")
+            continue
+
+        # Also skip mmHg values that look like BP (partial or complete)
+        if unit_lower in ("mmhg", "mm hg"):
+            # Check if it's a BP-like value (contains "/" or is in BP numeric range)
+            if "/" in value_str:
+                print(f"[BP Ensure] Removing existing BP: {value_str} {v.unit}")
+                continue
+            try:
+                numeric_val = float(value_str.replace(',', ''))
+                if 40 <= numeric_val <= 220:
+                    print(f"[BP Ensure] Removing partial BP value: {value_str} {v.unit}")
+                    continue
+            except (ValueError, TypeError):
+                pass
+
+        cleaned_vitals.append(v)
+
+    # Add the single authoritative BP from transcript
+    cleaned_vitals.insert(0, bp_from_transcript)
+    entities.vitals = cleaned_vitals
+    print(f"[BP Ensure] Added complete BP: {bp_from_transcript.value} mmHg")
+
+
+def detect_resolved_status_from_transcript(entities: "ClinicalEntities", transcript: str) -> None:
+    """
+    Detect 'resolved' status for conditions mentioned as resolved in the transcript.
+
+    This handles discharge summaries where conditions are marked as resolved:
+    - "[DISCHARGE DIAGNOSIS] Community-acquired pneumonia, resolved."
+    - "Diagnosis: pneumonia (resolved)"
+
+    Called early in post_process to ensure status is correctly set even if
+    MedGemma misses the "resolved" qualifier.
+    """
+    transcript_lower = transcript.lower()
+
+    # Patterns that indicate a condition is resolved
+    resolved_patterns = [
+        r'\[discharge\s+diagnosis\]\s*([^,\[\]]+),?\s*resolved',
+        r'diagnosis[:\s]+([^,\[\]]+),?\s*resolved',
+        r'([^,\[\]]+)\s*\(resolved\)',
+        r'([^,\[\]]+)\s*-\s*resolved',
+        r'resolved\s+([^,\[\]]+)',
+    ]
+
+    resolved_conditions = set()
+    for pattern in resolved_patterns:
+        matches = re.finditer(pattern, transcript_lower)
+        for match in matches:
+            condition_name = match.group(1).strip()
+            # Clean up the name (remove trailing punctuation)
+            condition_name = re.sub(r'[\.\s]+$', '', condition_name)
+            if condition_name:
+                resolved_conditions.add(condition_name)
+                print(f"[Status Detect] Found resolved condition in transcript: '{condition_name}'")
+
+    if not resolved_conditions:
+        return
+
+    # Update matching conditions to resolved status
+    for condition in entities.conditions:
+        condition_lower = condition.name.lower().strip()
+        for resolved_name in resolved_conditions:
+            # Check for fuzzy match (resolved name contained in condition name or vice versa)
+            if resolved_name in condition_lower or condition_lower in resolved_name:
+                if condition.status != "resolved":
+                    print(f"[Status Detect] Setting '{condition.name}' status to resolved (was: {condition.status})")
+                    condition.status = "resolved"
+                break
+
+
+def merge_split_blood_pressure(vitals: list[Vital], transcript: str) -> tuple[list[Vital], Vital | None]:
+    """
+    Detect and merge split blood pressure values.
+
+    MedGemma sometimes returns systolic and diastolic as separate entries:
+      [{"value": 142, "unit": "mmHg"}, {"value": 88, "unit": "mmHg"}]
+
+    This function detects this pattern and merges them into a single BP.
+
+    Returns:
+        Tuple of (non-BP vitals, merged BP vital or None)
+    """
+    non_bp_vitals = []
+    potential_bp_values = []
+
+    for v in vitals:
+        value_str = str(v.value) if v.value else ""
+        unit_lower = (v.unit or "").lower()
+
+        # Already proper BP format - return as-is
+        if "/" in value_str:
+            return [vv for vv in vitals if vv != v], Vital(
+                type="blood_pressure",
+                value=value_str,
+                unit="mmHg"
+            )
+
+        # Check if this looks like a BP component (mmHg in typical BP range)
+        try:
+            numeric_value = float(value_str.replace(',', ''))
+            is_bp_unit = unit_lower in ("mmhg", "mm hg")
+            is_bp_range = 40 <= numeric_value <= 220  # Expanded range for diastolic
+
+            if is_bp_unit and is_bp_range:
+                potential_bp_values.append(numeric_value)
+            else:
+                non_bp_vitals.append(v)
+        except (ValueError, TypeError):
+            non_bp_vitals.append(v)
+
+    # If we have exactly 2 potential BP values, merge them
+    if len(potential_bp_values) == 2:
+        # Sort to get systolic (higher) and diastolic (lower)
+        sorted_vals = sorted(potential_bp_values, reverse=True)
+        systolic, diastolic = sorted_vals
+
+        # Validate: systolic should be higher than diastolic by reasonable margin
+        if systolic > diastolic and 20 <= (systolic - diastolic) <= 120:
+            bp_value = f"{int(systolic)}/{int(diastolic)}"
+            print(f"[BP Merge] Merged split BP values: {bp_value}")
+            return non_bp_vitals, Vital(
+                type="blood_pressure",
+                value=bp_value,
+                unit="mmHg"
+            )
+
+    # If we have potential BP values but couldn't merge, try transcript extraction
+    if potential_bp_values:
+        bp_from_transcript = extract_blood_pressure_from_transcript(transcript)
+        if bp_from_transcript:
+            print(f"[BP Merge] Using transcript BP instead of split values: {bp_from_transcript.value}")
+            return non_bp_vitals, bp_from_transcript
+
+        # Fallback: if we have exactly 1 value, keep it as partial BP
+        if len(potential_bp_values) == 1:
+            return non_bp_vitals, Vital(
+                type="blood_pressure",
+                value=str(int(potential_bp_values[0])),
+                unit="mmHg"
+            )
+
+    return non_bp_vitals, None
+
+
 def normalize_vitals(vitals: list[Vital], transcript: str) -> list[Vital]:
     """
     Normalize vitals to ensure proper types and formats.
 
+    - Detects and merges split BP values (systolic/diastolic as separate entries)
     - Assigns types based on value ranges if missing
     - Ensures BP has proper format and type
     - Adds BP from transcript if missing
     """
-    normalized = []
-    has_bp = False
+    # First, try to detect and merge split blood pressure values
+    non_bp_vitals, merged_bp = merge_split_blood_pressure(vitals, transcript)
 
-    for v in vitals:
+    normalized = []
+    has_bp = merged_bp is not None
+
+    if merged_bp:
+        normalized.append(merged_bp)
+
+    for v in non_bp_vitals:
         vital = v  # May modify
 
         # Check if this looks like blood pressure
@@ -420,19 +607,23 @@ def normalize_vitals(vitals: list[Vital], transcript: str) -> list[Vital]:
 
         # If type is blood_pressure but value is single number, try to find full BP
         elif v.type and v.type.lower() in ("blood_pressure", "bp"):
-            # Try to find the full BP in transcript
-            bp_from_transcript = extract_blood_pressure_from_transcript(transcript)
-            if bp_from_transcript:
-                vital = bp_from_transcript
-                has_bp = True
+            if not has_bp:
+                # Try to find the full BP in transcript
+                bp_from_transcript = extract_blood_pressure_from_transcript(transcript)
+                if bp_from_transcript:
+                    vital = bp_from_transcript
+                    has_bp = True
+                else:
+                    # Keep as systolic-only if we can't find diastolic
+                    vital = Vital(
+                        type="blood_pressure",
+                        value=value_str,
+                        unit="mmHg"
+                    )
+                    has_bp = True
             else:
-                # Keep as systolic-only if we can't find diastolic
-                vital = Vital(
-                    type="blood_pressure",
-                    value=value_str,
-                    unit="mmHg"
-                )
-                has_bp = True
+                # Already have BP, skip this duplicate
+                continue
 
         # Infer type from unit if type is missing
         elif not v.type or is_placeholder(v.type):
@@ -455,13 +646,13 @@ def normalize_vitals(vitals: list[Vital], transcript: str) -> list[Vital]:
                     vital = Vital(type="oxygen_saturation", value=value_str, unit="%")
                 elif unit_lower in ("breaths/min", "breaths per minute", "/min"):
                     vital = Vital(type="respiratory_rate", value=value_str, unit="breaths/min")
-                elif unit_lower == "mmhg":
-                    # mmHg could be BP (systolic only) - check value range
-                    if 70 <= numeric_value <= 200:
+                elif unit_lower in ("mmhg", "mm hg"):
+                    # mmHg already handled by merge_split_blood_pressure
+                    # This shouldn't normally be reached, but handle edge cases
+                    if not has_bp and 70 <= numeric_value <= 200:
                         vital = Vital(type="blood_pressure", value=value_str, unit="mmHg")
-                        # Don't set has_bp here - we want to try to find full BP
                     else:
-                        vital = v  # Keep original
+                        continue  # Skip - likely a duplicate BP component
                 else:
                     # Infer from value ranges
                     if 90 <= numeric_value <= 110:
@@ -511,6 +702,185 @@ def filter_allergies(allergies: list[Allergy]) -> list[Allergy]:
 def filter_medications(medications: list[Medication]) -> list[Medication]:
     """Filter out medications with placeholder names."""
     return [m for m in medications if not is_placeholder(m.name)]
+
+
+# Patterns for extracting medication dosages from transcript
+MEDICATION_DOSE_PATTERNS = [
+    # "metformin 1000 mg twice daily" - common drug suffixes
+    r'(\b\w*(?:cillin|pril|statin|formin|olol|sartan|pam|zole|ine|ide|mab|nib)\b)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg|units?)\s*(?:(once|twice|three times|four times|every \d+ hours?|daily|bid|tid|qid|prn|as needed|per day))?',
+    # "aspirin 81 mg daily" - common OTC meds
+    r'(aspirin|ibuprofen|acetaminophen|tylenol|advil|motrin)\s+(\d+(?:\.\d+)?)\s*(mg|g)\s*(?:(daily|twice daily|as needed|prn|every \d+ hours?))?',
+    # "amoxicillin 500 mg three times daily for 7 days"
+    r'(amoxicillin|azithromycin|ciprofloxacin|levofloxacin|doxycycline|cephalexin|augmentin)\s+(\d+(?:\.\d+)?)\s*(mg|g)\s*(?:(once|twice|three times|four times|every \d+ hours?|daily|bid|tid|qid))?(?:\s+(?:daily|a day|per day))?(?:\s+for\s+\d+\s*days?)?',
+    # Generic: "start/continue/prescribe DRUG DOSE UNIT FREQUENCY"
+    r'(?:start|continue|prescribe|give|administer|take)\s+(\w+)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg|units?)\s*(?:(once|twice|three times|every \d+ hours?|daily|bid|tid|qid))?',
+    # "DRUG DOSE UNIT FREQUENCY" - standalone pattern
+    r'\b([a-z]+)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg)\s+(once|twice|three times|daily|bid|tid|qid|every \d+ hours?)',
+]
+
+
+def extract_medication_dosages_from_transcript(
+    medications: list[Medication],
+    transcript: str
+) -> list[Medication]:
+    """
+    Fill in missing dose/frequency for medications by parsing transcript.
+
+    For each medication with null dose, search the transcript for patterns
+    that match the medication name followed by dosage information.
+
+    Args:
+        medications: List of medications (may have null dose/frequency)
+        transcript: The transcript text to search
+
+    Returns:
+        Updated list of medications with doses filled in where found
+    """
+    if not medications or not transcript:
+        return medications
+
+    transcript_lower = transcript.lower()
+    print(f"[MedDose DEBUG] Processing {len(medications)} medications")
+    print(f"[MedDose DEBUG] Transcript preview: {transcript_lower[:200]}...")
+
+    for med in medications:
+        print(f"[MedDose DEBUG] Checking '{med.name}' - current dose: {med.dose}")
+        # Skip if already has dose
+        if med.dose:
+            print(f"[MedDose DEBUG]   -> Skipping (already has dose)")
+            continue
+
+        med_name_lower = med.name.lower()
+
+        # Try each pattern
+        for i, pattern in enumerate(MEDICATION_DOSE_PATTERNS):
+            matches = list(re.finditer(pattern, transcript_lower, re.IGNORECASE))
+            if matches:
+                print(f"[MedDose DEBUG]   Pattern {i} found {len(matches)} matches")
+            for match in matches:
+                # Check if this match is for our medication
+                matched_drug = match.group(1)
+                print(f"[MedDose DEBUG]   Matched drug: '{matched_drug}' vs med: '{med_name_lower}'")
+                if matched_drug.lower() in med_name_lower or med_name_lower in matched_drug.lower():
+                    # Extract dose
+                    dose_value = match.group(2)
+                    dose_unit = match.group(3)
+                    med.dose = f"{dose_value} {dose_unit}"
+                    print(f"[MedDose DEBUG]   -> MATCHED! Setting dose to: {med.dose}")
+
+                    # Extract frequency if captured
+                    if len(match.groups()) >= 4 and match.group(4):
+                        freq = match.group(4).strip()
+                        # Normalize frequency
+                        freq_map = {
+                            'bid': 'twice daily',
+                            'tid': 'three times daily',
+                            'qid': 'four times daily',
+                            'once': 'once daily',
+                            'twice': 'twice daily',
+                            'three times': 'three times daily',
+                            'four times': 'four times daily',
+                        }
+                        med.frequency = freq_map.get(freq.lower(), freq)
+
+                    print(f"[Post-process] Extracted dosage for {med.name}: {med.dose} {med.frequency or ''}")
+                    break
+
+            if med.dose:
+                break
+
+    return medications
+
+
+def extract_plan_medication_orders(
+    transcript: str,
+    existing_orders: list[MedicationOrder]
+) -> list[MedicationOrder]:
+    """
+    Extract medication orders from [PLAN] section of SOAP notes.
+
+    Parses the Plan section for new medication prescriptions and adds them
+    to medication_orders if not already present.
+
+    Args:
+        transcript: The transcript text (may contain [PLAN] section)
+        existing_orders: Current medication orders (for deduplication)
+
+    Returns:
+        Updated list of medication orders
+    """
+    # Extract PLAN section
+    plan_text = extract_section(transcript, "PLAN")
+    print(f"[PLAN Extract DEBUG] Looking for [PLAN] in transcript...")
+    print(f"[PLAN Extract DEBUG] Found PLAN text: '{plan_text[:100] if plan_text else 'NONE'}...'")
+    if not plan_text:
+        print(f"[PLAN Extract DEBUG] No PLAN section found, returning existing orders")
+        return existing_orders
+
+    print(f"[Post-process] Extracting medication orders from PLAN section...")
+
+    # Patterns for plan medications
+    plan_med_patterns = [
+        # "Amoxicillin 500 mg three times daily for 10 days" - standalone med at start of PLAN
+        r'^([A-Za-z]+)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg)\s+(once daily|twice daily|three times daily|four times daily|once|twice|three times|four times|daily|every \d+ hours?)(?:\s+for\s+(\d+)\s*days?)?',
+        # "Start amoxicillin 500 mg three times daily for 7 days"
+        r'(?:start|prescribe|give|order|initiate|continue)\s+(\w+)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml|mcg)\s*(?:(once daily|twice daily|three times daily|four times daily|once|twice|three times|every \d+ hours?|daily|bid|tid|qid))?(?:\s+(?:daily|a day|per day))?(?:\s+for\s+(\d+)\s*days?)?',
+        # "Amoxicillin 500 mg TID x 7 days"
+        r'\b([a-z]+)\s+(\d+(?:\.\d+)?)\s*(mg|g|ml)\s*(bid|tid|qid|daily)(?:\s*(?:x|for)\s*(\d+)\s*days?)?',
+        # "prescribing penicillin 500 mg"
+        r'(?:prescribing|ordering|starting)\s+(\w+(?:\s+\w+)?)\s+(\d+(?:\.\d+)?)\s*(mg|g)',
+    ]
+
+    # Get existing order names for deduplication
+    existing_names = {o.name.lower().strip() for o in existing_orders}
+
+    new_orders = list(existing_orders)
+
+    for i, pattern in enumerate(plan_med_patterns):
+        matches = list(re.finditer(pattern, plan_text, re.IGNORECASE))
+        print(f"[PLAN Extract DEBUG] Pattern {i}: {len(matches)} matches")
+        for match in matches:
+            print(f"[PLAN Extract DEBUG]   Match: '{match.group(0)}'")
+            drug_name = match.group(1)
+
+            # Skip if already exists
+            if drug_name.lower().strip() in existing_names:
+                continue
+
+            # Build order
+            dose_value = match.group(2) if len(match.groups()) >= 2 else None
+            dose_unit = match.group(3) if len(match.groups()) >= 3 else None
+            frequency = match.group(4) if len(match.groups()) >= 4 else None
+
+            dose = f"{dose_value} {dose_unit}" if dose_value and dose_unit else None
+
+            # Normalize frequency
+            if frequency:
+                freq_map = {
+                    'bid': 'twice daily',
+                    'tid': 'three times daily',
+                    'qid': 'four times daily',
+                    'daily': 'once daily',
+                }
+                frequency = freq_map.get(frequency.lower(), frequency)
+
+            # Build instructions
+            instructions = None
+            if len(match.groups()) >= 5 and match.group(5):
+                instructions = f"for {match.group(5)} days"
+
+            order = MedicationOrder(
+                name=drug_name.capitalize(),
+                dose=dose,
+                frequency=frequency,
+                instructions=instructions
+            )
+
+            new_orders.append(order)
+            existing_names.add(drug_name.lower().strip())
+            print(f"[Post-process] Added medication order from PLAN: {order.name} {order.dose or ''}")
+
+    return new_orders
 
 
 def filter_medication_orders(orders: list[MedicationOrder]) -> list[MedicationOrder]:
@@ -633,24 +1003,34 @@ def post_process(entities: ClinicalEntities, transcript: str) -> ClinicalEntitie
     # Store original transcript for marker extraction
     entities.raw_transcript = transcript
 
+    # 0. CRITICAL: Extract blood pressure directly from transcript FIRST
+    # This simple approach bypasses complex normalization and ensures BP is correct
+    ensure_blood_pressure_from_transcript(entities, transcript)
+
+    # 0.5: Detect resolved status from transcript (for discharge summaries)
+    detect_resolved_status_from_transcript(entities, transcript)
+
     # 1. Extract chief complaint from markers if missing
     chief_complaint = extract_chief_complaint(transcript, entities)
     print(f"[Post-process DEBUG] Extracted chief complaint: '{chief_complaint}'")
     if chief_complaint:
-        # Mark first matching condition as chief complaint, or add new one
+        # Store the chief complaint text separately (reason for visit / presenting symptoms)
+        entities.chief_complaint_text = chief_complaint
+
+        # Mark first matching condition as chief complaint
+        # DO NOT add symptoms as conditions - they're not diagnoses
         found = False
         for condition in entities.conditions:
             if condition.name.lower() == chief_complaint.lower():
                 condition.is_chief_complaint = True
                 found = True
+                print(f"[Post-process DEBUG] Matched chief complaint to condition: '{condition.name}'")
                 break
-        if not found:
-            # Add as a new condition marked as chief complaint
-            entities.conditions.insert(0, Condition(
-                name=chief_complaint,
-                is_chief_complaint=True,
-                status="active"
-            ))
+        if not found and entities.conditions:
+            # No exact match - mark the first/primary condition as chief complaint
+            # This preserves the chief_complaint property without adding symptoms as conditions
+            entities.conditions[0].is_chief_complaint = True
+            print(f"[Post-process DEBUG] No match - marked first condition as CC: '{entities.conditions[0].name}'")
 
     # 2. Extract family history from markers
     entities.family_history = extract_family_history(transcript, entities)
@@ -676,6 +1056,14 @@ def post_process(entities: ClinicalEntities, transcript: str) -> ClinicalEntitie
     entities.medication_orders = filter_medication_orders(entities.medication_orders)
     entities.referral_orders = filter_referral_orders(entities.referral_orders)
     entities.lab_results = filter_lab_results(entities.lab_results)
+
+    # 5.5. Extract medication dosages from transcript for meds with null dose
+    entities.medications = extract_medication_dosages_from_transcript(entities.medications, transcript)
+    print(f"[Post-process DEBUG] Medication dosages extracted for {sum(1 for m in entities.medications if m.dose)}/{len(entities.medications)} medications")
+
+    # 5.6. Extract medication orders from [PLAN] section (for SOAP notes)
+    entities.medication_orders = extract_plan_medication_orders(transcript, entities.medication_orders)
+    print(f"[Post-process DEBUG] Medication orders after PLAN extraction: {len(entities.medication_orders)}")
 
     # 6. Clean social history (convert "null" strings to None)
     entities.social_history = clean_social_history(entities.social_history)
