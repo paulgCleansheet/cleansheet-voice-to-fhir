@@ -389,16 +389,44 @@ class FHIRTransformer:
                 }
             ]
 
-        # Try to parse numeric value
+        # Handle blood pressure specially (has systolic/diastolic components)
         value_str = vital.value or ""
-        try:
-            numeric_value = float(value_str.replace(",", "").split("/")[0])
-            resource["valueQuantity"] = {
-                "value": numeric_value,
-                "unit": vital.unit or "",
-            }
-        except (ValueError, IndexError):
-            resource["valueString"] = value_str if value_str else "no value"
+        if "/" in value_str and vital_type.lower() in ("blood_pressure", "bp"):
+            # Blood pressure with systolic/diastolic - use FHIR component structure
+            try:
+                parts = value_str.split("/")
+                systolic = float(parts[0].replace(",", "").strip())
+                diastolic = float(parts[1].replace(",", "").strip())
+                resource["component"] = [
+                    {
+                        "code": {
+                            "coding": [{"system": "http://loinc.org", "code": "8480-6", "display": "Systolic blood pressure"}],
+                            "text": "Systolic"
+                        },
+                        "valueQuantity": {"value": systolic, "unit": "mmHg"}
+                    },
+                    {
+                        "code": {
+                            "coding": [{"system": "http://loinc.org", "code": "8462-4", "display": "Diastolic blood pressure"}],
+                            "text": "Diastolic"
+                        },
+                        "valueQuantity": {"value": diastolic, "unit": "mmHg"}
+                    }
+                ]
+                # Also store combined value as string for easy display
+                resource["valueString"] = value_str
+            except (ValueError, IndexError):
+                resource["valueString"] = value_str
+        else:
+            # Regular vital - try to parse as numeric
+            try:
+                numeric_value = float(value_str.replace(",", ""))
+                resource["valueQuantity"] = {
+                    "value": numeric_value,
+                    "unit": vital.unit or "",
+                }
+            except (ValueError, IndexError):
+                resource["valueString"] = value_str if value_str else "no value"
 
         return resource
 
