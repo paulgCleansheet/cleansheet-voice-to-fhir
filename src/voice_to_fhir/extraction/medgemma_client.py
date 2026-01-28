@@ -49,7 +49,7 @@ class MedGemmaClientConfig:
     local_url: str = "http://localhost:3003"
     # Legacy serverless API
     api_url: str = "https://api-inference.huggingface.co/models"
-    timeout_seconds: float = 120.0
+    timeout_seconds: float = 300.0
     max_tokens: int = 2048
     temperature: float = 0.1
     prompts_dir: str | Path = "src/voice_to_fhir/extraction/prompts"
@@ -63,7 +63,7 @@ class MedGemmaClientConfig:
             backend=os.environ.get("MEDGEMMA_BACKEND", "dedicated"),
             endpoint_url=os.environ.get("MEDGEMMA_ENDPOINT_URL"),
             local_url=os.environ.get("MEDGEMMA_LOCAL_URL", "http://localhost:3003"),
-            timeout_seconds=float(os.environ.get("MEDGEMMA_TIMEOUT", "120.0")),
+            timeout_seconds=float(os.environ.get("MEDGEMMA_TIMEOUT", "300.0")),
         )
 
 
