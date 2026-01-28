@@ -1974,6 +1974,116 @@
             border-top: 1px solid var(--color-border);
         }
 
+        /* Ground Truth Modal Styles */
+        .ground-truth-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+        }
+
+        .ground-truth-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .ground-truth-item:last-child {
+            border-bottom: none;
+        }
+
+        .ground-truth-item:hover {
+            background: var(--color-bg-light);
+        }
+
+        .ground-truth-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--color-primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .ground-truth-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ground-truth-item-title {
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 2px;
+        }
+
+        .ground-truth-item-meta {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .ground-truth-item-stats {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-shrink: 0;
+        }
+
+        .ground-truth-stat {
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--color-bg-light);
+            color: var(--color-text-secondary);
+        }
+
+        .ground-truth-stat.conditions {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+
+        .ground-truth-stat.medications {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .ground-truth-stat.vitals {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .ground-truth-stat.orders {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xl);
+            color: var(--color-text-secondary);
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         /* About Modal / Interactive Pipeline Styles */
         .about-modal {
             max-width: 1000px;
@@ -2875,6 +2985,10 @@
                 Import
             </button>
             <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            <button class="settings-btn" id="groundTruthBtn" title="Load ground truth demo data">
+                <i class="ph ph-database"></i>
+                Ground Truth
+            </button>
             <button class="settings-btn" id="aboutBtn">
                 <i class="ph ph-info"></i>
                 About
@@ -2959,6 +3073,33 @@
     </div>
 
     <!-- About Modal (Interactive Pipeline) -->
+    <!-- Ground Truth Modal -->
+    <div class="modal-overlay" id="groundTruthModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2><i class="ph ph-database"></i> Load Ground Truth</h2>
+                <button class="btn-icon" onclick="closeGroundTruthModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
+                    Select a pre-validated recording to load into the review panel. Ground truth data has been SME-reviewed and can be used for demonstration or accuracy comparison.
+                </p>
+                <div id="groundTruthList" class="ground-truth-list">
+                    <div class="loading-spinner">
+                        <i class="ph ph-spinner spinning"></i>
+                        Loading ground truth data...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--color-border);">
+                <div class="ground-truth-stats" id="groundTruthStats" style="color: var(--color-text-secondary); font-size: 13px;"></div>
+                <button class="btn btn-secondary" onclick="closeGroundTruthModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="aboutModal">
         <div class="modal about-modal">
             <div class="modal-header">
@@ -7493,6 +7634,169 @@
             closePipelinePopup();
         }
 
+        // Ground Truth Modal
+        let groundTruthData = null;
+
+        async function openGroundTruthModal() {
+            const modal = document.getElementById('groundTruthModal');
+            modal.classList.add('visible');
+
+            // Load ground truth data if not already loaded
+            if (!groundTruthData) {
+                await loadGroundTruthData();
+            } else {
+                renderGroundTruthList();
+            }
+        }
+
+        function closeGroundTruthModal() {
+            const modal = document.getElementById('groundTruthModal');
+            modal.classList.remove('visible');
+        }
+
+        async function loadGroundTruthData() {
+            const listEl = document.getElementById('groundTruthList');
+            const statsEl = document.getElementById('groundTruthStats');
+
+            try {
+                const response = await fetch('../test/fixtures/ground-truth.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to load ground truth: ${response.status}`);
+                }
+                groundTruthData = await response.json();
+                renderGroundTruthList();
+            } catch (error) {
+                console.error('Error loading ground truth:', error);
+                listEl.innerHTML = `
+                    <div class="loading-spinner" style="color: var(--color-error);">
+                        <i class="ph ph-warning"></i>
+                        Failed to load ground truth data: ${error.message}
+                    </div>
+                `;
+                statsEl.textContent = '';
+            }
+        }
+
+        function renderGroundTruthList() {
+            const listEl = document.getElementById('groundTruthList');
+            const statsEl = document.getElementById('groundTruthStats');
+
+            if (!groundTruthData || !groundTruthData.state || !groundTruthData.state.reviewPool) {
+                listEl.innerHTML = '<div class="loading-spinner">No ground truth data available</div>';
+                return;
+            }
+
+            const pool = groundTruthData.state.reviewPool;
+
+            // Workflow icons
+            const workflowIcons = {
+                general: 'stethoscope',
+                soap: 'note',
+                hp: 'clipboard-text',
+                emergency: 'siren',
+                intake: 'user-plus',
+                followup: 'arrow-counter-clockwise',
+                procedure: 'scissors',
+                discharge: 'sign-out',
+                radiology: 'x-ray',
+                lab_review: 'test-tube',
+                respiratory: 'lungs',
+                icu: 'heartbeat',
+                cardiology: 'heart',
+                neurology: 'brain',
+                pediatrics: 'baby'
+            };
+
+            listEl.innerHTML = pool.map((item, index) => {
+                const ed = item.extractedData || {};
+                const condCount = (ed.conditions || []).length;
+                const medCount = (ed.medications || []).length;
+                const vitalCount = (ed.vitals || []).length;
+                const orders = ed.orders || {};
+                const orderCount = (orders.medications || []).length +
+                                   (orders.labs || []).length +
+                                   (orders.consults || []).length +
+                                   (orders.procedures || []).length;
+
+                const icon = workflowIcons[item.workflow] || 'file-text';
+
+                return `
+                    <div class="ground-truth-item" onclick="loadGroundTruthItem(${index})">
+                        <div class="ground-truth-item-icon">
+                            <i class="ph ph-${icon}"></i>
+                        </div>
+                        <div class="ground-truth-item-info">
+                            <div class="ground-truth-item-title">${item.workflowName || item.workflow}</div>
+                            <div class="ground-truth-item-meta">
+                                <span><i class="ph ph-file"></i> ${item.filename}</span>
+                            </div>
+                        </div>
+                        <div class="ground-truth-item-stats">
+                            ${condCount ? `<span class="ground-truth-stat conditions">${condCount} cond</span>` : ''}
+                            ${medCount ? `<span class="ground-truth-stat medications">${medCount} med</span>` : ''}
+                            ${vitalCount ? `<span class="ground-truth-stat vitals">${vitalCount} vital</span>` : ''}
+                            ${orderCount ? `<span class="ground-truth-stat orders">${orderCount} orders</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate totals
+            let totalCond = 0, totalMed = 0, totalVital = 0, totalOrders = 0;
+            pool.forEach(item => {
+                const ed = item.extractedData || {};
+                totalCond += (ed.conditions || []).length;
+                totalMed += (ed.medications || []).length;
+                totalVital += (ed.vitals || []).length;
+                const orders = ed.orders || {};
+                totalOrders += (orders.medications || []).length +
+                               (orders.labs || []).length +
+                               (orders.consults || []).length +
+                               (orders.procedures || []).length;
+            });
+
+            statsEl.textContent = `${pool.length} recordings | ${totalCond} conditions | ${totalMed} medications | ${totalVital} vitals | ${totalOrders} orders`;
+        }
+
+        function loadGroundTruthItem(index) {
+            if (!groundTruthData || !groundTruthData.state || !groundTruthData.state.reviewPool) {
+                showToast('Ground truth data not loaded', 'error');
+                return;
+            }
+
+            const item = groundTruthData.state.reviewPool[index];
+            if (!item) {
+                showToast('Invalid ground truth item', 'error');
+                return;
+            }
+
+            // Create a review pool item from ground truth
+            const reviewItem = {
+                id: item.id || `gt-${Date.now()}`,
+                workflow: item.workflow,
+                workflowName: item.workflowName,
+                filename: `[Ground Truth] ${item.filename}`,
+                audioBlob: null, // No audio in ground truth
+                transcript: item.transcript || '',
+                fhirBundle: null,
+                metrics: item.metrics || { transcriptionMs: 0, extractionMs: 0 },
+                status: 'done',
+                extractedData: item.extractedData,
+                approved: {}
+            };
+
+            // Add to review pool
+            state.reviewPool.push(reviewItem);
+            state.currentReviewIndex = state.reviewPool.length - 1;
+
+            // Update UI
+            updateReviewPoolUI();
+            displayCurrentReview();
+
+            closeGroundTruthModal();
+            showToast(`Loaded ground truth: ${item.workflowName || item.workflow}`, 'success');
+        }
+
         const pipelineNodes = ['medasr', 'medgemma', 'deterministic', 'clinician', 'fhir'];
         let currentPipelineNode = 0;
 
@@ -8138,6 +8442,14 @@
                 // Don't close if clicking on a node or inside the popup
                 if (!e.target.closest('.pipeline-node') && !e.target.closest('.pipeline-popup')) {
                     closePipelinePopup();
+                }
+            });
+
+            // Ground Truth modal
+            document.getElementById('groundTruthBtn').addEventListener('click', openGroundTruthModal);
+            document.getElementById('groundTruthModal').addEventListener('click', (e) => {
+                if (e.target.id === 'groundTruthModal') {
+                    closeGroundTruthModal();
                 }
             });
 

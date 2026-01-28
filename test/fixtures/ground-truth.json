@@ -1,0 +1,3007 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-01-28T19:35:03.347Z",
+  "state": {
+    "workflows": [
+      {
+        "id": "general",
+        "name": "General Encounter",
+        "description": "Standard clinical encounters"
+      },
+      {
+        "id": "soap",
+        "name": "SOAP Note",
+        "description": "Structured Subjective/Objective/Assessment/Plan format"
+      },
+      {
+        "id": "hp",
+        "name": "History & Physical",
+        "description": "Comprehensive H&P, annual physicals, wellness exams"
+      },
+      {
+        "id": "emergency",
+        "name": "Emergency / Trauma",
+        "description": "ED visits, trauma, acute care"
+      },
+      {
+        "id": "intake",
+        "name": "Patient Intake",
+        "description": "New patient registration, full history"
+      },
+      {
+        "id": "followup",
+        "name": "Follow-up Visit",
+        "description": "Return visits, progress notes"
+      },
+      {
+        "id": "procedure",
+        "name": "Procedure Note",
+        "description": "Surgical and procedure documentation"
+      },
+      {
+        "id": "discharge",
+        "name": "Discharge Summary",
+        "description": "Hospital discharge documentation"
+      },
+      {
+        "id": "radiology",
+        "name": "Radiology Dictation",
+        "description": "Imaging study interpretation"
+      },
+      {
+        "id": "lab_review",
+        "name": "Lab Review",
+        "description": "Laboratory result review"
+      },
+      {
+        "id": "respiratory",
+        "name": "Respiratory Assessment",
+        "description": "RT assessments, ventilator management"
+      },
+      {
+        "id": "icu",
+        "name": "ICU / Critical Care",
+        "description": "Critical care documentation"
+      },
+      {
+        "id": "cardiology",
+        "name": "Cardiology",
+        "description": "Cardiac encounters and procedures"
+      },
+      {
+        "id": "pediatrics",
+        "name": "Pediatrics",
+        "description": "Pediatric encounters"
+      },
+      {
+        "id": "neurology",
+        "name": "Neurology",
+        "description": "Neurological assessments"
+      }
+    ],
+    "queue": [],
+    "reviewPool": [
+      {
+        "id": "mkye7i0ldspt8k7oz34",
+        "workflow": "cardiology",
+        "workflowName": "Cardiology",
+        "filename": "cardiology-consult.webm",
+        "transcript": "Cardiology consultation for chest pain evaluation. The patient is a 48-year-old male with new onset exertional chest pain for the past two weeks. Pain is substernal, pressure-like, occurs with walking uphill, relieved with rest. No radiation. Risk factors include smoking one pack per day for 20 years. Family history of CAD and hyperlipidemia. [CURRENT MEDICATIONS] Include aspirin 80 mg daily. Blood pressure 142/88. Heart rate 78. ECG soow shows normal sinus rhythm. No ST changes. [IMPRESSION] Atypical chest pain, possible stable angina. Recommend stress and cardi- echocardiogram. Start statin therapy, aggressive smoking cessation counseling.",
+        "metrics": {
+          "conversion_ms": 364.5,
+          "transcription_ms": 6224.5,
+          "extraction_ms": 25477.1,
+          "fhir_transform_ms": 0.3,
+          "total_ms": 32117.2,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "stable angina",
+              "icd10": "I20.9",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "aspirin",
+              "dose": "80 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "1191",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "statin",
+              "dose": null,
+              "frequency": null,
+              "route": null,
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "142/88",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "78",
+              "unit": "bpm",
+              "approved": null
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "ECG",
+              "value": "normal sinus rhythm",
+              "unit": null,
+              "interpretation": "normal",
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "family member",
+              "condition": "CAD",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-1",
+              "relationship": "family member",
+              "condition": "hyperlipidemia",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "current",
+            "alcohol": null,
+            "drugs": null,
+            "occupation": null,
+            "living_situation": null
+          },
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "statin",
+                "dosage": null,
+                "frequency": null,
+                "route": null,
+                "instructions": null,
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "serial troponins",
+                "loinc": "2012-09-02-1",
+                "linked_diagnosis": {
+                  "icd10": "I20.9",
+                  "display": "Angina pectoris, unspecified",
+                  "confidence": 0.8500000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-1",
+                "name": "lipid panel",
+                "loinc": "2012-09-02-2",
+                "linked_diagnosis": {
+                  "icd10": "E78.5",
+                  "display": "Hyperlipidemia, unspecified",
+                  "confidence": 0.9,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "cardiology",
+                "reason": null,
+                "linked_diagnosis": {
+                  "icd10": "I25.10",
+                  "display": "Atherosclerotic heart disease",
+                  "confidence": 0.8,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "procedures": [
+              {
+                "id": "proc-order-0",
+                "name": "stress and cardi- echocardiogram",
+                "linked_diagnosis": {
+                  "icd10": "I50.9",
+                  "display": "Heart failure, unspecified",
+                  "confidence": 0.85,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "imaging": [
+              {
+                "id": "img-order-0",
+                "name": "stress and cardi- echocardiogram",
+                "approved": null
+              }
+            ]
+          },
+          "chiefComplaint": "stable angina"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkye7i0l1p51hf9kps2",
+        "workflow": "general",
+        "workflowName": "General Encounter",
+        "filename": "complex1.1.wav",
+        "transcript": "This is a 78 year-old male presenting for hospital ams with acute exacerbation of congestive heart failure. Chief complaint is worsening shortness of breath and leg swelling for five days.Hitory of present illness, Ptient reports discress progress dyspnea on exertion nowocurring with minimal activity He has gained weight over the past week despite adherence to fluid restriction. He slees on three pillows due to orthopnea and reports paroxal paroxism nocturnal dyspnea twice this week. He denies chest pain, palpitations or syncope. He ran out of his furosemide five days ago and was unable to refill it.Ast medical history shows significant for congestive heart failure with reduced ejection fraction of 35% diagnosed four years ago, coronary artery disease, status post three vessel CABG in 2019. atrial fibrillation on anticoagulation, type two diabetes mellitus with peripheral neuropathy, chronic kidney disease stage three B with a baseline creatinine of 1.8. hypertension, hyperlipidemia, COPD GOLD stage two, osteoarthritis of bilateral knees and lumbar spine, major depressive disorder,nign prostatic hyperplasia and gout.Ast surgical history includes coronary artery bypass, grafting in 2019, appendectomy 1972, right total knee replacement 218, cataract surgery, bilateral 2021.urrN medications carvedilol 25 mg twice daily, lisinopril 20 mg daily, furosemide 40 mg twice daily which he ran out of,pirro lact 25 mg daily, metformin 1000 mg twice daily, glipizide 10 mg twice daily, ator a statin 80 mg at bedtime, warfarin 5 mg daily,uur- allopurinol 300 mg daily, Toroptooum 18 mcg inhaled daily, albuterol inhaler as needed, gabapentin 300 mg three times daily, sertraline 100 mg daily,tamsosin 0.4 mg at bedtime, acetaminophen 650 mg as needed for pain. [ALLERGI] Penicillin causes anaphylaxis, sulfa drugs cause severe rash, codeine causes nausea and vomiting contrast dye causes hives, requires premedication. Family history, Father died of myocardial infarction at age 62. Mother had type two diabetes and died of stroke at age 75. Brother has coronary artery disease and diabetes. Sister has breast cancer diagnosed at age 58. Pternal grandather had heart failure. [SOCIA HTory] Former smoker, quit 15 years ago with a 40 packyear history,occasional alcohol one to two beers weekly, denies recreational drug use.Rtired electrician, lives with wife of 52 years in a single story home.H two adult children who live nearby, uses a cane for ambulation, independent with activities of daily living, but wife helps with medication management. [REVeEW of systems Positive for fatigue, lower extremity edema, dyspnea, orthopnea and nocturia Negative for fever, chest pain, palpitations, cough, abdominal pain and diarrhea. Vital signs, blood pressure 158/92, heart rate 88 and irregularly irregular, respiratory rate 22, oxygen saturation 91% on room air, temperature 98.2 Fahrenheit, weight 198 pounds, up from 190 pounds at last visit, height 5 feet 9 inches, BMI 29.2. Physical exam. General, alert, oriented in mild respiratory distress. HEENT, JVP elevated at 12 cm, cardiovascul irregularly irregular rhythm, S3 gallop present 2/6 systolic murmur at apex, lungs bibasilar crackles1 third up. Abdomen soft, hep hepatomegaly with liver edge 3 cm below costal margin.xtremities 2+ pitting edema bilateral lower extremit to mid shin. Neuro, decreased sensation bilateral feet consistent with neuropathy.LABs. BNP 1850, significantly elevated. Troponin 0.04, mildly elevated. Sodium 132, low potassium 4.8, creatinine 2.1 up from baseline 1.2. BUN 38, glucose 186, Hemoglobin A1c 7.8%, INR 2.4 therapeutic. Hemoglobin 11.2 slightly low. aging Chest x-ray shows cardiomegaly, bilateral pleural effusions and pulmonary vascular congestion consistent with heart failure. Echocardiogram from three months ago showed ejection fraction 35%, moderate mitral regurgitation and grade two diastolic dysfunction. [ASSESSME] Number one, acute on chronic heart chronic systolic heart failure exacerbation likely due to medication nonadherence. umber two, acute kidney injury on chronic kidney disease, likely cardiorenal syndrome. Number three, atrial fibrillation with controlled ventricular rate on anticoagulation. Number four, type two diabetes mellitus suboptimally controlled. Number five, hypertension, andcontroll. Number six, COPD, stable. [PLAN] Admit to telemetry, IV furosemide 80 mg now, the 40 mg IV twice daily.Dily weights and strict intake and output. fluid restriction 1.5 L daily, low sodium diet. Ctinue home carvedilol, lisinopril, and spiro no lactone. Hold metformin due to acute injury. Ctinue warfarin, Check INR daily, cardiology consult for optimization of heart failure regimen. Csider addition of secubr valsartan if kidney function improves. diabetes consult for glycemic management, repeat BMP and BNP tomorrow. Scial work consult for medication assist programs, DVT prophylaxis with compression given.Dvices given anticoagulation. Code status full. The code status is full code, confirmed with patient.",
+        "metrics": {
+          "conversion_ms": 915.2,
+          "transcription_ms": 56674,
+          "extraction_ms": 131893.2,
+          "fhir_transform_ms": 1.4,
+          "total_ms": 189729.7,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "congestive heart failure",
+              "icd10": "I50.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "coronary artery disease",
+              "icd10": "I25.10",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-2",
+              "name": "atrial fibrillation",
+              "icd10": "I48.91",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-3",
+              "name": "type 2 diabetes mellitus",
+              "icd10": "E11.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-4",
+              "name": "hypertension",
+              "icd10": "I10",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-5",
+              "name": "chronic kidney disease",
+              "icd10": "N18.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-6",
+              "name": "COPD",
+              "icd10": "J44.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-7",
+              "name": "osteoarthritis",
+              "icd10": "M19.90",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-8",
+              "name": "major depressive disorder",
+              "icd10": "F32.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-9",
+              "name": "nigh prostatic hyperplasia",
+              "icd10": "N40.0",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-10",
+              "name": "gout",
+              "icd10": "M10.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "carvedilol",
+              "dose": "25 mg",
+              "frequency": "twice daily",
+              "route": "oral",
+              "rxnorm": "20352",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "lisinopril",
+              "dose": "20 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "29046",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-2",
+              "name": "furosemide",
+              "dose": "40 mg",
+              "frequency": "twice daily",
+              "route": "oral",
+              "rxnorm": "4603",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-3",
+              "name": "pirro lactone",
+              "dose": "25 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "1062",
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-4",
+              "name": "metformin",
+              "dose": "1000 mg",
+              "frequency": "twice daily",
+              "route": "oral",
+              "rxnorm": "6809",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-5",
+              "name": "glipizide",
+              "dose": "10 mg",
+              "frequency": "twice daily",
+              "route": "oral",
+              "rxnorm": "4821",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-6",
+              "name": "atorvastatin",
+              "dose": "80 mg",
+              "frequency": "at bedtime",
+              "route": "oral",
+              "rxnorm": "83367",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-7",
+              "name": "warfarin",
+              "dose": "5 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "11289",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-8",
+              "name": "allopurinol",
+              "dose": "300 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "519",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-9",
+              "name": "Toroptooum",
+              "dose": "18 mcg",
+              "frequency": "inhaled daily",
+              "route": "inhalation",
+              "rxnorm": "1062",
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-10",
+              "name": "albuterol inhaler",
+              "dose": "as needed",
+              "frequency": "as needed",
+              "route": "inhalation",
+              "rxnorm": "435",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-11",
+              "name": "gabapentin",
+              "dose": "300 mg",
+              "frequency": "three times daily",
+              "route": "oral",
+              "rxnorm": "25480",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-12",
+              "name": "sertraline",
+              "dose": "100 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "36437",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-13",
+              "name": "tamsosin",
+              "dose": "0.4 mg",
+              "frequency": "at bedtime",
+              "route": "oral",
+              "rxnorm": "77492",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-14",
+              "name": "acetaminophen",
+              "dose": "650 mg",
+              "frequency": "as needed",
+              "route": "oral",
+              "rxnorm": "161",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [
+            {
+              "id": "allergy-0",
+              "substance": "penicillin",
+              "reaction": "anaphylaxis",
+              "severity": "severe",
+              "approved": null
+            },
+            {
+              "id": "allergy-1",
+              "substance": "sulfa drugs",
+              "reaction": "severe rash",
+              "severity": "severe",
+              "approved": null
+            },
+            {
+              "id": "allergy-2",
+              "substance": "contrast dye",
+              "reaction": "hives",
+              "severity": "mild",
+              "approved": null
+            },
+            {
+              "id": "allergy-3",
+              "substance": "codeine",
+              "reaction": "nausea and vomiting",
+              "severity": "mild",
+              "approved": null
+            }
+          ],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "158/92",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "88",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "respiratory_rate",
+              "value": "22",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "oxygen_saturation",
+              "value": "91",
+              "unit": "%",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "temperature",
+              "value": "98.2",
+              "unit": "F",
+              "approved": null
+            },
+            {
+              "id": "vital-5",
+              "type": "weight",
+              "value": "198",
+              "unit": "lbs",
+              "approved": null
+            },
+            {
+              "id": "vital-6",
+              "type": "BMI",
+              "value": "29.2",
+              "unit": "kg/m2",
+              "approved": null
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "BNP",
+              "value": "1850",
+              "unit": "pg/mL",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-1",
+              "name": "Troponin",
+              "value": "0.04",
+              "unit": "ng/mL",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-2",
+              "name": "Sodium",
+              "value": "132",
+              "unit": "mEq/L",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-3",
+              "name": "Potassium",
+              "value": "4.8",
+              "unit": "mEq/L",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-4",
+              "name": "Creatinine",
+              "value": "2.1",
+              "unit": "mg/dL",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-5",
+              "name": "BUN",
+              "value": "38",
+              "unit": "mg/dL",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-6",
+              "name": "Glucose",
+              "value": "186",
+              "unit": "mg/dL",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-7",
+              "name": "Hemoglobin A1c",
+              "value": "7.8",
+              "unit": "%",
+              "interpretation": null,
+              "approved": null
+            },
+            {
+              "id": "lab-8",
+              "name": "Hemoglobin",
+              "value": "11.2",
+              "unit": "g/dL",
+              "interpretation": null,
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "father",
+              "condition": "myocardial infarction",
+              "ageOfOnset": "62",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-1",
+              "relationship": "mother",
+              "condition": "type 2 diabetes mellitus",
+              "ageOfOnset": "unknown",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-2",
+              "relationship": "brother",
+              "condition": "coronary artery disease",
+              "ageOfOnset": "unknown",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-3",
+              "relationship": "sister",
+              "condition": "breast cancer",
+              "ageOfOnset": "58",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-4",
+              "relationship": "father",
+              "condition": "heart failure",
+              "ageOfOnset": "unknown",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-5",
+              "relationship": "Mother",
+              "condition": "type two diabetes and died of stroke",
+              "ageOfOnset": "75",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-6",
+              "relationship": "Brother",
+              "condition": "coronary artery disease and diabetes",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-7",
+              "relationship": "Sister",
+              "condition": "breast cancer diagnosed",
+              "ageOfOnset": "58",
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "former smoker, quit 15 years ago with a 40 packyear history",
+            "alcohol": "occasional alcohol one to two beers weekly",
+            "drugs": "denies recreational drug use",
+            "occupation": "retired electrician",
+            "living_situation": "lives with wife of 52 years in a single story home.H two adult children who live nearby, uses a cane for ambulation, independent with activities of daily living, but wife helps with medication management."
+          },
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "furosemide",
+                "dosage": "80 mg",
+                "frequency": "IV",
+                "route": null,
+                "instructions": "IV now, then 40 mg IV twice daily",
+                "rxnorm": "4603",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "I10",
+                  "display": "Essential hypertension",
+                  "confidence": 0.88,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-1",
+                "name": "carvedilol",
+                "dosage": "25 mg",
+                "frequency": "twice daily",
+                "route": null,
+                "instructions": "Continue home",
+                "rxnorm": "20352",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "I10",
+                  "display": "Essential hypertension",
+                  "confidence": 0.88,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-2",
+                "name": "lisinopril",
+                "dosage": "20 mg",
+                "frequency": "daily",
+                "route": null,
+                "instructions": "Continue home",
+                "rxnorm": "29046",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "I10",
+                  "display": "Essential hypertension",
+                  "confidence": 0.93,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-3",
+                "name": "spironolactone",
+                "dosage": "25 mg",
+                "frequency": "daily",
+                "route": null,
+                "instructions": "Continue home",
+                "rxnorm": "9997",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "I10",
+                  "display": "Essential hypertension",
+                  "confidence": 0.88,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-4",
+                "name": "metformin",
+                "dosage": "1000 mg",
+                "frequency": "twice daily",
+                "route": null,
+                "instructions": "Hold due to acute injury",
+                "rxnorm": "6809",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.98,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-5",
+                "name": "warfarin",
+                "dosage": "5 mg",
+                "frequency": "daily",
+                "route": null,
+                "instructions": "Check INR daily",
+                "rxnorm": "11289",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "I48.91",
+                  "display": "Unspecified atrial fibrillation",
+                  "confidence": 0.93,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "med-order-6",
+                "name": "secubr valsartan",
+                "dosage": "as needed",
+                "frequency": "as needed",
+                "route": null,
+                "instructions": "Consider addition if kidney function improves",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              },
+              {
+                "id": "med-order-7",
+                "name": "diabetes consult",
+                "dosage": "as needed",
+                "frequency": "as needed",
+                "route": null,
+                "instructions": "for glycemic management",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              },
+              {
+                "id": "med-order-8",
+                "name": "hemoglobin A1c",
+                "dosage": "as needed",
+                "frequency": "as needed",
+                "route": null,
+                "instructions": "tomorrow",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              },
+              {
+                "id": "med-order-9",
+                "name": "metabolic panel",
+                "dosage": "as needed",
+                "frequency": "as needed",
+                "route": null,
+                "instructions": "tomorrow",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              },
+              {
+                "id": "med-order-10",
+                "name": "BNP",
+                "dosage": "as needed",
+                "frequency": "as needed",
+                "route": null,
+                "instructions": "tomorrow",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "A1c",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 1,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-1",
+                "name": "lipid panel",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "I25.10",
+                  "display": "Atherosclerotic heart disease",
+                  "confidence": 0.8500000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-2",
+                "name": "metabolic panel",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.8500000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-3",
+                "name": "CBC",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "D64.9",
+                  "display": "Anemia, unspecified",
+                  "confidence": 0.8,
+                  "method": "rule"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-4",
+                "name": "TSH",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E03.9",
+                  "display": "Hypothyroidism, unspecified",
+                  "confidence": 0.85,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "cardiology",
+                "reason": "optimization of heart failure regimen",
+                "linked_diagnosis": {
+                  "icd10": "I25.10",
+                  "display": "Atherosclerotic heart disease",
+                  "confidence": 0.8500000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "consult-order-1",
+                "specialty": "diabetes",
+                "reason": "glycemic management",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "procedures": [],
+            "imaging": [
+              {
+                "id": "img-order-0",
+                "name": "chest x-ray",
+                "approved": null
+              }
+            ]
+          },
+          "chiefComplaint": "worsening shortness of breath and leg swelling for five days"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptoihx9eefwjp",
+        "workflow": "discharge",
+        "workflowName": "Discharge Summary",
+        "filename": "discharge.webm",
+        "transcript": "Discharge summary for hospital stay. [ADMISSION DIAGNOSIS] Community-acquired pneumonia. [HOSPITAL COURSE] 72-year-old male admitted with fever, cough, and shortness of breath. Chest x-ray showed right lower lobe consolidation. Started on ceftriaxone and azithromycin IV, improved clinically over three days. Oxygen requirements weaned. [DISCHARGE DIAGNOSIS] Community-acquired pneumonia, resolved. [DISCHARGE MEDICATIONS] Azithromycin 250 mg daily for two more days. Albuterol inhaler as needed. Follow up with primary care in one week. Return precautions, worsening shortness of breath, fever, and chest pain.",
+        "metrics": {
+          "conversion_ms": 347.8,
+          "transcription_ms": 5957.6,
+          "extraction_ms": 13133.4,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 19457.1,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "community-acquired pneumonia",
+              "icd10": "J18.9",
+              "status": "resolved",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "Azithromycin",
+              "dose": "250 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "18631",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "Albuterol inhaler",
+              "dose": "as needed",
+              "frequency": "as needed",
+              "route": "inhaler",
+              "rxnorm": "435",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "Azithromycin",
+                "dosage": "250 mg",
+                "frequency": "daily",
+                "route": null,
+                "instructions": "for two more days",
+                "rxnorm": "18631",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "J06.9",
+                  "display": "Acute upper respiratory infection, unspecified",
+                  "confidence": 0.88,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "labs": [],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "primary care",
+                "reason": "one week",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "fever, cough, and shortness of breath"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptcj7pzhjerfp",
+        "workflow": "emergency",
+        "workflowName": "Emergency / Trauma",
+        "filename": "emergency.webm",
+        "transcript": "[CHIEF COMPLAINT] Is shortness of breath and chest pain. 55-year-old female with a history of hypertension and type two diabetes. She has a mild sulfa allergy causing rash. [FAMILY HISTORY] Significant for stroke in mother, onset at age 58, deceased at age age 83. She is a former smoker, quit 10 years ago, 20-pack-year history. She drinks socially occasional wine with dinner. She works with an as an accountant and lives with her husband. Blood pressure 165/95, heart rate 102, oxygen saturation 94% on room air, temperature 98.6, respiratory rate 22. EKG shows sinus tachycardia with ST depression in leads V4 through V6. Troponin pending. [ASSESSMENT] Is a possible acute coronary syndrome, rule out NSTEMI. [PLAN] Is aspirin 325 mg chewed. Start heparin drip per protocol. Cardiology consult, seerial troponins every six hours. Continuous telemetry. Patient is full code.",
+        "metrics": {
+          "conversion_ms": 513.3,
+          "transcription_ms": 7428.6,
+          "extraction_ms": 29593.2,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 37573.7,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "female",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "acute coronary syndrome",
+              "icd10": "I24.9",
+              "status": "suspected",
+              "severity": "moderate",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "hypertension",
+              "icd10": "I10",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-2",
+              "name": "type 2 diabetes",
+              "icd10": "E11.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "aspirin",
+              "dose": "325 mg",
+              "frequency": "chewed",
+              "route": "oral",
+              "rxnorm": "1191",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "heparin",
+              "dose": "drip",
+              "frequency": "per protocol",
+              "route": "IV",
+              "rxnorm": "5224",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [
+            {
+              "id": "allergy-0",
+              "substance": "sulfa",
+              "reaction": "rash",
+              "severity": "mild",
+              "approved": null
+            }
+          ],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "165/95",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "102",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "oxygen_saturation",
+              "value": "94",
+              "unit": "%",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "respiratory_rate",
+              "value": "22",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "temperature",
+              "value": "98.6",
+              "unit": "F",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "Mother",
+              "condition": "stroke",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "Former smoker",
+            "alcohol": "Occasional alcohol use",
+            "drugs": null,
+            "occupation": null,
+            "living_situation": null
+          },
+          "orders": {
+            "medications": [],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "shortness of breath and chest pain"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1ept615bpm0ep47",
+        "workflow": "followup",
+        "workflowName": "Follow-up Visit",
+        "filename": "follow-up.webm",
+        "transcript": "Followup visit for diabetes management. Patient reports glu- good glucose control with fasting sugars between 100 and 120. She denies any hypoglycemic episodes. She has been compliant with metformin and dietary modifications. Last A1c was 6.8%. Blood pressure today 128/78. Weight stable at 60 at 165 pounds. [ASSESSMENT] Diab- type two diabetes mellitus, well controlled. [PLAN] Continue metformin 1000 mg twice daily. Repeat hemoglobin A1c in three months. Continue lifestyle modifications. Follow up in three months.",
+        "metrics": {
+          "conversion_ms": 417.1,
+          "transcription_ms": 5174,
+          "extraction_ms": 17605.2,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 23213.8,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": null,
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "diabetes mellitus",
+              "icd10": "E11.9",
+              "status": "active",
+              "severity": null,
+              "isChiefComplaint": true,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "metformin",
+              "dose": "1000 mg",
+              "frequency": "twice daily",
+              "route": null,
+              "rxnorm": "6809",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "128/78",
+              "unit": "mmHg",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "Metformin",
+                "dosage": "1000 mg",
+                "frequency": "twice daily",
+                "route": null,
+                "instructions": null,
+                "rxnorm": "6809",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.98,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "diabetes management follow-up"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptq2vd3cxwhj",
+        "workflow": "general",
+        "workflowName": "General Encounter",
+        "filename": "general.webm",
+        "transcript": "Office visit for upper respiratory infection. 42-year-old female presents with nasal congestion, sore throat, mild cough for four days. No fever. No shortness of breath. She has tried over-the-counter decongestant decongestants with minimal relief. [PAST MEDICAL HISTORY] Significant for seasonal allergies. Currently takes cetirizine 10 mg daily. No known drug allergies. Vital signs, blood pressure 122/76, heart rate 74, 90 temperature 98.4, respiratory fo- rate 14, oxygen saturation 99% on room air. [PHYSICAL EXAM] Reveals mild na- nasal mucosal edema. Clear posterior pharynx without exudates. Lungs clear to auscultation. [ASSESSMENT] Acute viral upper respiratory infection. [PLAN] Supportive care. Increase fluids. Continue antihistamines. May add pseudephedrine for congestion. Retur if symptoms worsen or persist beyond 10 days.",
+        "metrics": {
+          "conversion_ms": 413.5,
+          "transcription_ms": 7219.9,
+          "extraction_ms": 21879.1,
+          "fhir_transform_ms": 1.1,
+          "total_ms": 29530.5,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "female",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "seasonal allergies",
+              "icd10": "J30.2",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "acute viral upper respiratory infection",
+              "icd10": "J06.9",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "cetirizine",
+              "dose": "10 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "20610",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "122/76",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "temperature",
+              "value": "98.4",
+              "unit": "F",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "heart_rate",
+              "value": "74",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "oxygen_saturation",
+              "value": "99",
+              "unit": "%",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": {
+            "tobacco": "never smoked",
+            "alcohol": "doesn't drink",
+            "drugs": "no illicit drugs",
+            "occupation": "unknown",
+            "living_situation": "unknown"
+          },
+          "orders": {
+            "medications": [],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "A1c",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.95,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "nasal congestion, sore throat, mild cough for four days"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptengbbhwdfzk",
+        "workflow": "hp",
+        "workflowName": "History & Physical",
+        "filename": "h-p.webm",
+        "transcript": "This is a 62-year-old male presenting on annual physical exam. [CHIEF COMPLAINT] Is routine health maintenance. [PAST MEDICAL HISTORY] Includes hypertension diagnosed five years ago, hyperlipidemia and prediabetes. Currently on lisinopril 10 mg daily, and atorvastatin 20 mg daily. No known drug allergies. [FAMILY HISTORY] Father had myocardial infarction at age 65. Mother has type two diabetes. [SOCIAL HISTORY] Never smoker. Occasional alcohol on weekends. Retired teacher. Lives with wife. [REVIEW OF SYMPTOMS] Is negative. Vital signs, blood pressure 138/82, heart rate 72, temperature 98.2, respiratory rate 16, oxygen saturation 98%. Weight 185 pounds. [PHYSICAL EXAM] Well-appearing male in no acute distress. HEENT, normal. Cardiovascular, regular rate and rhythm without murmurs. Lungs clear bilaterally. Abdomen, soft, nontender. Extremities, no edema. [ASSESSMENT] Hypertension, controlled, hyperlipidemia on statin, prediabetes. [PLAN] Continue current medications, hemoglobin A1c, lipid panel, metabolic panel, dietary counseling. Followu in six months.",
+        "metrics": {
+          "conversion_ms": 469.4,
+          "transcription_ms": 8841.2,
+          "extraction_ms": 42395.2,
+          "fhir_transform_ms": 0.7,
+          "total_ms": 51721.7,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "hypertension",
+              "icd10": "I10",
+              "status": "active",
+              "severity": "controlled",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "hyperlipidemia",
+              "icd10": "E78.5",
+              "status": "active",
+              "severity": "unknown",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-2",
+              "name": "prediabetes",
+              "icd10": "R73.03",
+              "status": "active",
+              "severity": "unknown",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "lisinopril",
+              "dose": "10 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "29046",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "atorvastatin",
+              "dose": "20 mg",
+              "frequency": "daily",
+              "route": "oral",
+              "rxnorm": "83367",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "138/82",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "72",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "temperature",
+              "value": "98.2",
+              "unit": "F",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "respiratory_rate",
+              "value": "16",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "oxygen_saturation",
+              "value": "98",
+              "unit": "%",
+              "approved": null
+            },
+            {
+              "id": "vital-5",
+              "type": "weight",
+              "value": "185",
+              "unit": "lbs",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "father",
+              "condition": "myocardial infarction",
+              "ageOfOnset": "65",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-1",
+              "relationship": "mother",
+              "condition": "type two diabetes",
+              "ageOfOnset": "unknown",
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "never",
+            "alcohol": "occasional on weekends",
+            "drugs": "none",
+            "occupation": "retired teacher",
+            "living_situation": "lives with wife"
+          },
+          "orders": {
+            "medications": [],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "hemoglobin A1c",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.95,
+                  "method": "rule"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-1",
+                "name": "lipid panel",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E78.5",
+                  "display": "Hyperlipidemia, unspecified",
+                  "confidence": 0.9500000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              },
+              {
+                "id": "lab-order-2",
+                "name": "metabolic panel",
+                "loinc": null,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.8,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "dietary counseling",
+                "reason": "unknown",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "routine health maintenance"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptf29plr7jzuq",
+        "workflow": "icu",
+        "workflowName": "ICU / Critical Care",
+        "filename": "icu.webm",
+        "transcript": "Critical care progress note. Patient is a 45-year-old female admitted to the medical ICU with septic shock secondary to pyelononephritis. ICU day three. Overnight events.Required vasosuppressor wean. Norepinephrine discontinued at 0300. No acute events. Current status alert and oriented. Off sedation. Hemodynamically stable off pressors. Mean arterial pressure greater than 65 without support. O 2 L nasal cannula with oxygen saturation 96%. Urine output adequate at 0.8 mL/kg/ hour. Vitals, blood pressure 118/72, heart rate 88, temperature 37.8, respiratory rate 16. Labs, white blood cell count trending down from 18 to 12. Lactate normalized at 1.2. Creatinine improving from 2.4 to 1.8. Procalcitonin 1.2 down from 8. Currently on mero- meropenem. day three improving. Acute kidney injury, resolving. [PLAN] Continue antibiotics. Deescalate to oral ciproflocin when tolerating diet. Target 14-day total course. Transfer to floor today if stable. Infectious disease following.",
+        "metrics": {
+          "conversion_ms": 686.8,
+          "transcription_ms": 10431.9,
+          "extraction_ms": 29498.5,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 40719.4,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "female",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "septic shock",
+              "icd10": "R65.21",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "pyelonephritis",
+              "icd10": "N10",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            },
+            {
+              "id": "cond-2",
+              "name": "acute kidney injury",
+              "icd10": "N17.9",
+              "status": "improving",
+              "severity": "moderate",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "meropenem",
+              "dose": "not specified",
+              "frequency": "IV",
+              "route": "IV",
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "norepinephrine",
+              "dose": "not specified",
+              "frequency": "not specified",
+              "route": "IV",
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "118/72",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "88",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "temperature",
+              "value": "37.8",
+              "unit": "C",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "respiratory_rate",
+              "value": "16",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "SpO2",
+              "value": "96",
+              "unit": "%",
+              "approved": null
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "WBC",
+              "value": "12",
+              "unit": "cells/uL",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-1",
+              "name": "Lactate",
+              "value": "1.2",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-2",
+              "name": "Creatinine",
+              "value": "1.8",
+              "unit": "mg/dL",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-3",
+              "name": "Procalcitonin",
+              "value": "1.2",
+              "unit": "ng/mL",
+              "interpretation": "normal",
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "ciproflocin",
+                "dosage": "not specified",
+                "frequency": "oral",
+                "route": null,
+                "instructions": "deescalate to oral ciproflocin when tolerating diet",
+                "rxnorm": "2551",
+                "rxnorm_matched": true,
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "septic shock"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptfd1ivae90u7",
+        "workflow": "intake",
+        "workflowName": "Patient Intake",
+        "filename": "intake.webm",
+        "transcript": "New patient intake visit. This is a 58-year-old male establish care after belocating from calornia.HIEFOLAint I routine health maintenance and medication refills. [PAST MEDICAL HITORY] Includes type two diabetes diagnosed eight years ago, hypertension for 10 years, hyperlipidemia, and mild osteoarthritis of both knees. [PAST SURGICAL HISTORY] Includes appendectomy in 1995 and right knee arthroscopy in 218. [CURRENT MEDICATIONS] A metformin 1000 mg twice daily, lisinopril 20 mg daily, amlodipine 5 mg daily, atorvastatin 40 mg daily, and acetaminophen as needed for knee pain. [ALLERGIES] Include penicillin causing hives and shellfish causing throat swelling. [FAMILY HISTORY] Mother had breast cancer at age 62. Father had myocardial infarction at 58 and died at 72 from stroke. Brother has type two diabetes. [SOCIAL HISTORY] Former smoker, quit 15 years ago with a 20-packyear history. Drinks two beers weekly. Denies recreational drug use. Works as a financial adviser. Married with two adult children. Exercises by walking 30 minutes daily. [REVIEW OF SYSTEMS] Occasional knee stiffness, otherwise negative. Vital signs, blood pressure 134/84, heart rate 68. Weight 198 pounds. Height 5 feet 10 inches. BMI 28.4. [PHYSICAL EXAM] Well-developed male in no acute discre- uh distress. Cardiac, regular rate and rhythm. Lungs clear. Abdomen soft. Extremities with mild crepitus bilateral knees without effusion. [ASSESSMENT] Type two diabetes mellitus, hypertension, hyperlipidemia, osteoarthritis. [PLN] Continue current medications. Order hemoglobin A1c, comprehensive metabolic panel, lipid panel, urinalysis,schedule colonoscopy for age appropriate screening. Folu in two weeks to review labs and establish care plan.",
+        "metrics": {
+          "conversion_ms": 682.9,
+          "transcription_ms": 15074.7,
+          "extraction_ms": 42128.7,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 57917.4,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "metformin",
+              "dose": "1000 mg",
+              "frequency": "twice daily",
+              "route": null,
+              "rxnorm": "6809",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "lisinopril",
+              "dose": "20 mg",
+              "frequency": "daily",
+              "route": null,
+              "rxnorm": "29046",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-2",
+              "name": "amlodipine",
+              "dose": "5 mg",
+              "frequency": "daily",
+              "route": null,
+              "rxnorm": "17767",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-3",
+              "name": "atorvastatin",
+              "dose": "40 mg",
+              "frequency": "daily",
+              "route": null,
+              "rxnorm": "83367",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-4",
+              "name": "acetaminophen",
+              "dose": null,
+              "frequency": "as needed",
+              "route": null,
+              "rxnorm": "161",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [
+            {
+              "id": "allergy-0",
+              "substance": "penicillin",
+              "reaction": "hives",
+              "severity": "mild",
+              "approved": null
+            },
+            {
+              "id": "allergy-1",
+              "substance": "shellfish",
+              "reaction": "throat swelling",
+              "severity": "moderate",
+              "approved": null
+            }
+          ],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "134/84",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "68",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "weight",
+              "value": "198",
+              "unit": "lbs",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "bmi",
+              "value": "28.4",
+              "unit": null,
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "mother",
+              "condition": "breast cancer",
+              "ageOfOnset": "62",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-1",
+              "relationship": "father",
+              "condition": "myocardial infarction",
+              "ageOfOnset": "58",
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-2",
+              "relationship": "brother",
+              "condition": "type two diabetes mellitus",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-3",
+              "relationship": "Father",
+              "condition": "myocardial infarction at 58 and died at 72 from stroke",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            },
+            {
+              "id": "fh-4",
+              "relationship": "Brother",
+              "condition": "type two diabetes",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "Former smoker",
+            "alcohol": {
+              "status": "current",
+              "amount": "2 beers weekly"
+            },
+            "drugs": {
+              "status": "never",
+              "substances": []
+            },
+            "occupation": "financial adviser",
+            "living_situation": null
+          },
+          "orders": {
+            "medications": [],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": null
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1epten2yx6m1eg7",
+        "workflow": "lab_review",
+        "workflowName": "Lab Review",
+        "filename": "lab-review.webm",
+        "transcript": "[LAB REVEW F routine metabolic panel. Patient is a 61-year-old female with a history of type two diabetes and chronic kidney disease stage three. Labs from this morning, comprehensive metabolic panel shows sodium 138, potassium 4.2, chloride 102, CO2 24, BUN 32, creatinine 1.6, which is stable from prior. GFR estimated at 38, glucose 142 which is mildly elevated. Hemoglobin A1c is 7.2% up from 6.8% three months ago. Lipid panel shows total cholesterol 198, LDL 112, HDL 52, triglycerides 170. [ASSESSMENT] Diabetes with slightly worsening glycemic control, A1c now above goal, chronic kidney disease stage B3 three B stable. mild dylipidemia. [PLAN] Increase metformin to 1000 mg twice daily if tolerated. Reinforc diamary modifications. Recheck A1c in three months. Continue current statin. Follow up in three months.",
+        "metrics": {
+          "conversion_ms": 421.7,
+          "transcription_ms": 8029.7,
+          "extraction_ms": 42087.3,
+          "fhir_transform_ms": 0.5,
+          "total_ms": 50593.8,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "female",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "type 2 diabetes",
+              "icd10": "E11.9",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "chronic kidney disease stage 3",
+              "icd10": "N18.5",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "metformin",
+              "dose": "1000 mg",
+              "frequency": "twice daily",
+              "route": null,
+              "rxnorm": "6809",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            },
+            {
+              "id": "med-1",
+              "name": "statin",
+              "dose": "unknown",
+              "frequency": "unknown",
+              "route": null,
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "sodium",
+              "value": "138",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-1",
+              "name": "potassium",
+              "value": "4.2",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-2",
+              "name": "chloride",
+              "value": "102",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-3",
+              "name": "CO2",
+              "value": "24",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-4",
+              "name": "BUN",
+              "value": "32",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-5",
+              "name": "creatinine",
+              "value": "1.6",
+              "unit": "mmol/L",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-6",
+              "name": "GFR",
+              "value": "38",
+              "unit": "mL/min/1.73m2",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-7",
+              "name": "glucose",
+              "value": "142",
+              "unit": "mmol/L",
+              "interpretation": "mildly elevated",
+              "approved": null
+            },
+            {
+              "id": "lab-8",
+              "name": "Hemoglobin A1c",
+              "value": "7.2",
+              "unit": "%",
+              "interpretation": "above goal",
+              "approved": null
+            },
+            {
+              "id": "lab-9",
+              "name": "total cholesterol",
+              "value": "198",
+              "unit": "mmol/L",
+              "interpretation": "mild dylipidemia",
+              "approved": null
+            },
+            {
+              "id": "lab-10",
+              "name": "LDL",
+              "value": "112",
+              "unit": "mmol/L",
+              "interpretation": "mild dylipidemia",
+              "approved": null
+            },
+            {
+              "id": "lab-11",
+              "name": "HDL",
+              "value": "52",
+              "unit": "mmol/L",
+              "interpretation": "mild dylipidemia",
+              "approved": null
+            },
+            {
+              "id": "lab-12",
+              "name": "triglycerides",
+              "value": "170",
+              "unit": "mmol/L",
+              "interpretation": "mild dylipidemia",
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "metformin",
+                "dosage": "1000 mg",
+                "frequency": "twice daily",
+                "route": null,
+                "instructions": "if tolerated",
+                "rxnorm": "6809",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 0.98,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "Hemoglobin A1c",
+                "loinc": "81869-5",
+                "linked_diagnosis": {
+                  "icd10": "E11.9",
+                  "display": "Type 2 diabetes mellitus without complications",
+                  "confidence": 1,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "routine metabolic panel"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptwqtovvtsedq",
+        "workflow": "neurology",
+        "workflowName": "Neurology",
+        "filename": "neurology.webm",
+        "transcript": "Neurology consult for new onset seizure. Patient is a 28-year-old female with no prior seizure history who presented to the emergency department after witnessed general tonic-clonic seizure lasting approximately two minutes with postictal confusion for 15 minutes. No tongue bite or incontinence noted. She reports recent sleep deprivation due to work stress averaging four hours of sleep nightly for the last week. She denies alcoono- alcohol or recreational drug use. No head trauma. Family history notable for cousin with epilepsy. Vital signs stable. Neurological exam, alert and oriented. Cranial nerves intact. Motor strength 5/5 throughout. Sensation intact. Reflexes 2+ symmetric. Negative Romberg gait steady. MRI brain without contrast shows no acute abnormality. EEG deprivation. [PLAN] EEG to evaluate for epileptiform activity. Counsel on seizure precautions including no driving for six months per state law. Avoid sleep deprivation and excessive alcohol. Leve- levetiracetam 500 mg twice daily started as prophylaxis given presentation severity. Followu in clinic in two weeks with EEG results. Retur to ED if recurrent seizure.",
+        "metrics": {
+          "conversion_ms": 486.9,
+          "transcription_ms": 9955,
+          "extraction_ms": 20410.6,
+          "fhir_transform_ms": 0.3,
+          "total_ms": 30897.9,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "female",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "seizure",
+              "icd10": "R56.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "epilepsy",
+              "icd10": "G40.909",
+              "status": "suspected",
+              "severity": null,
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "levetiracetam",
+              "dose": "500 mg",
+              "frequency": "twice daily",
+              "route": "oral",
+              "rxnorm": "39998",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "120/80",
+              "unit": "mmHg",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [
+            {
+              "id": "fh-0",
+              "relationship": "cousin",
+              "condition": "epilepsy",
+              "ageOfOnset": null,
+              "deceased": null,
+              "approved": null
+            }
+          ],
+          "socialHistory": {
+            "tobacco": "no",
+            "alcohol": "no",
+            "drugs": "no",
+            "occupation": null,
+            "living_situation": null
+          },
+          "orders": {
+            "medications": [],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "EEG",
+                "loinc": "82176-5",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "seizure"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptl8nx4i1cs4",
+        "workflow": "pediatrics",
+        "workflowName": "Pediatrics",
+        "filename": "pediatrics.webm",
+        "transcript": "Well child visit for fo-year-old male. Mom reports he is doing well, eating and sleeping normally. No concerns. Developmental milestones appropriate, speaks in complete sentences, can contraw circle and cross, ps on one foot. Plays cooperatively with other children. [PAST MEDICAL HISTORyY] Significant for ear infections. Had bilateral myringotomy tubes placed at age two. Tubes extruded spontaneously at age three. [CURRENT MEDICATIONS] None. [ALLERGIES] No known drug allergies. Does have environmental allergy to cats. Immunizations are up to date. Vital signs, weight 38 pounds, which is 50th percentile. Height 40 inches, which is 45th percentile. Blood pressure 92/58. heart rate 96.Respiratory rate 20. [PHYySICal examM] Alerert, interactive. Ch in no distress. HEENT, tympanic membranes clear bilaterally with small perforations from prior tubes. Oropharynx clear. Heart regular. Lungs clear. Abdomen, soft. Developmentally appropriate for age. [ASSESSMENT] Healthy fo-year-old male, well-chil exam. [PLAN] Continue age-appropriate diet and activity, car seat safety counseling provided. Anticipatory guidance for kindergarten readiness discussed. Return for fiveyear well-ch visit. Due for DTAP, IPV, MMR and varicella boosters at next visit.",
+        "metrics": {
+          "conversion_ms": 411.7,
+          "transcription_ms": 10077.4,
+          "extraction_ms": 45745.9,
+          "fhir_transform_ms": 0.1,
+          "total_ms": 56264.3,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [],
+          "medications": [],
+          "allergies": [
+            {
+              "id": "allergy-0",
+              "substance": "cats",
+              "reaction": "environmental allergy",
+              "severity": "mild",
+              "approved": null
+            }
+          ],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "92/58",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "heart_rate",
+              "value": "96",
+              "unit": "bpm",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "respiratory_rate",
+              "value": "20",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "weight",
+              "value": "38",
+              "unit": "lbs",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "height",
+              "value": "40",
+              "unit": "in",
+              "approved": null
+            }
+          ],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "fiveyear well-ch visit follow-up"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptxjiz0ynzp2e",
+        "workflow": "procedure",
+        "workflowName": "Procedure Note",
+        "filename": "procedure.webm",
+        "transcript": "Procedure note for colonoscopy. Patient is a 55-year-old male undergoing screening colonoscopy. Informed consent obtained. Pre-procedure time-out performed confirming correct patient and procedure. Sedation with propofol administered by anesthesia. Scope inserted through anus and advanced to cecum. Cecal landmarks include appendic- appendi- appendiceal orifice and ileocal valve identified. Withdrawal time eight minutes. [FINDINGS] Two sessile polyps identified, one 6 mm polyp in the ascending colon and one 4 mm polyp in the sigmoid colon. Both polyps removed with cold snare polypectomy and retrieved for pathology. Mucosa otherwise normal throughout. No bleeding complications. Patient tolerated procedure well and transferred to recovery in stable condition. Estimated blood loss minimal. Specimen sent to pathology. [RECcoOMMENDATIONS] Await pathology results. Repeat colonoscopy in three to five years depending on histology. resume normal diet. Avoid driving for 24 hours.",
+        "metrics": {
+          "conversion_ms": 483,
+          "transcription_ms": 8070.2,
+          "extraction_ms": 16726.7,
+          "fhir_transform_ms": 0.1,
+          "total_ms": 25353.7,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "sessile polyp",
+              "icd10": "D12.1",
+              "status": "confirmed",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "sessile polyp",
+              "icd10": "D12.1",
+              "status": "confirmed",
+              "severity": "mild",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "propofol",
+              "dose": null,
+              "frequency": "once",
+              "route": "IV",
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [],
+            "labs": [
+              {
+                "id": "lab-order-0",
+                "name": "tissue to pathology",
+                "loinc": "00003-2",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "pathology",
+                "reason": "await pathology results",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "procedures": [
+              {
+                "id": "proc-order-0",
+                "name": "colonoscopy",
+                "linked_diagnosis": {
+                  "icd10": "Z12.11",
+                  "display": "Encounter for screening for malignant neoplasm of colon",
+                  "confidence": 0.85,
+                  "method": "rule"
+                },
+                "approved": null
+              }
+            ],
+            "imaging": []
+          },
+          "chiefComplaint": "sessile polyp"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptky45uywptmf",
+        "workflow": "radiology",
+        "workflowName": "Radiology Dictation",
+        "filename": "radiology.webm",
+        "transcript": "Chest x-ray, two views PA and lateral. [CLINICAL HISTORY] 67-year-old male with cough and shortness of breath. [COMPARISON] Prior chest x-ray from six months ago. [FINDING] Heart size is normal. Mediastinal contours are unremarkable. There is patchy airspace opacity in the right lower lobe concerning for pneumonia. No pleural effusion detected. Lungs are otherwise clear. No pneumothorax. Osseous structures appear intact. [IMPRESSION] Right lower lobe airspace opacity most consistent with pneumonia in the appropriate clinical setting. Recommend clinical correlation and followup imaging after treatment to document resolution.",
+        "metrics": {
+          "conversion_ms": 304.8,
+          "transcription_ms": 5331.5,
+          "extraction_ms": 8522.3,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 14201.4,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "right lower lobe airspace opacity",
+              "icd10": "J18.9",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            }
+          ],
+          "medications": [],
+          "allergies": [],
+          "vitals": [],
+          "labResults": [],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [],
+            "labs": [],
+            "consults": [
+              {
+                "id": "consult-order-0",
+                "specialty": "pulmonology",
+                "reason": "clinical correlation",
+                "linked_diagnosis": {
+                  "icd10": "J18.9",
+                  "display": "Pneumonia, unspecified organism",
+                  "confidence": 0.8,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "procedures": [],
+            "imaging": [
+              {
+                "id": "img-order-0",
+                "name": "chest x-ray, two views PA and lateral",
+                "approved": null
+              },
+              {
+                "id": "img-order-1",
+                "name": "followup imaging after treatment to document resolution",
+                "approved": null
+              }
+            ]
+          },
+          "chiefComplaint": "cough and shortness of breath"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptvibf2wdswdk",
+        "workflow": "respiratory",
+        "workflowName": "Respiratory Assessment",
+        "filename": "respiratory.webm",
+        "transcript": "Respiratory therapy assessment for patient on mechanical ventilation. Patient is a 71-year-old male postoperative day two from coronary artery bypass graft, currently intubated in the cardiac ICU. Current ventilator settings assist control volume tidal volume 450 mL, respiratory rate 14, FiO2 40%, PEEP 5 cm of water. Current ABG pH 7.38, pCO2 42, pO2 98, bicarbonate 24, oxygen saturation 97%. Patient is initiating spontaneous spontaneous breaths over set rate at 18 breaths per minute. Secretions are scant, thin and white. Breath sounds are diminished at bases with scattered crackles. Chest x-ray shows lu- low lung volumes with bibasilar atelectais. [ASSESSMENT] Patient meeting criteria for spontaneous breathing trial. [PLAN] Proceed with 30 minute SVT on pressure support 8/5. If tolerated, recommend extubation with supplemental oxygen viaso- via nasal cannula. Continue incentive spirometry, early mobilization and aggressive pulmonary toilet.",
+        "metrics": {
+          "conversion_ms": 583.9,
+          "transcription_ms": 8503.6,
+          "extraction_ms": 30854.6,
+          "fhir_transform_ms": 0.3,
+          "total_ms": 40040.2,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": null,
+            "age": null,
+            "gender": "male",
+            "date_of_birth": null
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "Postoperative respiratory distress",
+              "icd10": "488.9",
+              "status": "active",
+              "severity": "moderate",
+              "isChiefComplaint": true,
+              "approved": null
+            },
+            {
+              "id": "cond-1",
+              "name": "Atelectasis",
+              "icd10": "J98.11",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": false,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "Ventilator settings",
+              "dose": null,
+              "frequency": null,
+              "route": null,
+              "rxnorm": null,
+              "rxnorm_matched": false,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "oxygen_saturation",
+              "value": "97",
+              "unit": "%",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "respiratory_rate",
+              "value": "18",
+              "unit": "breaths/min",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "tidal_volume",
+              "value": "450",
+              "unit": "mL",
+              "approved": null
+            },
+            {
+              "id": "vital-3",
+              "type": "PEEP",
+              "value": "5",
+              "unit": "cmH2O",
+              "approved": null
+            },
+            {
+              "id": "vital-4",
+              "type": "FiO2",
+              "value": "40",
+              "unit": "%",
+              "approved": null
+            },
+            {
+              "id": "vital-5",
+              "type": "pH",
+              "value": "7.38",
+              "unit": "unit",
+              "approved": null
+            },
+            {
+              "id": "vital-6",
+              "type": "pCO2",
+              "value": "42",
+              "unit": "unit",
+              "approved": null
+            },
+            {
+              "id": "vital-7",
+              "type": "pO2",
+              "value": "98",
+              "unit": "unit",
+              "approved": null
+            },
+            {
+              "id": "vital-8",
+              "type": "HCO3",
+              "value": "24",
+              "unit": "unit",
+              "approved": null
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "pH",
+              "value": "7.38",
+              "unit": "unit",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-1",
+              "name": "pCO2",
+              "value": "42",
+              "unit": "unit",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-2",
+              "name": "pO2",
+              "value": "98",
+              "unit": "unit",
+              "interpretation": "normal",
+              "approved": null
+            },
+            {
+              "id": "lab-3",
+              "name": "HCO3",
+              "value": "24",
+              "unit": "unit",
+              "interpretation": "normal",
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": null,
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "Supplemental oxygen",
+                "dosage": null,
+                "frequency": null,
+                "route": null,
+                "instructions": "Via nasal cannula",
+                "rxnorm": null,
+                "rxnorm_matched": false,
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "labs": [],
+            "consults": [],
+            "procedures": [
+              {
+                "id": "proc-order-0",
+                "name": "Extubation",
+                "linked_diagnosis": null,
+                "approved": null
+              },
+              {
+                "id": "proc-order-1",
+                "name": "SBT",
+                "linked_diagnosis": null,
+                "approved": null
+              }
+            ],
+            "imaging": []
+          },
+          "chiefComplaint": "Postoperative respiratory distress"
+        },
+        "approved": {}
+      },
+      {
+        "id": "mkyf1eptu2z2i7eva1b",
+        "workflow": "soap",
+        "workflowName": "SOAP Note",
+        "filename": "soap.webm",
+        "transcript": "[SUBJECTIVE] 35-year-old female presents with sore throat and low-grade fever for three days. She reports difficulty swallowing and mild headache. No cough or nasal congestion. She took ibuprofen with some relief. No sick contacts. [OBJECTIVE] Temperature 100.8, heart rate 88, blood pressure 118/74. Oropharynx shows tonsillar exudates bilaterally. Tender anterior cervical lymphadenopathy. Rapid strep test positive. [ASSESSMENT] Streptococcal pharyngitis. [PLAN] Amoxicillin 500 mg three times daily for 10 days. Supportive care may return to work after 24 hours on antibiotics.",
+        "metrics": {
+          "conversion_ms": 298.5,
+          "transcription_ms": 5830.8,
+          "extraction_ms": 17684.3,
+          "fhir_transform_ms": 0.2,
+          "total_ms": 23832.9,
+          "transcription_model": "MedASR (local)",
+          "extraction_model": "MedGemma (dedicated)"
+        },
+        "status": "done",
+        "extractedData": {
+          "patient": {
+            "name": "null",
+            "age": null,
+            "gender": "female",
+            "date_of_birth": "null"
+          },
+          "conditions": [
+            {
+              "id": "cond-0",
+              "name": "Streptococcal pharyngitis",
+              "icd10": "J02.0",
+              "status": "active",
+              "severity": "mild",
+              "isChiefComplaint": true,
+              "approved": null
+            }
+          ],
+          "medications": [
+            {
+              "id": "med-0",
+              "name": "Amoxicillin",
+              "dose": "500 mg",
+              "frequency": "three times daily",
+              "route": "oral",
+              "rxnorm": "723",
+              "rxnorm_matched": true,
+              "isNewOrder": false,
+              "approved": null
+            }
+          ],
+          "allergies": [],
+          "vitals": [
+            {
+              "id": "vital-0",
+              "type": "blood_pressure",
+              "value": "118/74",
+              "unit": "mmHg",
+              "approved": null
+            },
+            {
+              "id": "vital-1",
+              "type": "temperature",
+              "value": "100.8",
+              "unit": "F",
+              "approved": null
+            },
+            {
+              "id": "vital-2",
+              "type": "heart_rate",
+              "value": "88",
+              "unit": "bpm",
+              "approved": null
+            }
+          ],
+          "labResults": [
+            {
+              "id": "lab-0",
+              "name": "Rapid strep test",
+              "value": "positive",
+              "unit": null,
+              "interpretation": null,
+              "approved": null
+            }
+          ],
+          "procedures": [],
+          "familyHistory": [],
+          "socialHistory": {
+            "tobacco": null,
+            "alcohol": null,
+            "drugs": null,
+            "occupation": null,
+            "living_situation": "null"
+          },
+          "orders": {
+            "medications": [
+              {
+                "id": "med-order-0",
+                "name": "Amoxicillin",
+                "dosage": "500 mg",
+                "frequency": "three times daily",
+                "route": null,
+                "instructions": "for 10 days",
+                "rxnorm": "723",
+                "rxnorm_matched": true,
+                "linked_diagnosis": {
+                  "icd10": "J06.9",
+                  "display": "Acute upper respiratory infection, unspecified",
+                  "confidence": 0.8300000000000001,
+                  "method": "patient_condition"
+                },
+                "approved": null
+              }
+            ],
+            "labs": [],
+            "consults": [],
+            "procedures": [],
+            "imaging": []
+          },
+          "chiefComplaint": "sore throat and low-grade fever for three days"
+        },
+        "approved": {}
+      }
+    ],
+    "currentReviewIndex": 1,
+    "mockEHR": [],
+    "parallelMode": false
+  },
+  "settings": {
+    "apiUrl": "http://localhost:8001",
+    "hfToken": "[REDACTED]",
+    "transcriptionBackend": "local",
+    "medgemmaEndpoint": "https://cp2wjw95vpf9604w.us-east-1.aws.endpoints.huggingface.cloud"
+  }
+}
