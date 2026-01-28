@@ -35,8 +35,8 @@ class MedASRClientConfig:
     whisper_url: str = "https://router.huggingface.co/hf-inference/models/openai/whisper-large-v3"
     # Legacy serverless API (doesn't work for MedASR)
     api_url: str = "https://api-inference.huggingface.co/models"
-    timeout: float = 60.0
-    timeout_seconds: float = 60.0
+    timeout: float = 600.0
+    timeout_seconds: float = 600.0
     max_retries: int = 3
 
     @classmethod
@@ -48,7 +48,7 @@ class MedASRClientConfig:
             backend=os.environ.get("MEDASR_BACKEND", "dedicated"),
             endpoint_url=os.environ.get("MEDASR_ENDPOINT_URL"),
             local_url=os.environ.get("MEDASR_LOCAL_URL", "http://localhost:3002"),
-            timeout=float(os.environ.get("MEDASR_TIMEOUT", "60.0")),
+            timeout=float(os.environ.get("MEDASR_TIMEOUT", "600.0")),
         )
 
 
