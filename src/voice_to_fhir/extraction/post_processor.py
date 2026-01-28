@@ -960,20 +960,71 @@ def filter_lab_results(lab_results: list) -> list:
     return filtered
 
 
+def null_to_none(value: Any) -> Any:
+    """Convert string 'null' to actual None."""
+    if isinstance(value, str) and value.lower() == "null":
+        return None
+    return value
+
+
+def clean_null_strings(entities: ClinicalEntities) -> None:
+    """
+    Convert all 'null' strings to actual None across all entity fields.
+
+    MedGemma sometimes returns "null" as a string instead of actual null.
+    This function cleans up those values in-place.
+    """
+    # Clean medications
+    for med in entities.medications:
+        med.dose = null_to_none(med.dose)
+        med.frequency = null_to_none(med.frequency)
+        med.route = null_to_none(med.route)
+
+    # Clean medication orders
+    for order in entities.medication_orders:
+        order.dose = null_to_none(order.dose)
+        order.frequency = null_to_none(order.frequency)
+        if hasattr(order, 'route'):
+            order.route = null_to_none(order.route)
+        if hasattr(order, 'duration'):
+            order.duration = null_to_none(order.duration)
+        if hasattr(order, 'instructions'):
+            order.instructions = null_to_none(order.instructions)
+
+    # Clean conditions
+    for cond in entities.conditions:
+        cond.severity = null_to_none(cond.severity)
+        cond.status = null_to_none(cond.status)
+
+    # Clean vitals
+    for vital in entities.vitals:
+        vital.unit = null_to_none(vital.unit)
+
+    # Clean allergies
+    for allergy in entities.allergies:
+        allergy.reaction = null_to_none(allergy.reaction)
+        allergy.severity = null_to_none(allergy.severity)
+
+    # Clean lab results
+    for lab in entities.lab_results:
+        lab.unit = null_to_none(lab.unit)
+        lab.interpretation = null_to_none(lab.interpretation)
+
+    # Clean family history
+    for fh in entities.family_history:
+        fh.age_of_onset = null_to_none(fh.age_of_onset)
+
+
 def clean_social_history(sh: SocialHistory | None) -> SocialHistory | None:
     """Clean social history by converting 'null' strings to None."""
     if sh is None:
         return None
 
     # Convert "null" strings to actual None
-    if sh.tobacco and isinstance(sh.tobacco, str) and sh.tobacco.lower() == "null":
-        sh.tobacco = None
-    if sh.alcohol and isinstance(sh.alcohol, str) and sh.alcohol.lower() == "null":
-        sh.alcohol = None
-    if sh.drugs and isinstance(sh.drugs, str) and sh.drugs.lower() == "null":
-        sh.drugs = None
-    if sh.occupation and isinstance(sh.occupation, str) and sh.occupation.lower() == "null":
-        sh.occupation = None
+    sh.tobacco = null_to_none(sh.tobacco)
+    sh.alcohol = null_to_none(sh.alcohol)
+    sh.drugs = null_to_none(sh.drugs)
+    sh.occupation = null_to_none(sh.occupation)
 
     # Only return if we have any actual data
     if any([sh.tobacco, sh.alcohol, sh.drugs, sh.occupation, sh.living_situation]):
@@ -1056,6 +1107,9 @@ def post_process(entities: ClinicalEntities, transcript: str) -> ClinicalEntitie
     entities.medication_orders = filter_medication_orders(entities.medication_orders)
     entities.referral_orders = filter_referral_orders(entities.referral_orders)
     entities.lab_results = filter_lab_results(entities.lab_results)
+
+    # 5.1. Clean "null" strings to actual None values across all entities
+    clean_null_strings(entities)
 
     # 5.5. Extract medication dosages from transcript for meds with null dose
     entities.medications = extract_medication_dosages_from_transcript(entities.medications, transcript)
