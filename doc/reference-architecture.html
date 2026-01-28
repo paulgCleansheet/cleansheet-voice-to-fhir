@@ -1949,54 +1949,42 @@
             <section id="production">
                 <h2><i class="ph ph-rocket-launch"></i> Production Considerations</h2>
 
-                <h3>Extraction Accuracy</h3>
-                <p>Current extraction performance varies by entity type. These metrics are based on internal validation against annotated clinical transcripts:</p>
+                <h3>Extraction Quality</h3>
+                <p>Extraction quality depends on several factors:</p>
 
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Entity Type</th>
-                            <th>Precision</th>
-                            <th>Recall</th>
-                            <th>Notes</th>
+                            <th>Factor</th>
+                            <th>Impact</th>
+                            <th>Mitigation</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Conditions</strong></td>
-                            <td>~85%</td>
-                            <td>~90%</td>
-                            <td>ICD-10 lookup improves coding accuracy</td>
+                            <td><strong>Transcription Quality</strong></td>
+                            <td>High</td>
+                            <td>MedASR handles medical terminology; clear dictation improves accuracy</td>
                         </tr>
                         <tr>
-                            <td><strong>Medications (name)</strong></td>
-                            <td>~90%</td>
-                            <td>~85%</td>
-                            <td>Strong on common medications</td>
+                            <td><strong>Dictation Style</strong></td>
+                            <td>High</td>
+                            <td>Structured dictation (SOAP markers) yields better extraction than conversational</td>
                         </tr>
                         <tr>
-                            <td><strong>Medications (dosage)</strong></td>
-                            <td>~70%</td>
-                            <td>~60%</td>
-                            <td>Requires explicit statement in transcript</td>
+                            <td><strong>Drug Name Pronunciation</strong></td>
+                            <td>Medium</td>
+                            <td>RxNorm fuzzy matching compensates for phonetic transcription errors</td>
                         </tr>
                         <tr>
-                            <td><strong>Vitals</strong></td>
-                            <td>~95%</td>
-                            <td>~90%</td>
-                            <td>Regex fallback catches most missed values</td>
+                            <td><strong>Numeric Values</strong></td>
+                            <td>Low</td>
+                            <td>Vitals and dosages typically transcribe accurately</td>
                         </tr>
                         <tr>
-                            <td><strong>Lab Orders</strong></td>
-                            <td>~75%</td>
-                            <td>~80%</td>
-                            <td>Some hallucination of implied orders</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Allergies</strong></td>
-                            <td>~85%</td>
-                            <td>~75%</td>
-                            <td>May miss allergies mentioned in passing</td>
+                            <td><strong>Implied Information</strong></td>
+                            <td>Variable</td>
+                            <td>MedGemma may hallucinate orders implied by conditions; SME review required</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2004,8 +1992,8 @@
                 <div class="info-box note">
                     <i class="ph ph-info"></i>
                     <div class="info-box-content">
-                        <h4>Accuracy Improvement</h4>
-                        <p>Metrics improve significantly with structured dictation (using SOAP markers) and clear enunciation of clinical values. Training materials for optimal dictation practices are recommended for deployment.</p>
+                        <h4>Validation Approach</h4>
+                        <p>Formal precision/recall metrics require annotated ground truth datasets. The SME validation workflow (approve/reject/edit) provides implicit accuracy measurement over time. Production deployments should track acceptance rates by entity type to identify extraction weaknesses.</p>
                     </div>
                 </div>
 
