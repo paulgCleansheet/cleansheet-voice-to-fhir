@@ -50,7 +50,7 @@ class MedGemmaClientConfig:
     # Legacy serverless API
     api_url: str = "https://api-inference.huggingface.co/models"
     timeout_seconds: float = 300.0
-    max_tokens: int = 2048
+    max_tokens: int = 8192
     temperature: float = 0.1
     prompts_dir: str | Path = "src/voice_to_fhir/extraction/prompts"
 
