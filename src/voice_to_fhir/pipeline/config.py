@@ -53,7 +53,7 @@ class ExtractionConfig:
     local_url: str = "http://localhost:3003"
     device: str = "cuda"
     precision: str = "int8"
-    max_tokens: int = 2048
+    max_tokens: int = 8192
     temperature: float = 0.1
     workflow: str = "general"
     prompts_dir: str = "src/voice_to_fhir/extraction/prompts"
@@ -132,7 +132,7 @@ class PipelineConfig:
                 local_url=ext.get("local_url", "http://localhost:3003"),
                 device=ext.get("device", "cuda"),
                 precision=ext.get("precision", "int8"),
-                max_tokens=ext.get("max_tokens", 2048),
+                max_tokens=ext.get("max_tokens", 8192),
                 temperature=ext.get("temperature", 0.1),
                 workflow=ext.get("workflow", "general"),
                 prompts_dir=ext.get("prompts_dir", "src/voice_to_fhir/extraction/prompts"),
