@@ -3095,7 +3095,13 @@
             </div>
             <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--color-border);">
                 <div class="ground-truth-stats" id="groundTruthStats" style="color: var(--color-text-secondary); font-size: 13px;"></div>
-                <button class="btn btn-secondary" onclick="closeGroundTruthModal()">Cancel</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-primary" onclick="loadAllGroundTruth()">
+                        <i class="ph ph-download-simple"></i>
+                        Load All (16)
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeGroundTruthModal()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -7771,19 +7777,7 @@
             }
 
             // Create a review pool item from ground truth
-            const reviewItem = {
-                id: item.id || `gt-${Date.now()}`,
-                workflow: item.workflow,
-                workflowName: item.workflowName,
-                filename: `[Ground Truth] ${item.filename}`,
-                audioBlob: null, // No audio in ground truth
-                transcript: item.transcript || '',
-                fhirBundle: null,
-                metrics: item.metrics || { transcriptionMs: 0, extractionMs: 0 },
-                status: 'done',
-                extractedData: item.extractedData,
-                approved: {}
-            };
+            const reviewItem = createReviewItemFromGroundTruth(item);
 
             // Add to review pool
             state.reviewPool.push(reviewItem);
@@ -7791,10 +7785,60 @@
 
             // Update UI
             updateReviewPoolUI();
-            displayCurrentReview();
+            renderCurrentReview();
+            renderQueue();
 
             closeGroundTruthModal();
             showToast(`Loaded ground truth: ${item.workflowName || item.workflow}`, 'success');
+        }
+
+        function loadAllGroundTruth() {
+            if (!groundTruthData || !groundTruthData.state || !groundTruthData.state.reviewPool) {
+                showToast('Ground truth data not loaded', 'error');
+                return;
+            }
+
+            const pool = groundTruthData.state.reviewPool;
+
+            // Clear existing review pool and add all ground truth items
+            state.reviewPool = pool.map(item => createReviewItemFromGroundTruth(item));
+            state.currentReviewIndex = 0;
+
+            // Also populate queue for visual feedback (as "done" items)
+            state.queue = pool.map(item => ({
+                id: item.id || `gt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                audioBlob: null,
+                filename: `[GT] ${item.filename}`,
+                workflow: item.workflow,
+                workflowName: item.workflowName,
+                status: 'done',
+                result: item.extractedData,
+                metrics: item.metrics || { transcription_ms: 0, extraction_ms: 0, fhir_transform_ms: 0, total_ms: 0 }
+            }));
+
+            // Update UI
+            updateReviewPoolUI();
+            renderCurrentReview();
+            renderQueue();
+
+            closeGroundTruthModal();
+            showToast(`Loaded ${pool.length} ground truth recordings`, 'success');
+        }
+
+        function createReviewItemFromGroundTruth(item) {
+            return {
+                id: item.id || `gt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                workflow: item.workflow,
+                workflowName: item.workflowName,
+                filename: `[Ground Truth] ${item.filename}`,
+                audioBlob: null, // No audio in ground truth
+                transcript: item.transcript || '',
+                fhirBundle: null,
+                metrics: item.metrics || { transcription_ms: 0, extraction_ms: 0, fhir_transform_ms: 0, total_ms: 0 },
+                status: 'done',
+                extractedData: item.extractedData,
+                approved: {}
+            };
         }
 
         const pipelineNodes = ['medasr', 'medgemma', 'deterministic', 'clinician', 'fhir'];
