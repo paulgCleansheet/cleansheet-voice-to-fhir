@@ -243,6 +243,66 @@ The lookup approach provides:
 
 Codes are sourced from the official CMS ICD-10-CM code set.
 
+### RxNorm Medication Verification
+
+Medications are verified against a local RxNorm-based database with fuzzy matching to handle transcription errors:
+
+```
+Transcribed Medication  →  Verified Status
+─────────────────────────────────────────
+lisinopril              →  ✓ Verified (RxCUI: 29046)
+atorvastatin            →  ✓ Verified (RxCUI: 83367)
+pirro lactone           →  ✗ Unverified (spironolactone?)
+Toroptooum              →  ✗ Unverified (tiotropium?)
+```
+
+The verification module provides:
+- **200+ common medications** organized by drug class
+- **Brand-to-generic mapping** (Lipitor → atorvastatin)
+- **Fuzzy matching** (85% threshold) using SequenceMatcher
+- **Drug class identification** for clinical decision support
+
+Unverified medications are flagged in the clinician review UI with yellow alerts, prompting manual verification before approval.
+
+### Order-Diagnosis Linking
+
+Orders (medications, labs, consults, procedures) are automatically linked to diagnoses using clinical rules:
+
+```
+Order                   →  Linked Diagnosis
+─────────────────────────────────────────
+atorvastatin 40mg       →  E78.5 (Hyperlipidemia)
+HbA1c lab order         →  E11.9 (Type 2 diabetes)
+Cardiology consult      →  I25.10 (CAD) or I50.9 (CHF)
+Echocardiogram          →  I50.9 (Heart failure)
+```
+
+The linking algorithm:
+1. **Matches against patient conditions first** (highest confidence)
+2. **Falls back to clinical rules** based on drug class, lab type, or specialty
+3. **Supports manual override** via clinician review UI
+
+Clinical rule coverage:
+- **Medications**: 40+ drug classes with typical indications
+- **Labs**: 50+ common tests with monitoring indications
+- **Consults**: 30+ specialties with typical referral conditions
+- **Procedures**: 50+ procedures with typical indications
+
+### Autocomplete Databases
+
+The demo UI provides autocomplete suggestions for manual data entry:
+
+| Field Type | Data Source | Coverage |
+|------------|-------------|----------|
+| Medications | RxNorm lookup database | ~200 common medications |
+| Conditions | ICD-10-CM lookup database | ~500 conditions |
+| Lab Tests | LOINC-based list | ~50 common panels/tests |
+| Procedures | Common procedure list | ~40 procedures |
+| Consult Specialties | Medical specialty list | ~25 specialties |
+| Allergies | Common allergen list | ~30 allergens |
+
+Autocomplete uses prefix matching with debounced search for responsive performance.
+
 ## FHIR Output
 
 The pipeline generates standard FHIR R4 resources:
@@ -428,9 +488,20 @@ See [benchmarks/](benchmarks/) for detailed methodology and results.
 
 ## Acknowledgments
 
+### Models & Standards
 - [Google Health AI Developer Foundations](https://developers.google.com/health-ai-developer-foundations) for MedASR and MedGemma
 - [HL7 FHIR](https://www.hl7.org/fhir/) for the healthcare interoperability standard
 - [MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge) on Kaggle
+
+### Clinical Terminology & Data Sources
+- **ICD-10-CM**: Centers for Medicare & Medicaid Services (CMS) — Public domain
+- **RxNorm**: National Library of Medicine (NLM) — [UMLS License](https://www.nlm.nih.gov/databases/umls.html) (free for US entities)
+- **LOINC**: Regenstrief Institute — [LOINC License](https://loinc.org/license/) (free, attribution required)
+
+The medication and condition lookup databases in this project are curated subsets derived from these public terminology standards. They are provided for demonstration and research purposes.
+
+### Libraries
+- [difflib](https://docs.python.org/3/library/difflib.html) — Python standard library for fuzzy string matching
 
 ## License
 
