@@ -237,3 +237,7 @@ temp/
 NOTES.md
 TODO.local.md
 scratch/
+
+# Large export files (ground truth with audio blobs)
+*.zip
+processed-ground-truth.zip
