@@ -76,8 +76,8 @@ Return a JSON object with the following structure:
   "vitals": [
     {
       "type": "blood_pressure|heart_rate|temperature|respiratory_rate|oxygen_saturation|weight|height",
-      "value": "numeric value as string",
-      "unit": "unit of measurement"
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|F|C|breaths/min|%|lbs|kg"
     }
   ],
   "physical_exam": {

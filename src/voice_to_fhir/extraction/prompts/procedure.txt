@@ -45,9 +45,9 @@ Return a JSON object with the following structure:
   ],
   "vitals": [
     {
-      "type": "vital type (e.g., blood_pressure, heart_rate, estimated_blood_loss)",
-      "value": "measured value",
-      "unit": "unit or null"
+      "type": "blood_pressure|heart_rate|estimated_blood_loss|temperature|respiratory_rate|oxygen_saturation",
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|mL|F|C|breaths/min|%"
     }
   ],
   "medications": [

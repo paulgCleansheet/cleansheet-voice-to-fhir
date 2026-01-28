@@ -51,9 +51,9 @@ Return a JSON object with the following structure:
   ],
   "vitals": [
     {
-      "type": "vital type (blood_pressure, heart_rate, oxygen_saturation, respiratory_rate)",
-      "value": "measured value",
-      "unit": "unit or null"
+      "type": "blood_pressure|heart_rate|oxygen_saturation|respiratory_rate",
+      "value": "measured value (for BP use 'systolic/diastolic' format like '120/80')",
+      "unit": "mmHg|bpm|%|breaths/min"
     }
   ],
   "lab_results": [
